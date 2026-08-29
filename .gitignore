@@ -25,3 +25,8 @@ dist-ssr
 *.sw?
 
 /Secret
+.env
+
+# Firebase / Google Services
+google-services.json
+GoogleService-Info.plist
