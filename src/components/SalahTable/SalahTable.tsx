@@ -181,7 +181,7 @@ const SalahTable = ({
   };
 
   return (
-    <section className="salah-table-wrap hide-scrollbar">
+    <section className="salah-table-wrap hide-scrollbar h-full">
       <Joyride
         disableOverlay={false}
         disableOverlayClose={true}
@@ -252,7 +252,7 @@ const SalahTable = ({
           </motion.section>
         )}
       </AnimatePresence>
-      <div className="h-[95%]">
+      <div className="h-full w-full">
         <AutoSizer>
           {({ height, width }) => (
             <Table
@@ -291,8 +291,8 @@ const SalahTable = ({
               rowGetter={({ index }) => fetchedSalahData[index]}
               rowHeight={100}
               headerHeight={40}
-              height={height}
-              width={width}
+              height={height || 600}
+              width={width || 350}
               scrollToAlignment="start"
             >
               <Column

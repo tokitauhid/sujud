@@ -191,7 +191,7 @@ const Onboarding = ({
         <section
           // style={{ marginTop: "calc(env(safe-area-inset-top, 0px))" }}
           // className="flex items-center mx-5 mt-2"
-          className="flex min-h-screen mx-5 onboarding-content-wrap"
+          className="flex h-full mx-5 onboarding-content-wrap"
         >
           {onboardingMode === "newUser" && (
             <>

@@ -806,7 +806,7 @@ const App = () => {
   // const [activeLocation, setActiveLocation] = useState();
 
   const generateStreaks = (fetchedSalahData: SalahRecordsArrayType) => {
-    const reversedFetchedSalahDataArr = fetchedSalahData.reverse();
+    const reversedFetchedSalahDataArr = fetchedSalahData.slice().reverse();
     const streakDatesObjectsArray: streakDatesObjType[] = [];
     const streakDatesArr: Date[] = [];
     let excusedDays = 0;

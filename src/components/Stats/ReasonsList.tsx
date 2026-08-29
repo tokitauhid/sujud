@@ -23,7 +23,7 @@ const ReasonsList = ({
         .slice(
           0,
           partialOrFull === "partial"
-            ? 3
+            ? (window.innerWidth >= 768 ? 5 : 3)
             : Object.entries(salahReasonsOverallNumbers[status]).length
         )
         .map(([key, value], index) => (

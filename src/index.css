@@ -426,15 +426,15 @@ td {
 
 .ReactVirtualized__Grid,
 .ReactVirtualized__Table__Grid,
-.ReactVirtualized__Grid__innerScrollContainerm,
+.ReactVirtualized__Grid__innerScrollContainer,
 .ReactVirtualized__Table__row,
 .ReactVirtualized__Table__headerRow {
-  width: 95vw !important;
-  max-width: var(--max-width);
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .ReactVirtualized__Grid__innerScrollContainer {
-  max-width: 95vw !important;
+  max-width: 100% !important;
 }
 
 .ReactVirtualized__Table__headerRow {
@@ -683,8 +683,13 @@ td {
   }
 
   /* --- Shift all page content right to clear the side nav --- */
-  ion-tabs .tabs-inner {
-    margin-left: 80px;
+  ion-tabs.app {
+    position: absolute !important;
+    left: 80px !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    width: calc(100% - 80px) !important;
   }
 
   /* --- Wider max-width for page wraps --- */
@@ -705,20 +710,6 @@ td {
     margin-right: auto;
   }
 
-  /* --- Responsive ReactVirtualized widths --- */
-  .ReactVirtualized__Grid,
-  .ReactVirtualized__Table__Grid,
-  .ReactVirtualized__Grid__innerScrollContainerm,
-  .ReactVirtualized__Table__row,
-  .ReactVirtualized__Table__headerRow {
-    width: 100% !important;
-    max-width: 100%;
-  }
-
-  .ReactVirtualized__Grid__innerScrollContainer {
-    max-width: 100% !important;
-  }
-
   /* --- Stats page: two-column grid --- */
   .stats-page-tablet-grid {
     display: grid;
@@ -728,6 +719,18 @@ td {
   }
 
   .stats-page-tablet-grid > * {
+    min-width: 0;
+  }
+
+  /* --- Salah Times page: two-column grid on tablet --- */
+  .salah-times-tablet-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .salah-times-tablet-grid > * {
     min-width: 0;
   }
 
@@ -745,8 +748,13 @@ td {
     width: 100px;
   }
 
-  ion-tabs .tabs-inner {
-    margin-left: 100px;
+  ion-tabs.app {
+    position: absolute !important;
+    left: 100px !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    width: calc(100% - 100px) !important;
   }
 
   .tablet-side-nav-icon {
@@ -767,7 +775,17 @@ td {
   }
 
   .salah-times-page-components-wrap {
-    max-width: 900px;
+    max-width: 1100px;
+  }
+
+  .salah-times-tablet-grid {
+    grid-template-columns: 1fr 1.2fr;
+    gap: 2.5rem;
+  }
+
+  .stats-page-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
   }
 }
 

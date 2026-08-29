@@ -317,6 +317,16 @@ const StatsPage = ({
                   className="mt-5"
                   spaceBetween={50}
                   slidesPerView={1}
+                  breakpoints={{
+                    768: {
+                      slidesPerView: 2,
+                      spaceBetween: 20,
+                    },
+                    1024: {
+                      slidesPerView: 3,
+                      spaceBetween: 24,
+                    },
+                  }}
                   modules={[Pagination]}
                   pagination={{ clickable: true }}
                 >
