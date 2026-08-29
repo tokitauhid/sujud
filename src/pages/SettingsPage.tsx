@@ -38,6 +38,7 @@ import BottomSheetThemeOptions from "../components/BottomSheets/BottomSheetTheme
 import { toggleDBConnection } from "../utils/dbUtils";
 import BottomSheetSalahTimesSettings from "../components/BottomSheets/SalahTimesSheets/BottomSheetSalahTimesSettings";
 import BottomSheetBatchUpdate from "../components/BottomSheets/BottomSheetBatchUpdate";
+import CloudSyncSettings from "../components/Settings/CloudSyncSettings";
 // import BottomSheetBatchUpdate from "../components/BottomSheets/BottomSheetBatchUpdate";
 
 interface SettingsPageProps {
@@ -272,6 +273,14 @@ const SettingsPage = ({
           className={`settings-page-wrap`}
         >
           <div className="settings-page-options-wrap">
+              {/* Cloud Sync — opt-in Google Sign-In */}
+              <CloudSyncSettings
+                dbConnection={dbConnection}
+                sqliteConnection={sqliteConnection}
+                userPreferences={userPreferences}
+                userLocations={userLocations}
+                fetchDataFromDB={fetchDataFromDB}
+              />
             <div
               className={`flex items-center justify-between individual-setting-wrap bg-[var(--card-bg-color)] mx-auto py-3 px-1 mb-5 rounded-md`}
               id="open-notification-options-sheet"

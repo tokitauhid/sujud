@@ -80,6 +80,7 @@ import {
   dictPreferencesDefaultValues,
 } from "./utils/constants";
 import BottomSheetChangelog from "./components/BottomSheets/BottomSheetChangeLog";
+import { FirebaseAuthProvider } from "./firebase/useFirebaseAuth";
 
 const App = () => {
   const justLaunched = useRef(true);
@@ -942,6 +943,7 @@ const App = () => {
   };
 
   return (
+    <FirebaseAuthProvider>
     <IonApp>
       <IonReactRouter>
         <IonTabs className="app">
@@ -1079,6 +1081,7 @@ const App = () => {
         showChangelogSheet={showChangelogSheet}
       />
     </IonApp>
+    </FirebaseAuthProvider>
   );
 };
 

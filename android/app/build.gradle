@@ -17,6 +17,12 @@ android {
         }
     }
     buildTypes {
+        debug {
+            // Dev build: separate app ID so it doesn't collide with production on-device
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            debuggable true
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
