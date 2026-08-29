@@ -298,6 +298,7 @@ const StatsPage = ({
                 exit={{ y: -10, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
+                <div className="stats-page-tablet-grid">
                 {Object.values(donutPieChartData).some((obj) => obj.value) && (
                   <DonutPieChart
                     donutPieChartData={donutPieChartData}
@@ -310,7 +311,8 @@ const StatsPage = ({
                   userStartDate={userPreferences.userStartDate}
                   fetchedSalahData={fetchedSalahData}
                   statsToShow={statsToShow}
-                />{" "}
+                />
+                </div>{" "}
                 <Swiper
                   className="mt-5"
                   spaceBetween={50}

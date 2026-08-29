@@ -1,3 +1,4 @@
+import React from "react";
 import {
   doc,
   setDoc,
@@ -337,3 +338,67 @@ export async function getLastSyncTimestamp(
     return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// SEED SQLite FROM CLOUD — shared utility
+// ---------------------------------------------------------------------------
+
+import { SQLiteDBConnection } from "@capacitor-community/sqlite";
+import { toggleDBConnection } from "../utils/dbUtils";
+
+/**
+ * Seed the local SQLite database from cloud data.
+ * Shared between Onboarding (first sign-in on new device) and
+ * CloudSyncSettings (manual restore).
+ */
+export async function seedSQLiteFromCloud(
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>,
+  cloudData: CloudData
+): Promise<void> {
+  try {
+    if (!dbConnection.current) {
+      throw new Error("Database connection not available");
+    }
+
+    await toggleDBConnection(dbConnection, "open");
+
+    // Seed preferences
+    if (cloudData.preferences) {
+      for (const [key, value] of Object.entries(cloudData.preferences)) {
+        if (key === "updatedAt") continue;
+        await dbConnection.current.run(
+          `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue) VALUES (?, ?)`,
+          [key, value]
+        );
+      }
+    }
+
+    // Seed salah logs
+    for (const log of cloudData.salahLogs) {
+      await dbConnection.current.run(
+        `INSERT OR REPLACE INTO salahDataTable (date, salahName, salahStatus, reasons, notes) VALUES (?, ?, ?, ?, ?)`,
+        [
+          log.date,
+          log.salahName,
+          log.salahStatus,
+          log.reasons || "",
+          log.notes || "",
+        ]
+      );
+    }
+
+    // Seed locations
+    for (const loc of cloudData.locations) {
+      await dbConnection.current.run(
+        `INSERT OR REPLACE INTO userLocationsTable (id, locationName, latitude, longitude, isSelected) VALUES (?, ?, ?, ?, ?)`,
+        [loc.id, loc.locationName, loc.latitude, loc.longitude, loc.isSelected]
+      );
+    }
+  } catch (error) {
+    console.error("Failed to seed SQLite from cloud:", error);
+    throw error;
+  } finally {
+    await toggleDBConnection(dbConnection, "close");
+  }
+}
+

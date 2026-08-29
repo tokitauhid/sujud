@@ -182,9 +182,19 @@ const SettingsPage = ({
         if (!e.target) {
           throw new Error("e.target is null");
         }
-        const fileContent = e.target.result;
+        let fileContent = e.target.result;
         if (typeof fileContent !== "string") {
           throw new Error("File content is not a string");
+        }
+
+        try {
+          const parsedJSON = JSON.parse(fileContent);
+          if (parsedJSON.database && parsedJSON.database !== "sujuddatabase") {
+            parsedJSON.database = "sujuddatabase";
+            fileContent = JSON.stringify(parsedJSON);
+          }
+        } catch (error) {
+          console.error("Error parsing JSON to update database name", error);
         }
 
         try {

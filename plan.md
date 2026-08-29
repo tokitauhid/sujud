@@ -1,8 +1,8 @@
 ## Initial Plan:
-1. set up some sort of cloud sync, preferrably using google
-2. add option to remind the user to log after every salh
-3. cloud sync should backup any data, and if the user logs in with the same account on a new device, it should sync the data to the new device.
-4. after initial setup the settings should be independent of the device. 
+~~1. set up some sort of cloud sync, preferrably using google~~
+~~2. add option to remind the user to log after every salh~~
+~~3. cloud sync should backup any data, and if the user logs in with the same account on a new device, it should sync the data to the new device.~~
+~~4. after initial setup the settings should be independent of the device.~~ 
 5. add support for tablets.
 6. better push notification system for chinese phone like xiaomi, oppo etc.
     i. present problem notification dont come thorugh at all if the app is not open or locked to recent apps

@@ -5,6 +5,7 @@ import {
   pullFromFirestore,
   hasCloudData,
   getLastSyncTimestamp,
+  seedSQLiteFromCloud,
   SyncStatus,
 } from "../../firebase/syncService";
 import { toggleDBConnection } from "../../utils/dbUtils";
@@ -89,7 +90,7 @@ const CloudSyncSettings = ({
           const cloudData = await pullFromFirestore(user.uid);
 
           if (cloudData.salahLogs.length > 0) {
-            await seedSQLiteFromCloud(cloudData);
+            await seedSQLiteFromCloud(dbConnection, cloudData);
             await fetchDataFromDB(true);
             showToast("Data restored from cloud!", "short");
           }
@@ -110,60 +111,7 @@ const CloudSyncSettings = ({
     initialSync();
   }, [user?.uid]);
 
-  /**
-   * Seed local SQLite DB from cloud data.
-   */
-  const seedSQLiteFromCloud = async (cloudData: {
-    preferences: Record<string, string> | null;
-    salahLogs: DBResultDataObjType[];
-    locations: import("../../types/types").LocationsDataObjType[];
-  }) => {
-    try {
-      if (!dbConnection.current) {
-        throw new Error("Database connection not available");
-      }
-
-      await toggleDBConnection(dbConnection, "open");
-
-      // Seed preferences
-      if (cloudData.preferences) {
-        for (const [key, value] of Object.entries(cloudData.preferences)) {
-          if (key === "updatedAt") continue;
-          await dbConnection.current.run(
-            `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue) VALUES (?, ?)`,
-            [key, value]
-          );
-        }
-      }
-
-      // Seed salah logs
-      for (const log of cloudData.salahLogs) {
-        await dbConnection.current.run(
-          `INSERT OR REPLACE INTO salahDataTable (date, salahName, salahStatus, reasons, notes) VALUES (?, ?, ?, ?, ?)`,
-          [
-            log.date,
-            log.salahName,
-            log.salahStatus,
-            log.reasons || "",
-            log.notes || "",
-          ]
-        );
-      }
-
-      // Seed locations
-      for (const loc of cloudData.locations) {
-        await dbConnection.current.run(
-          `INSERT OR REPLACE INTO userLocationsTable (id, locationName, latitude, longitude, isSelected) VALUES (?, ?, ?, ?, ?)`,
-          [loc.id, loc.locationName, loc.latitude, loc.longitude, loc.isSelected]
-        );
-      }
-    } catch (error) {
-      console.error("Failed to seed SQLite from cloud:", error);
-      throw error;
-    } finally {
-      await toggleDBConnection(dbConnection, "close");
-    }
-  };
+  // seedSQLiteFromCloud is now imported from syncService
 
   /**
    * Manual "Sync now" — push all local data to Firestore.

@@ -15,6 +15,7 @@ import {
   requestIgnoreBatteryOptimization,
   scheduleAfterIshaDailyNotifications,
   promptToOpenDeviceSettings,
+  showToast,
 } from "../utils/helpers";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -33,6 +34,14 @@ import AddLocationOptions from "./AddLocationOptions";
 import { Capacitor } from "@capacitor/core";
 import { adhanLibrarySalahs } from "../utils/constants";
 import { AndroidSettings } from "capacitor-native-settings";
+import { useFirebaseAuth } from "../firebase/useFirebaseAuth";
+import {
+  hasCloudData,
+  pullFromFirestore,
+  seedSQLiteFromCloud,
+} from "../firebase/syncService";
+import { FcGoogle } from "react-icons/fc";
+import { IoSyncOutline } from "react-icons/io5";
 
 interface OnboardingProps {
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
@@ -47,6 +56,7 @@ interface OnboardingProps {
   userLocations: LocationsDataObjTypeArr;
   setShowLocationFailureToast: React.Dispatch<React.SetStateAction<boolean>>;
   setShowLocationAddedToast: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchDataFromDB?: (isDBImported?: boolean) => Promise<void>;
 }
 
 const Onboarding = ({
@@ -60,8 +70,11 @@ const Onboarding = ({
   userLocations,
   setShowLocationFailureToast,
   setShowLocationAddedToast,
+  fetchDataFromDB,
 }: OnboardingProps) => {
   const swiperRef = useRef<SwiperInstance | null>(null);
+  const { signInWithGoogle } = useFirebaseAuth();
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   const switchToNextPage = () => {
     swiperRef.current?.slideNext();
@@ -69,8 +82,9 @@ const Onboarding = ({
   const switchToPreviousPage = () => {
     const activeIndex = swiperRef.current?.activeIndex;
 
-    if (activeIndex === 7) {
-      swiperRef.current?.slideTo(3, 0);
+    // Battery optimization slide index shifted by +1 due to new Google sign-in slide
+    if (activeIndex === 8) {
+      swiperRef.current?.slideTo(4, 0);
     }
 
     swiperRef.current?.slidePrev();
@@ -113,6 +127,52 @@ const Onboarding = ({
     setOnboardingMode(null);
   };
 
+  /**
+   * Handle Google Sign-In during onboarding.
+   * If cloud data exists → restore and dismiss onboarding.
+   * If no cloud data → continue with normal onboarding flow.
+   */
+  const handleOnboardingSignIn = async () => {
+    try {
+      setIsSigningIn(true);
+      await signInWithGoogle();
+
+      // Small delay to let auth state propagate
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Check if returning user has cloud data
+      const { auth } = await import("../firebase/firebaseConfig");
+      const currentUser = auth.currentUser;
+
+      if (currentUser) {
+        const cloudExists = await hasCloudData(currentUser.uid);
+
+        if (cloudExists) {
+          // Returning user: restore cloud data and skip remaining onboarding
+          const cloudData = await pullFromFirestore(currentUser.uid);
+
+          if (cloudData.salahLogs.length > 0 || cloudData.preferences) {
+            await seedSQLiteFromCloud(dbConnection, cloudData);
+            await fetchDataFromDB?.(true);
+            showToast("Data restored from cloud!", "short");
+            await dismissOnboardingSlides();
+            return;
+          }
+        }
+      }
+
+      // New user with no cloud data — continue onboarding
+      switchToNextPage();
+    } catch (error) {
+      console.error("Onboarding sign-in failed:", error);
+      showToast("Sign-in failed. You can try again later in Settings.", "long");
+      // Still allow them to proceed
+      switchToNextPage();
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
   if (!onboardingMode) return null;
 
   return (
@@ -125,12 +185,13 @@ const Onboarding = ({
       backdropDismiss={false}
       // canDismiss={onboardingMode === null ? true : false}
       handle={false}
+      className="onboarding-modal"
     >
       <IonContent>
         <section
           // style={{ marginTop: "calc(env(safe-area-inset-top, 0px))" }}
           // className="flex items-center mx-5 mt-2"
-          className="flex min-h-screen mx-5"
+          className="flex min-h-screen mx-5 onboarding-content-wrap"
         >
           {onboardingMode === "newUser" && (
             <>
@@ -139,7 +200,7 @@ const Onboarding = ({
                   top: "calc(env(safe-area-inset-top, 0px) - 10px)",
                   display:
                     Capacitor.getPlatform() === "android" &&
-                    swiperRef.current?.activeIndex === 7
+                    swiperRef.current?.activeIndex === 8
                       ? "none"
                       : undefined,
                 }}
@@ -177,7 +238,7 @@ const Onboarding = ({
             spaceBetween={50}
             slidesPerView={1}
             allowTouchMove={false}
-            initialSlide={onboardingMode === "newUser" ? 0 : 3}
+            initialSlide={onboardingMode === "newUser" ? 0 : 4}
             pagination={onboardingMode === "newUser" ? true : false}
             navigation
             // navigation={{
@@ -186,14 +247,15 @@ const Onboarding = ({
             // }}
             modules={[Pagination, Navigation]}
           >
+            {/* SLIDE 0: Welcome */}
             <SwiperSlide>
-              <section className="flex flex-col justify-center h-full">
+              <section className="flex flex-col justify-center h-full onboarding-slide-content">
                 <h1 className="text-2xl text-center">
                   Welcome to Sujud
                 </h1>
                 <div className="text-center">
                   <img
-                    className="block mx-auto mb-2"
+                    className="block mx-auto mb-2 onboarding-logo"
                     src={appLogo}
                     height="70"
                     width="60%"
@@ -216,8 +278,56 @@ const Onboarding = ({
                 </IonButton>
               </section>
             </SwiperSlide>
+
+            {/* SLIDE 1: Google Sign-In (NEW) */}
             <SwiperSlide>
-              <section className="flex flex-col justify-center h-full">
+              <section className="flex flex-col justify-center h-full onboarding-slide-content">
+                <section className="m-4 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--card-bg-color)] border border-[var(--app-border-color)] flex items-center justify-center">
+                    <FcGoogle className="text-3xl" />
+                  </div>
+                  <h1 className="mb-3 text-2xl font-bold">
+                    Sign in with Google
+                  </h1>
+                  <p className="text-sm leading-5 opacity-80">
+                    Sync your data across devices. If you've used Sujud before, your data will be restored automatically.
+                  </p>
+                </section>
+                <section className="flex flex-col">
+                  <IonButton
+                    onClick={handleOnboardingSignIn}
+                    className="mb-4"
+                    disabled={isSigningIn}
+                  >
+                    {isSigningIn ? (
+                      <>
+                        <IoSyncOutline className="mr-2 animate-spin" />
+                        Signing in...
+                      </>
+                    ) : (
+                      <>
+                        <FcGoogle className="mr-2 text-lg" />
+                        Continue with Google
+                      </>
+                    )}
+                  </IonButton>
+                  <IonButton
+                    fill="clear"
+                    onClick={() => {
+                      switchToNextPage();
+                    }}
+                    className="text-center text-[var(--ion-text-color)] rounded-2xl"
+                    disabled={isSigningIn}
+                  >
+                    Skip for now
+                  </IonButton>
+                </section>
+              </section>
+            </SwiperSlide>
+
+            {/* SLIDE 2: Gender */}
+            <SwiperSlide>
+              <section className="flex flex-col justify-center h-full onboarding-slide-content">
                 <h1 className="text-3xl">I am a...</h1>
                 <section>
                   <IonButton
@@ -270,8 +380,10 @@ const Onboarding = ({
                 </section>
               </section>
             </SwiperSlide>
+
+            {/* SLIDE 3: Salah Times toggle */}
             <SwiperSlide>
-              <section className="flex flex-col justify-center h-full">
+              <section className="flex flex-col justify-center h-full onboarding-slide-content">
                 <section className="m-4 text-center">
                   <h1 className="mb-2 text-2xl font-bold">
                     Do you want to turn on Salah times?
@@ -291,7 +403,7 @@ const Onboarding = ({
                   <IonButton
                     fill="clear"
                     onClick={() => {
-                      swiperRef.current?.slideTo(8, 0);
+                      swiperRef.current?.slideTo(9, 0);
                       // setIsSalahTimesOnboarding(false);
                     }}
                     className="text-center text-white mb- rounded-2xl"
@@ -301,10 +413,12 @@ const Onboarding = ({
                 </section>
               </section>
             </SwiperSlide>
+
+            {/* SLIDE 4: Location */}
             <SwiperSlide>
               <section
                 style={{ marginTop: "calc(env(safe-area-inset-top, 0px))" }}
-                className="flex flex-col items-center justify-center"
+                className="flex flex-col items-center justify-center onboarding-slide-content"
               >
                 <section className="m-4 text-center">
                   <h1 className="mb-2 text-2xl font-bold">Location</h1>
@@ -331,10 +445,12 @@ const Onboarding = ({
                 </IonButton>
               </section>
             </SwiperSlide>
+
+            {/* SLIDE 5: Calculation Method */}
             <SwiperSlide>
               <section
                 style={{ marginTop: "calc(env(safe-area-inset-top, 0px))" }}
-                className="flex flex-col justify-center h-full"
+                className="flex flex-col justify-center h-full onboarding-slide-content"
               >
                 <section className="m-4 text-center">
                   <h1 className="mb-2 text-2xl font-bold">
@@ -364,8 +480,10 @@ const Onboarding = ({
                 Next
               </IonButton>
             </SwiperSlide>
+
+            {/* SLIDE 6: Madhab */}
             <SwiperSlide>
-              <section className="flex flex-col justify-center h-full">
+              <section className="flex flex-col justify-center h-full onboarding-slide-content">
                 <section className="m-4 text-center">
                   <h1 className="mb-2 text-2xl font-bold">Madhab</h1>
                   <p>Select Madhab</p>
@@ -414,14 +532,16 @@ const Onboarding = ({
                 </section>
               </section>
             </SwiperSlide>
+
+            {/* SLIDE 7: Notifications */}
             <SwiperSlide>
-              <section className="flex flex-col justify-center h-full">
+              <section className="flex flex-col justify-center h-full onboarding-slide-content">
                 <section className="m-4 text-center">
                   <h1 className="mb-2 text-2xl font-bold">
                     Enable Notifications
                   </h1>
                   <p>
-                    We’ll notify you at each Salah time and once daily to log
+                    We'll notify you at each Salah time and once daily to log
                     your Salahs. You can change sounds and customise individual
                     reminders later.
                   </p>
@@ -521,9 +641,10 @@ const Onboarding = ({
               </section>
             </SwiperSlide>
 
+            {/* SLIDE 8: Battery Optimization (Android only) */}
             {isBatteryOptEnabled && (
               <SwiperSlide>
-                <section className="flex flex-col justify-center h-full">
+                <section className="flex flex-col justify-center h-full onboarding-slide-content">
                   <section className="m-4 text-center">
                     <h1 className="mb-2 text-2xl font-bold">
                       Make sure reminders arrive on time
@@ -575,14 +696,15 @@ const Onboarding = ({
               </SwiperSlide>
             )}
 
+            {/* SLIDE 9: Daily Reminder */}
             <SwiperSlide>
-              <section className="flex flex-col justify-center h-full">
+              <section className="flex flex-col justify-center h-full onboarding-slide-content">
                 <section className="m-4 text-center">
                   <h1 className="mb-2 text-2xl font-bold">
                     Stay Consistent with Your Salah
                   </h1>
                   <p>
-                    We’ll send you a gentle reminder each day to log which
+                    We'll send you a gentle reminder each day to log which
                     Salahs you prayed or missed. You can adjust the time or turn
                     this off anytime in settings.
                   </p>

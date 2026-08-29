@@ -81,6 +81,7 @@ import {
 } from "./utils/constants";
 import BottomSheetChangelog from "./components/BottomSheets/BottomSheetChangeLog";
 import { FirebaseAuthProvider } from "./firebase/useFirebaseAuth";
+import TabletSideNav from "./components/TabletSideNav";
 
 const App = () => {
   const justLaunched = useRef(true);
@@ -946,6 +947,7 @@ const App = () => {
     <FirebaseAuthProvider>
     <IonApp>
       <IonReactRouter>
+        <TabletSideNav />
         <IonTabs className="app">
           <IonRouterOutlet
           //  animated={false}
@@ -1069,6 +1071,7 @@ const App = () => {
         userLocations={userLocations}
         setShowLocationFailureToast={setShowLocationFailureToast}
         setShowLocationAddedToast={setShowLocationAddedToast}
+        fetchDataFromDB={fetchDataFromDB}
       />
       {/* // )} */}
       {showMajorUpdateOverlay && (
