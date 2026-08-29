@@ -342,7 +342,7 @@ const SalahTable = ({
                     </section>
                   );
                 }}
-                width={180}
+                width={width * 0.25}
                 flexGrow={1}
               />
               {salahNamesArr.map((salahName) => (
@@ -352,7 +352,7 @@ const SalahTable = ({
                   className="items-center text-sm"
                   label={salahName === "Asar" ? "Asr" : salahName}
                   dataKey={""}
-                  width={120}
+                  width={width * 0.15}
                   flexGrow={1}
                   cellRenderer={({ rowData }) => {
                     let isChecked = selectedSalahAndDate[
