@@ -89,6 +89,33 @@ export const fetchAllLocations = async (
   }
 };
 
+export const addUserLocation = async (
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>,
+  locationName: string,
+  latitude: number,
+  longitude: number,
+  isSelected: number,
+  isDefaultLocationCheckBoxChecked?: boolean,
+) => {
+  const stmnt = `INSERT INTO userLocationsTable (locationName, latitude, longitude, isSelected) 
+      VALUES (?, ?, ?, ?);
+      `;
+
+  if (!dbConnection || !dbConnection.current) {
+    throw new Error("dbConnection / dbconnection.current does not exist");
+  }
+
+  if (isDefaultLocationCheckBoxChecked && isSelected === 1) {
+    await dbConnection.current.run(
+      `UPDATE userLocationsTable SET isSelected = 0`,
+    );
+  }
+
+  const params = [locationName, latitude, longitude, isSelected];
+  const lastId = await dbConnection.current.run(stmnt, params);
+  return lastId;
+};
+
 // export const modifyUserLocation = async (dbConnection, id, name, lat, long, isSelected) => {
 
 //      try {

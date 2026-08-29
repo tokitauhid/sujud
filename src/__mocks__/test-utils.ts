@@ -8,8 +8,11 @@ export const mockUserPrefs = {
 };
 export const mockdbConnection = {
   current: {
-    run: vi.fn().mockResolvedValue(undefined),
+    run: vi.fn().mockResolvedValue({ changes: { lastId: 1, changes: 1 } }),
     query: vi.fn().mockResolvedValue({ values: [] }),
+    isDBOpen: vi.fn().mockResolvedValue({ result: true }),
+    open: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
   },
 } as unknown as React.MutableRefObject<SQLiteDBConnection | undefined>;
 

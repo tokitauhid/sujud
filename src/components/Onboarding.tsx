@@ -113,9 +113,11 @@ const Onboarding = ({
     setOnboardingMode(null);
   };
 
+  if (!onboardingMode) return null;
+
   return (
     <IonModal
-      isOpen={onboardingMode !== null ? true : false}
+      isOpen={Boolean(onboardingMode)}
       onDidDismiss={() => {
         setOnboardingMode(null);
       }}

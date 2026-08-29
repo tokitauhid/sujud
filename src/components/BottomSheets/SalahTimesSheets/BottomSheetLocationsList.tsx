@@ -145,6 +145,7 @@ const BottomSheetLocationsList = ({
           {userLocations?.map((location) => (
             <li
               key={location.id}
+              data-testid="list-item"
               className="flex items-center justify-between mx-4 bg-[var(--card-bg-color)] border-b border-[var(--app-border-color)]"
               onClick={async () => {
                 try {

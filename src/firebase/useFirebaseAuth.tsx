@@ -48,7 +48,13 @@ export const FirebaseAuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithGoogle = async (): Promise<void> => {
     try {
       // 1. Trigger native Google Sign-In dialog
-      const result = await FirebaseAuthentication.signInWithGoogle();
+      // useCredentialManager: false falls back to the legacy Google Sign-In
+      // intent which works reliably on all devices (Credential Manager has
+      // issues on some OEMs like Xiaomi/MIUI where the bottom sheet fails
+      // to render).
+      const result = await FirebaseAuthentication.signInWithGoogle({
+        useCredentialManager: false,
+      });
 
       if (!result.credential?.idToken) {
         throw new Error("Google Sign-In did not return an ID token");
@@ -62,7 +68,7 @@ export const FirebaseAuthProvider = ({ children }: { children: ReactNode }) => {
       // 3. Sign in to Firebase with the credential
       await signInWithCredential(auth, credential);
     } catch (error) {
-      console.error("Google Sign-In failed:", error);
+      console.error("Google Sign-In failed:", JSON.stringify(error, null, 2), error);
       throw error;
     }
   };

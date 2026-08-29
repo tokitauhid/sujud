@@ -2,25 +2,12 @@ import * as dotenv from "dotenv";
 import { resolve } from "path";
 dotenv.config({ path: resolve(__dirname, ".env") });
 import { CapacitorConfig } from "@capacitor/cli";
-import { KeyboardResize } from "@capacitor/keyboard";
-
-// const isDevelopment = process.env.NODE_ENV === "development";
-
-// const serverConfig =
-//   isDevelopment && process.env.VITE_DEV_SERVER_IP
-//     ? {
-//         url: process.env.VITE_DEV_SERVER_IP,
-//         cleartext: true,
-//       }
-//     : undefined;
 
 const config: CapacitorConfig = {
   appId: "com.sujud.app",
   appName: "Sujud",
-  webDir: "dist", // server: serverConfig,
+  webDir: "dist",
   server: {
-    // url: isDevelopment ? process.env.VITE_DEV_SERVER_IP : undefined,
-    // url: process.env.VITE_DEV_SERVER_IP,
     cleartext: true,
   },
   plugins: {
@@ -35,12 +22,8 @@ const config: CapacitorConfig = {
       resize: "none",
       resizeOnFullScreen: false,
     },
-    // EdgeToEdge: {
-    //   backgroundColor: "#ffffff",
-    // },
     SplashScreen: {
       launchAutoHide: false,
-      // backgroundColor: "#1010101010",
     },
     CapacitorSQLite: {
       iosIsEncryption: false,
@@ -52,6 +35,10 @@ const config: CapacitorConfig = {
       androidBiometric: {
         biometricAuth: false,
       },
+    },
+    FirebaseAuthentication: {
+      skipNativeAuth: false,
+      providers: ["google.com"],
     },
   },
 };

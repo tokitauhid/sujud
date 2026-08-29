@@ -22,7 +22,7 @@ import {
 } from "ionicons/icons";
 import { LocationsDataObjTypeArr, OnboardingMode } from "../types/types";
 import { promptToOpenDeviceSettings, showAlert } from "../utils/helpers";
-import { fetchAllLocations, toggleDBConnection } from "../utils/dbUtils";
+import { addUserLocation, fetchAllLocations, toggleDBConnection } from "../utils/dbUtils";
 
 const allCities = cities.map(
   (obj: { country: string; name: string; lat: string; lng: string }) => {
@@ -89,31 +89,7 @@ const AddLocationOptions = ({
     setIsDefaultLocationCheckBoxChecked,
   ] = useState(false);
 
-  const addUserLocation = async (
-    dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>,
-    locationName: string,
-    latitude: number,
-    longitude: number,
-    isSelected: number,
-  ) => {
-    const stmnt = `INSERT INTO userLocationsTable (locationName, latitude, longitude, isSelected) 
-        VALUES (?, ?, ?, ?);
-        `;
 
-    if (!dbConnection || !dbConnection.current) {
-      throw new Error("dbConnection / dbconnection.current does not exist");
-    }
-
-    if (isDefaultLocationCheckBoxChecked && isSelected === 1) {
-      await dbConnection.current.run(
-        `UPDATE userLocationsTable SET isSelected = 0`,
-      );
-    }
-
-    const params = [locationName, latitude, longitude, isSelected];
-    const lastId = await dbConnection.current.run(stmnt, params);
-    return lastId;
-  };
 
   const handleInputPromptDismissed = () => {
     setShowAddLocationForm(false);
@@ -274,6 +250,14 @@ const AddLocationOptions = ({
                   }
                   onIonInput={(e) => {
                     setLocationName(e.detail.value || "");
+                    setShowError((prev) => ({
+                      ...prev,
+                      duplicateLocationError: false,
+                      emptyLocationError: false,
+                    }));
+                  }}
+                  onInput={(e: any) => {
+                    setLocationName(e.target.value || "");
                     setShowError((prev) => ({
                       ...prev,
                       duplicateLocationError: false,
@@ -487,6 +471,7 @@ const AddLocationOptions = ({
                         coords.latitude,
                         coords.longitude,
                         isSelected,
+                        isDefaultLocationCheckBoxChecked,
                       );
 
                       if (!result?.changes?.lastId) {
@@ -527,6 +512,7 @@ const AddLocationOptions = ({
 
                       handleInputPromptDismissed();
                     } catch (error) {
+                      console.error("handleSaveLocation error:", error);
                     } finally {
                       await toggleDBConnection(dbConnection, "close");
                     }
@@ -563,8 +549,6 @@ const AddLocationOptions = ({
           <div
             className=" text-center border-transparent p-2 mb-5 rounded-lg bg-[var(--sheet-option-bg)]"
             onClick={async () => {
-              if (showAddLocationForm) return;
-
               setMode("gps");
               // presentLocationSpinner({
               //   message: "Detecting location...",
@@ -594,7 +578,6 @@ const AddLocationOptions = ({
           <div
             className=" text-center border-transparent p-2 mb-5 rounded-lg  bg-[var(--sheet-option-bg)]"
             onClick={() => {
-              if (showAddLocationForm) return;
               setMode("manualCoords");
               setShowAddLocationForm(true);
             }}
@@ -614,7 +597,6 @@ const AddLocationOptions = ({
           <div
             className="text-center border-transparent p-2 mb-5 rounded-lg bg-[var(--sheet-option-bg)]"
             onClick={() => {
-              if (showAddLocationForm) return;
               setShowAddLocationForm(true);
               setMode("manualCitySearch");
             }}

@@ -51,43 +51,60 @@ import CalculationMethodOptions from "../components/CalculationMethodOptions";
 
 interface SalahTimesPageProps {
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
-  setShowJoyRideEditIcon: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowJoyRideEditIcon?: React.Dispatch<React.SetStateAction<boolean>>;
   setUserPreferences: React.Dispatch<React.SetStateAction<userPreferencesType>>;
   userPreferences: userPreferencesType;
   setUserLocations: React.Dispatch<
     React.SetStateAction<LocationsDataObjTypeArr>
   >;
   userLocations: LocationsDataObjTypeArr;
-  setSalahtimes: React.Dispatch<React.SetStateAction<salahTimesObjType>>;
-  salahTimes: salahTimesObjType;
-  nextSalahNameAndTime: nextSalahTimeType;
-  setShowLocationFailureToast: React.Dispatch<React.SetStateAction<boolean>>;
-  showLocationFailureToast: boolean;
-  setShowLocationAddedToast: React.Dispatch<React.SetStateAction<boolean>>;
-  showLocationAddedToast: boolean;
-  setShowLocationDeletedToast: React.Dispatch<React.SetStateAction<boolean>>;
-  showLocationDeletedToast: boolean;
-  setOnboardingMode: React.Dispatch<React.SetStateAction<OnboardingMode>>;
+  setSalahtimes?: React.Dispatch<React.SetStateAction<salahTimesObjType>>;
+  salahTimes?: salahTimesObjType;
+  nextSalahNameAndTime?: nextSalahTimeType;
+  setShowLocationFailureToast?: React.Dispatch<React.SetStateAction<boolean>>;
+  showLocationFailureToast?: boolean;
+  setShowLocationAddedToast?: React.Dispatch<React.SetStateAction<boolean>>;
+  showLocationAddedToast?: boolean;
+  setShowLocationDeletedToast?: React.Dispatch<React.SetStateAction<boolean>>;
+  showLocationDeletedToast?: boolean;
+  setOnboardingMode?: React.Dispatch<React.SetStateAction<OnboardingMode>>;
   onboardingMode?: OnboardingMode;
 }
 
+const defaultSalahTimesObj: salahTimesObjType = {
+  fajr: "",
+  sunrise: "",
+  dhuhr: "",
+  asr: "",
+  maghrib: "",
+  isha: "",
+};
+
+const defaultNextSalahNameAndTime: nextSalahTimeType = {
+  currentSalah: "",
+  nextSalah: "",
+  nextSalahTime: null,
+  hoursRemaining: 0,
+  minsRemaining: 0,
+};
+
 const SalahTimesPage = ({
   dbConnection,
-  setShowJoyRideEditIcon,
+  setShowJoyRideEditIcon = () => {},
   setUserPreferences,
   userPreferences,
   setUserLocations,
   userLocations,
-  setSalahtimes,
-  salahTimes,
-  nextSalahNameAndTime,
-  setShowLocationFailureToast,
-  showLocationFailureToast,
-  setShowLocationAddedToast,
-  showLocationAddedToast,
-  setShowLocationDeletedToast,
-  showLocationDeletedToast,
-  setOnboardingMode,
+  setSalahtimes = () => {},
+  salahTimes = defaultSalahTimesObj,
+  nextSalahNameAndTime = defaultNextSalahNameAndTime,
+  setShowLocationFailureToast = () => {},
+  showLocationFailureToast = false,
+  setShowLocationAddedToast = () => {},
+  showLocationAddedToast = false,
+  setShowLocationDeletedToast = () => {},
+  showLocationDeletedToast = false,
+  setOnboardingMode = () => {},
   onboardingMode,
 }: SalahTimesPageProps) => {
   const [showAddLocationSheet, setShowAddLocationSheet] = useState(false);
@@ -122,6 +139,7 @@ const SalahTimesPage = ({
               {location.isSelected === 1 ? (
                 <div
                   key={location.id}
+                  aria-label="show all locations"
                   className="p-2 text-sm inline-flex items-center justify-center py-2 mb-4 border-[var(--ion-text-color)] border rounded-2xl"
                   onClick={() => {
                     setShowLocationsListSheet(true);
