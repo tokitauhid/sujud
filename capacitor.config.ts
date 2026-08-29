@@ -15,8 +15,8 @@ import { KeyboardResize } from "@capacitor/keyboard";
 //     : undefined;
 
 const config: CapacitorConfig = {
-  appId: "com.mysalahapp.app",
-  appName: "My Salah App",
+  appId: "com.sujud.app",
+  appName: "Sujud",
   webDir: "dist", // server: serverConfig,
   server: {
     // url: isDevelopment ? process.env.VITE_DEV_SERVER_IP : undefined,
@@ -44,7 +44,7 @@ const config: CapacitorConfig = {
     },
     CapacitorSQLite: {
       iosIsEncryption: false,
-      iosKeychainPrefix: "my-salah-app-data",
+      iosKeychainPrefix: "sujud-data",
       iosBiometric: {
         biometricAuth: false,
       },

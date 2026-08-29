@@ -187,7 +187,7 @@ const Onboarding = ({
             <SwiperSlide>
               <section className="flex flex-col justify-center h-full">
                 <h1 className="text-2xl text-center">
-                  Welcome to My Salah App
+                  Welcome to Sujud
                 </h1>
                 <div className="text-center">
                   <img

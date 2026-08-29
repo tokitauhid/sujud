@@ -1,4 +1,4 @@
-package com.mysalahapp.app;
+package com.sujud.app;
 
 import com.getcapacitor.BridgeActivity;
 

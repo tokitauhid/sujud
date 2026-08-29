@@ -1,36 +1,107 @@
-# My Salah App
+# Sujud — سجود
 
-My Salah App is an application which allows users to track their daily prayers (Salah), analyse trends, and encourage consistent prayer habits.
+> *A personal Salah tracker & habit companion for Android and iOS.*
 
-The native runtime CapacitorJS is used to allow this web application to be installed onto mobile devices (Android & iOS) as a native application and it also allows for device API's to be used (such as notifications).
+Sujud helps you log your daily prayers, analyse your consistency over time, and build a stronger connection with your Salah — one prostration at a time.
 
-# React + TypeScript + Vite
+---
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## ✨ Features
 
-Currently, two official plugins are available:
+- 📿 **Prayer Tracking** — Log each of your five daily prayers with a tap
+- 📊 **Trend Analysis** — Weekly, monthly, and yearly reports with visual charts
+- 🔔 **Smart Notifications** — Adhan alerts and post-prayer logging reminders
+- 🌐 **Cloud Sync** — Google Sign-In backed sync across all your devices (Firebase)
+- 📅 **Hijri Calendar** — Browse your prayer history by Islamic date
+- 🗒️ **Notes** — Attach personal reminders for du'as and adhkar to any prayer
+- 🎨 **Themes** — Multiple colour themes including OLED pure black mode
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+| Layer | Technology |
+|---|---|
+| Frontend | React 18 + TypeScript + Vite |
+| Mobile Runtime | CapacitorJS (Android & iOS) |
+| Styling | Tailwind CSS, Framer Motion |
+| UI Components | Radix UI, Ionic React, Swiper |
+| Prayer Times | [Adhan](https://github.com/batoulapps/adhan-js) |
+| Storage | `@capacitor-community/sqlite` |
+| Cloud Sync | Firebase (Firestore + Google Auth) |
 
-- Configure the top-level `parserOptions` property like this:
+---
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
-    project: ["./tsconfig.json", "./tsconfig.node.json"],
-    tsconfigRootDir: __dirname,
-  },
-};
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js ≥ 18
+- Android Studio (for Android builds)
+- Xcode (for iOS builds, macOS only)
+
+### Install
+
+```bash
+git clone https://github.com/your-username/sujud.git
+cd sujud
+npm install
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+### Environment Variables
+
+Copy `.env.example` to `.env` and fill in your Firebase credentials:
+
+```bash
+cp .env.example .env
+```
+
+### Development
+
+```bash
+# Web dev server
+npm run dev
+
+# Build
+npm run build
+
+# Sync to Android
+npx cap sync android
+
+# Open in Android Studio
+npx cap open android
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+npm test          # Run unit tests (Vitest)
+npm run test:ui   # Open Vitest UI
+npm run lint      # ESLint
+```
+
+---
+
+## 📱 Building for Mobile
+
+```bash
+npm run build
+npx cap sync
+npx cap open android   # or ios
+```
+
+---
+
+## 🙏 Credits & Attribution
+
+Sujud is a fork of **[My Salah App](https://github.com/My-Ummah-Apps/My-Salah-App)** — originally created and maintained by [My Ummah Apps](https://github.com/TheFlyingDonut). The core prayer tracking engine, architecture, and design foundations were built by the original author. Full credit and deep gratitude goes to them for their work in creating this open-source tool for the Muslim community.
+
+If you find this app useful, please also ⭐ the [original project](https://github.com/My-Ummah-Apps/My-Salah-App).
+
+---
+
+## 📄 Licence
+
+MIT — see [LICENSE](./LICENSE) for details.

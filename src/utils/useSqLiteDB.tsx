@@ -38,7 +38,7 @@ const useSQLiteDB = () => {
         sqliteConnection.current = new SQLiteConnection(CapacitorSQLite); // Create a new SQLiteConnection instance and assign it to sqliteConnection.current.
 
         await sqliteConnection.current.addUpgradeStatement(
-          "mysalahappdatabase",
+          "sujuddatabase",
           upgradeStatements,
         );
 
@@ -47,25 +47,25 @@ const useSQLiteDB = () => {
 
         const isConn = (
           await sqliteConnection.current.isConnection(
-            "mysalahappdatabase",
+            "sujuddatabase",
             false,
           )
         ).result; // The isConnection method checks if there is an existing connection
 
         if (connectionConsistency.result && isConn) {
-          // Retrieve the existing connection to "mysalahappdatabase"
+          // Retrieve the existing connection to "sujuddatabase"
 
           dbConnection.current =
             await sqliteConnection.current.retrieveConnection(
-              "mysalahappdatabase",
+              "sujuddatabase",
               false,
             );
         } else {
-          // If the dbConnection does not exist then create a new connection (additionally, if the "mysalahappdatabase" database does not exist, create it at the same time as establishing the new connection)
+          // If the dbConnection does not exist then create a new connection (additionally, if the "sujuddatabase" database does not exist, create it at the same time as establishing the new connection)
 
           dbConnection.current =
             await sqliteConnection.current.createConnection(
-              "mysalahappdatabase",
+              "sujuddatabase",
               false,
               "no-encryption",
               2,

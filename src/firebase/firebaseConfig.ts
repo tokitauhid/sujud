@@ -4,9 +4,9 @@ import { getAuth, Auth } from "firebase/auth";
 
 // ---------------------------------------------------------------------------
 // Firebase config — fill these in after creating your Firebase project.
-// For dev:  create a "My Salah App (Dev)" Firebase project,
-//           register Android app with package name: com.mysalahapp.app.dev
-// For prod: register Android app with package name: com.mysalahapp.app
+// For dev:  create a "Sujud (Dev)" Firebase project,
+//           register Android app with package name: com.sujud.app.dev
+// For prod: register Android app with package name: com.sujud.app
 //
 // Add VITE_FIREBASE_* keys to your .env file (never commit .env to git).
 // ---------------------------------------------------------------------------

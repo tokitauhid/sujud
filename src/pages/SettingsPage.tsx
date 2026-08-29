@@ -136,7 +136,7 @@ const SettingsPage = ({
         .slice(0, 19);
 
       const writeResult = await Filesystem.writeFile({
-        path: `mysalahapp-backup-${formattedDate}.json`,
+        path: `sujud-backup-${formattedDate}.json`,
         data: exportedDBAsJson,
         directory: Directory.Cache,
         encoding: Encoding.UTF8,
@@ -148,7 +148,7 @@ const SettingsPage = ({
       if (Capacitor.isNativePlatform()) {
         try {
           await Share.share({
-            title: "mysalahapp-backup",
+            title: "sujud-backup",
             files: [filePath],
             dialogTitle: "Share your database backup",
           });
@@ -440,7 +440,7 @@ const SettingsPage = ({
                 subText={"Rate the app on the Google Play Store"}
                 onClick={() => {
                   link(
-                    "https://play.google.com/store/apps/details?id=com.mysalahapp.app",
+                    "https://play.google.com/store/apps/details?id=com.sujud.app",
                   );
                 }}
               />
@@ -452,7 +452,7 @@ const SettingsPage = ({
                 subText={"Rate the app on the App Store"}
                 onClick={() => {
                   link(
-                    "https://apps.apple.com/gb/app/my-salah-app/id6478277078",
+                    "https://apps.apple.com/gb/app/sujud/id6478277078",
                   );
                 }}
               />
@@ -467,11 +467,11 @@ const SettingsPage = ({
                 onClick={() => {
                   if (Capacitor.getPlatform() === "android") {
                     shareThisAppLink(
-                      "https://play.google.com/store/apps/details?id=com.mysalahapp.app",
+                      "https://play.google.com/store/apps/details?id=com.sujud.app",
                     );
                   } else if (Capacitor.getPlatform() === "ios") {
                     shareThisAppLink(
-                      "https://apps.apple.com/gb/app/my-salah-app/id6478277078",
+                      "https://apps.apple.com/gb/app/sujud/id6478277078",
                     );
                   }
                 }}
@@ -493,7 +493,7 @@ const SettingsPage = ({
               subText={"Report Bugs / Request Features"}
               onClick={() => {
                 link(
-                  "mailto: mohammed@mohammedpatel.dev?subject=My Salah App Feedback",
+                  "mailto: mohammed@mohammedpatel.dev?subject=Sujud Feedback",
                 );
               }}
             />
@@ -511,7 +511,7 @@ const SettingsPage = ({
               subText={"View Privacy Policy"}
               onClick={() => {
                 link(
-                  "https://sites.google.com/view/my-salah-app-privacy-policy/home",
+                  "https://sites.google.com/view/sujud-app-privacy-policy/home",
                 );
               }}
             />
@@ -520,7 +520,7 @@ const SettingsPage = ({
               headingText={"Source Code"}
               subText={"View Source Code"}
               onClick={() => {
-                link("https://github.com/My-Ummah-Apps/My-Salah-App");
+                link("https://github.com/tokitauhid/sujud");
               }}
             />
             {/* <SettingIndividual
