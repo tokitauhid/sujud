@@ -25,7 +25,7 @@ import HomePage from "./pages/HomePage";
 import SettingsPage from "./pages/SettingsPage";
 import StatsPage from "./pages/StatsPage";
 
-import { LATEST_APP_VERSION } from "./utils/changelog";
+
 import {
   checkNotificationPermissions,
   updateUserPrefs,
@@ -71,7 +71,6 @@ import useSQLiteDB from "./utils/useSqLiteDB";
 // import { LocalNotifications } from "@capacitor/local-notifications";
 import Onboarding from "./components/Onboarding";
 import { Route } from "react-router-dom";
-import MajorUpdateOverlay from "./components/MajorUpdateOverlay";
 import SalahTimesPage from "./pages/SalahTimesPage";
 import { toggleDBConnection as toggleDBConnection } from "./utils/dbUtils";
 import { LocalNotifications } from "@capacitor/local-notifications";
@@ -79,9 +78,8 @@ import {
   adhanLibrarySalahs,
   dictPreferencesDefaultValues,
 } from "./utils/constants";
-import BottomSheetChangelog from "./components/BottomSheets/BottomSheetChangeLog";
-import { FirebaseAuthProvider } from "./firebase/useFirebaseAuth";
 import TabletSideNav from "./components/TabletSideNav";
+import { FirebaseAuthProvider } from "./firebase/useFirebaseAuth";
 import { auth } from "./firebase/firebaseConfig";
 import { performBidirectionalSync } from "./firebase/syncService";
 import { showToast } from "./utils/helpers";
@@ -97,7 +95,7 @@ const App = () => {
   } = useSQLiteDB();
 
   const [onboardingMode, setOnboardingMode] = useState<OnboardingMode>(null);
-  const [showMajorUpdateOverlay, setShowMajorUpdateOverlay] = useState(false);
+
   const [showMissedSalahsSheet, setShowMissedSalahsSheet] = useState(false);
   const [showSalahTimesSettingsSheet, setShowSalahTimesSettingsSheet] =
     useState(false);
@@ -126,7 +124,6 @@ const App = () => {
     useState<boolean>(false);
   const [showLocationDeletedToast, setShowLocationDeletedToast] =
     useState<boolean>(false);
-  const [showChangelogSheet, setShowChangelogSheet] = useState(false);
 
   const [salahTimes, setSalahtimes] = useState({
     fajr: "",
@@ -294,19 +291,6 @@ const App = () => {
 
     return statusBarThemeColor;
   };
-
-  useEffect(() => {
-    console.log("HELLO: ", localStorage.getItem("appVersion"));
-
-    if (
-      localStorage.getItem("appVersion") &&
-      localStorage.getItem("appVersion") !== LATEST_APP_VERSION
-    ) {
-      // setShowChangelogSheet(true);
-      setShowMajorUpdateOverlay(true);
-      localStorage.setItem("appVersion", LATEST_APP_VERSION);
-    }
-  }, []);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -1092,15 +1076,7 @@ const App = () => {
         fetchDataFromDB={fetchDataFromDB}
       />
       {/* // )} */}
-      {showMajorUpdateOverlay && (
-        <MajorUpdateOverlay
-          setShowMajorUpdateOverlay={setShowMajorUpdateOverlay}
-        />
-      )}
-      <BottomSheetChangelog
-        setShowChangelogSheet={setShowChangelogSheet}
-        showChangelogSheet={showChangelogSheet}
-      />
+
     </IonApp>
     </FirebaseAuthProvider>
   );
