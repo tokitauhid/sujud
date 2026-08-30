@@ -971,6 +971,8 @@ const App = () => {
                   isMultiEditMode={isMultiEditMode}
                   activeStreakCount={activeStreakCount}
                   generateStreaks={generateStreaks}
+                  nextSalahNameAndTime={nextSalahNameAndTime}
+                  userLocations={userLocations}
                 />
               )}
             />

@@ -426,15 +426,15 @@ td {
 
 .ReactVirtualized__Grid,
 .ReactVirtualized__Table__Grid,
-.ReactVirtualized__Grid__innerScrollContainer,
+.ReactVirtualized__Grid__innerScrollContainerm,
 .ReactVirtualized__Table__row,
 .ReactVirtualized__Table__headerRow {
-  width: 100% !important;
-  max-width: 100% !important;
+  width: 95vw !important;
+  max-width: var(--max-width);
 }
 
 .ReactVirtualized__Grid__innerScrollContainer {
-  max-width: 100% !important;
+  max-width: 95vw !important;
 }
 
 .ReactVirtualized__Table__headerRow {
@@ -710,6 +710,18 @@ td {
     padding: 0 1rem;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  /* --- Home page: two-column grid on tablet --- */
+  .home-page-tablet-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+  
+  .home-page-tablet-grid > * {
+    min-width: 0;
   }
 
   /* --- Stats page: two-column grid --- */

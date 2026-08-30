@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Tracker</title>
+    <!-- Load sql.js from CDN to read the SQLite database -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #121212; color: #fff; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+        th { background-color: #222; color: #4dabf7; }
+        h2 { color: #4dabf7; }
+        .error { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <h2>Local Salah Data Tracker</h2>
+    <div id="output">Loading database from local storage...</div>
+
+    <script>
+        async function loadDatabase() {
+            try {
+                // Initialize sql.js
+                const SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` });
+                
+                // Open the IndexedDB created by Capacitor/jeep-sqlite
+                const request = indexedDB.open('jeep-sqlite');
+                
+                request.onerror = (event) => {
+                    document.getElementById('output').innerHTML = '<p class="error">Failed to open IndexedDB. Are you running this on the same origin (http://localhost:5173)?</p>';
+                };
+
+                request.onsuccess = (event) => {
+                    const idb = event.target.result;
+                    // jeep-sqlite stores databases in an object store named 'store'
+                    const transaction = idb.transaction(['store'], 'readonly');
+                    const store = transaction.objectStore('store');
+                    
+                    // The database name usually has 'sujuddatabase' in its key
+                    // To be safe, we will just get all keys and find the one that looks like a database
+                    const getAll = store.getAllKeys();
+                    
+                    getAll.onsuccess = () => {
+                        const keys = getAll.result;
+                        const dbKey = keys.find(k => k.includes('sujuddatabase'));
+                        
+                        if (!dbKey) {
+                            document.getElementById('output').innerHTML = '<p class="error">No database found in storage. Ensure you have opened the main app first.</p>';
+                            return;
+                        }
+
+                        const getDb = store.get(dbKey);
+                        getDb.onsuccess = () => {
+                            const dbData = getDb.result; // This is a Uint8Array
+                            
+                            // Load it into sql.js
+                            const db = new SQL.Database(dbData);
+                            
+                            // Query the data
+                            const res = db.exec("SELECT date, salahName, salahStatus FROM salahDataTable ORDER BY date DESC LIMIT 50");
+                            
+                            if (res.length === 0) {
+                                document.getElementById('output').innerHTML = '<p>No data found in salahDataTable.</p>';
+                                return;
+                            }
+
+                            // Render as HTML table
+                            const columns = res[0].columns;
+                            const values = res[0].values;
+                            
+                            let html = '<table><thead><tr>';
+                            columns.forEach(col => html += `<th>${col}</th>`);
+                            html += '</tr></thead><tbody>';
+                            
+                            values.forEach(row => {
+                                html += '<tr>';
+                                row.forEach(val => html += `<td>${val}</td>`);
+                                html += '</tr>';
+                            });
+                            
+                            html += '</tbody></table>';
+                            document.getElementById('output').innerHTML = html;
+                        };
+                    };
+                };
+            } catch (err) {
+                document.getElementById('output').innerHTML = `<p class="error">Error: ${err.message}</p>`;
+            }
+        }
+
+        loadDatabase();
+    </script>
+</body>
+</html>

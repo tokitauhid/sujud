@@ -8,6 +8,8 @@ import {
   SalahRecordsArrayType,
   userPreferencesType,
   SalahByDateObjType,
+  nextSalahTimeType,
+  LocationsDataObjTypeArr,
 } from "../types/types";
 import { useEffect, useRef, useState } from "react";
 import { getMissedSalahCount } from "../utils/helpers";
@@ -40,7 +42,12 @@ interface HomePageProps {
   isMultiEditMode: boolean;
   activeStreakCount: number;
   generateStreaks: (fetchedSalahData: SalahRecordsArrayType) => void;
+  nextSalahNameAndTime?: nextSalahTimeType;
+  userLocations: LocationsDataObjTypeArr;
 }
+
+import NextSalahTimeWidget from "../components/NextSalahTimeWidget";
+import MissedSalahsPanel from "../components/MissedSalahsPanel";
 
 const HomePage = ({
   dbConnection,
@@ -57,6 +64,8 @@ const HomePage = ({
   isMultiEditMode,
   activeStreakCount,
   generateStreaks,
+  nextSalahNameAndTime,
+  userLocations,
 }: HomePageProps) => {
   const [selectedSalahAndDate, setSelectedSalahAndDate] =
     useState<SalahByDateObjType>({});
@@ -200,30 +209,53 @@ const HomePage = ({
           // {...pageTransitionStyles}
           className={`home-page-wrap h-full`}
         >
-          <section className="h-full home-page-components-wrap">
-            <SalahTable
-              dbConnection={dbConnection}
-              // setUserPreferences={setUserPreferences}
-              setShowJoyRideEditIcon={setShowJoyRideEditIcon}
-              showJoyRideEditIcon={showJoyRideEditIcon}
-              userPreferences={userPreferences}
-              setFetchedSalahData={setFetchedSalahData}
-              fetchedSalahData={fetchedSalahData}
-              setSelectedSalahAndDate={setSelectedSalahAndDate}
-              selectedSalahAndDate={selectedSalahAndDate}
-              setIsMultiEditMode={setIsMultiEditMode}
-              isMultiEditMode={isMultiEditMode}
-              setShowUpdateStatusModal={setShowUpdateStatusModal}
-              showUpdateStatusModal={showUpdateStatusModal}
-              generateStreaks={generateStreaks}
-            />
-            <MissedSalahsListBottomSheet
-              dbConnection={dbConnection}
-              setFetchedSalahData={setFetchedSalahData}
-              setShowMissedSalahsSheet={setShowMissedSalahsSheet}
-              showMissedSalahsSheet={showMissedSalahsSheet}
-              missedSalahList={missedSalahList}
-            />
+          <section className="h-full home-page-components-wrap home-page-tablet-grid">
+            <div className="flex-1 min-h-0 h-full w-full">
+              <SalahTable
+                dbConnection={dbConnection}
+                // setUserPreferences={setUserPreferences}
+                setShowJoyRideEditIcon={setShowJoyRideEditIcon}
+                showJoyRideEditIcon={showJoyRideEditIcon}
+                userPreferences={userPreferences}
+                setFetchedSalahData={setFetchedSalahData}
+                fetchedSalahData={fetchedSalahData}
+                setSelectedSalahAndDate={setSelectedSalahAndDate}
+                selectedSalahAndDate={selectedSalahAndDate}
+                setIsMultiEditMode={setIsMultiEditMode}
+                isMultiEditMode={isMultiEditMode}
+                setShowUpdateStatusModal={setShowUpdateStatusModal}
+                showUpdateStatusModal={showUpdateStatusModal}
+                generateStreaks={generateStreaks}
+              />
+              <MissedSalahsListBottomSheet
+                dbConnection={dbConnection}
+                setFetchedSalahData={setFetchedSalahData}
+                setShowMissedSalahsSheet={setShowMissedSalahsSheet}
+                showMissedSalahsSheet={showMissedSalahsSheet}
+                missedSalahList={missedSalahList}
+              />
+            </div>
+            
+            <div className="home-page-tablet-widgets hidden md:flex flex-col h-full overflow-hidden shrink-0">
+              {nextSalahNameAndTime && (
+                <div className="mb-4 shrink-0">
+                  <NextSalahTimeWidget 
+                    userPreferences={userPreferences}
+                    userLocations={userLocations}
+                    nextSalahNameAndTime={nextSalahNameAndTime}
+                  />
+                </div>
+              )}
+              {Object.keys(missedSalahList).length > 0 && (
+                <div className="flex-1 min-h-0 flex flex-col bg-[var(--card-bg-color)] rounded-2xl overflow-hidden">
+                  <MissedSalahsPanel 
+                    dbConnection={dbConnection}
+                    setFetchedSalahData={setFetchedSalahData}
+                    missedSalahList={missedSalahList}
+                  />
+                </div>
+              )}
+            </div>
           </section>
         </motion.section>
       </IonContent>
