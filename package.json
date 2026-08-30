@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "watch": "watch 'npm run build' ./src",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "release": "./release.sh"
   },
   "dependencies": {
     "@capacitor-community/in-app-review": "^8.0.0",

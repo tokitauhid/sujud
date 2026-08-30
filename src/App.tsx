@@ -82,7 +82,6 @@ import TabletSideNav from "./components/TabletSideNav";
 import { FirebaseAuthProvider } from "./firebase/useFirebaseAuth";
 import { auth } from "./firebase/firebaseConfig";
 import { performBidirectionalSync } from "./firebase/syncService";
-import { showToast } from "./utils/helpers";
 
 const App = () => {
   const justLaunched = useRef(true);
@@ -186,7 +185,6 @@ const App = () => {
                     await performBidirectionalSync(auth.currentUser.uid, dbConnection);
                   } catch (syncError) {
                     console.error("Background sync failed:", syncError);
-                    showToast("Sync failed. Check connection.", "short");
                   }
                 }
               } catch (error) {
@@ -311,6 +309,11 @@ const App = () => {
           new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
           setUserPreferences,
         );
+
+        // Silent background sync on initial load
+        if (auth && auth.currentUser) {
+           performBidirectionalSync(auth.currentUser.uid, dbConnection).catch(e => console.error("Initial sync failed", e));
+        }
       }
     };
 

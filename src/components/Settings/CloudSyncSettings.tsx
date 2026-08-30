@@ -87,7 +87,7 @@ const CloudSyncSettings = ({
         setSyncStatus("syncing");
         
         await performBidirectionalSync(user.uid, dbConnection);
-        await fetchDataFromDB(true);
+        await fetchDataFromDB();
 
         const ts = await getLastSyncTimestamp(user.uid);
         setLastSynced(ts);
