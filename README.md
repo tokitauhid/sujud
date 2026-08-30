@@ -100,6 +100,29 @@ npx cap open android   # or ios
 
 ---
 
+## 📦 Releasing & Versioning
+
+Sujud includes an automated release script to easily bump versions and trigger GitHub Action builds:
+
+```bash
+# Bumps the patch version (e.g. 1.0.0 -> 1.0.1)
+npm run release
+
+# Bump minor version (e.g. 1.0.1 -> 1.1.0)
+npm run release minor
+
+# Bump major version (e.g. 1.1.0 -> 2.0.0)
+npm run release major
+```
+
+This script will automatically:
+1. Update `package.json` version.
+2. Increment `versionCode` and `versionName` in `android/app/build.gradle`.
+3. Commit the changes and tag the release.
+4. Prompt you to push the tags to GitHub (triggering the `release-apk.yml` workflow).
+
+---
+
 ## 🙏 Credits & Attribution
 
 Sujud is a fork of **[My Salah App](https://github.com/My-Ummah-Apps/My-Salah-App)** — originally created and maintained by [My Ummah Apps](https://github.com/TheFlyingDonut). The core prayer tracking engine, architecture, and design foundations were built by the original author. Full credit and deep gratitude go to them for creating such an incredible open-source tool for the Muslim community.
