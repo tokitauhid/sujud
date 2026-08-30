@@ -103,6 +103,12 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 --decode > android/app/release.keystore
 
       # --------------------------------------------------
+      # Fix Gradle Java Home
+      # --------------------------------------------------
+      - name: Remove hardcoded org.gradle.java.home
+        run: sed -i '/org.gradle.java.home/d' android/gradle.properties
+
+      # --------------------------------------------------
       # Build signed APK
       # --------------------------------------------------
       - name: Build signed release APK
