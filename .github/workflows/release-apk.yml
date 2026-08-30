@@ -50,14 +50,38 @@ jobs:
       # --------------------------------------------------
       # Firebase environment
       # --------------------------------------------------
-      - name: Create .env
+      - name: Verify Secrets
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
-          echo '${{ secrets.ENV_FILE }}' > .env
+          echo "Checking secrets..."
+          if [ -z "$ENV_FILE" ]; then
+            echo "::error::The ENV_FILE secret is missing or empty! Please make sure it is named exactly 'ENV_FILE' in your Repository Secrets."
+            exit 1
+          else
+            echo "✅ ENV_FILE secret is present."
+          fi
+          
+          if [ -z "$GOOGLE_SERVICES" ]; then
+            echo "::error::The GOOGLE_SERVICES_JSON secret is missing or empty!"
+            exit 1
+          else
+            echo "✅ GOOGLE_SERVICES_JSON secret is present."
+          fi
+
+      - name: Create .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          echo "$ENV_FILE" > .env
 
       - name: Create google-services.json
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           mkdir -p android/app
-          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
+          echo "$GOOGLE_SERVICES" > android/app/google-services.json
 
       # --------------------------------------------------
       # Build web application
