@@ -108,7 +108,7 @@ const HomePage = ({
       <IonHeader className="ion-no-border">
         <IonToolbar className="page-header-toolbar">
           <IonTitle>Home</IonTitle>
-          <IonButtons slot="secondary">
+          <IonButtons slot="secondary" className="md:hidden">
             <IonButton
               style={{
                 "--padding-end": "12px",
