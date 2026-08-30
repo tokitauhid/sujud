@@ -65,12 +65,19 @@ export async function performBidirectionalSync(
   }
   isSyncing = true;
 
+  let wasDbOpen = false;
+
   try {
     if (!dbConnection.current) {
       throw new Error("Database connection not available");
     }
 
-    await toggleDBConnection(dbConnection, "open");
+    const dbOpenState = await dbConnection.current.isDBOpen();
+    wasDbOpen = dbOpenState.result || false;
+
+    if (!wasDbOpen) {
+      await toggleDBConnection(dbConnection, "open");
+    }
 
     // 1. Fetch Local Data
     const localPrefsResult = await dbConnection.current.query(
@@ -227,24 +234,51 @@ export async function performBidirectionalSync(
       }
     }
 
-    // 6. Write to Firestore
-    const batch = writeBatch(db);
-    if (Object.keys(mergedPrefsToCloud).length > 0) {
-      batch.set(prefsDoc(userId), { ...mergedPrefsToCloud, updatedAt: serverTimestamp() }, { merge: true });
-    }
+    // Split writes to Firestore into batches of max 500
+    const allOperations = [
+      ...(Object.keys(mergedPrefsToCloud).length > 0 ? [{ type: 'set', ref: prefsDoc(userId), data: { ...mergedPrefsToCloud, updatedAt: serverTimestamp() }, merge: true }] : []),
+      ...salahToCloud.map(record => ({
+        type: 'set',
+        ref: doc(salahLogsCol(userId), `${record.date}_${record.salahName}`),
+        data: {
+          date: record.date,
+          salahName: record.salahName,
+          salahStatus: record.salahStatus,
+          reasons: record.reasons || "",
+          notes: record.notes || "",
+          createdAt: record.createdAt || 0,
+          updatedAt: record.updatedAt || 0,
+          deleted: record.deleted || 0,
+        },
+        merge: true
+      })),
+      ...locsToCloud.filter(loc => loc.syncId).map(loc => ({
+        type: 'set',
+        ref: doc(locationsCol(userId), loc.syncId!),
+        data: {
+          syncId: loc.syncId,
+          locationName: loc.locationName || "",
+          latitude: loc.latitude || 0,
+          longitude: loc.longitude || 0,
+          isSelected: loc.isSelected || 0,
+          createdAt: loc.createdAt || 0,
+          updatedAt: loc.updatedAt || 0,
+          deleted: loc.deleted || 0,
+        },
+        merge: true
+      })),
+      { type: 'set', ref: userDoc(userId), data: { lastSyncedAt: serverTimestamp() }, merge: true }
+    ];
 
-    for (const record of salahToCloud) {
-      batch.set(doc(salahLogsCol(userId), `${record.date}_${record.salahName}`), record, { merge: true });
-    }
-
-    for (const loc of locsToCloud) {
-      if (loc.syncId) {
-        batch.set(doc(locationsCol(userId), loc.syncId), loc, { merge: true });
+    const CHUNK_SIZE = 450;
+    for (let i = 0; i < allOperations.length; i += CHUNK_SIZE) {
+      const batchChunk = allOperations.slice(i, i + CHUNK_SIZE);
+      const batch = writeBatch(db);
+      for (const op of batchChunk) {
+        batch.set(op.ref, op.data, { merge: op.merge });
       }
+      await batch.commit();
     }
-
-    await batch.commit();
-    await setDoc(userDoc(userId), { lastSyncedAt: serverTimestamp() }, { merge: true });
 
     // 7. Write to Local SQLite
     const statements: any[] = [];
@@ -307,7 +341,7 @@ export async function performBidirectionalSync(
     throw error;
   } finally {
     isSyncing = false;
-    if (dbConnection.current) {
+    if (dbConnection.current && !wasDbOpen) {
       await toggleDBConnection(dbConnection, "close");
     }
   }
@@ -346,3 +380,221 @@ export async function subscribeToPreferences() { return () => {}; }
 export async function fullSyncToFirestore() {}
 export async function pullFromFirestore() { return { preferences: null, salahLogs: [], locations: [] }; }
 export async function seedSQLiteFromCloud() {}
+
+// ---------------------------------------------------------------------------
+// MANUAL OVERWRITE SYNC OPERATIONS
+// ---------------------------------------------------------------------------
+
+export async function pushLocalDataToCloud(
+  userId: string,
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
+): Promise<void> {
+  if (isSyncing) throw new Error("Sync already in progress");
+  isSyncing = true;
+  let wasDbOpen = false;
+  try {
+    if (!dbConnection.current) throw new Error("Database connection not available");
+    
+    const dbOpenState = await dbConnection.current.isDBOpen();
+    wasDbOpen = dbOpenState.result || false;
+
+    if (!wasDbOpen) {
+      await toggleDBConnection(dbConnection, "open");
+    }
+
+    const localPrefsResult = await dbConnection.current.query(`SELECT * FROM userPreferencesTable`);
+    const localSalahResult = await dbConnection.current.query(`SELECT * FROM salahDataTable WHERE deleted = 0`);
+    const localLocationsResult = await dbConnection.current.query(`SELECT * FROM userLocationsTable WHERE deleted = 0`);
+
+    const localPrefs = localPrefsResult.values || [];
+    const localSalahs = (localSalahResult.values as DBResultDataObjType[]) || [];
+    const localLocations = (localLocationsResult.values as LocationsDataObjType[]) || [];
+
+    // Clear existing cloud syncable data for safety/exact match
+    const existingLogsSnap = await getDocs(salahLogsCol(userId));
+    const existingLocsSnap = await getDocs(locationsCol(userId));
+
+    const normalizedPrefs: Record<string, { value: string; updatedAt: number }> = {};
+    for (const p of localPrefs) {
+      normalizedPrefs[p.preferenceName] = {
+        value: p.preferenceValue,
+        updatedAt: p.updatedAt || 0,
+      };
+    }
+
+    const allOperations: any[] = [
+      ...existingLogsSnap.docs.map(snap => ({ type: 'delete', ref: snap.ref })),
+      ...existingLocsSnap.docs.map(snap => ({ type: 'delete', ref: snap.ref })),
+      { type: 'set', ref: prefsDoc(userId), data: { ...normalizedPrefs, updatedAt: serverTimestamp() } },
+      ...localSalahs.map(record => ({
+        type: 'set',
+        ref: doc(salahLogsCol(userId), `${record.date}_${record.salahName}`),
+        data: {
+          date: record.date,
+          salahName: record.salahName,
+          salahStatus: record.salahStatus,
+          reasons: record.reasons || "",
+          notes: record.notes || "",
+          createdAt: record.createdAt || 0,
+          updatedAt: record.updatedAt || 0,
+          deleted: 0,
+        }
+      })),
+      ...localLocations.filter(loc => loc.syncId).map(loc => ({
+        type: 'set',
+        ref: doc(locationsCol(userId), loc.syncId!),
+        data: {
+          syncId: loc.syncId,
+          locationName: loc.locationName || "",
+          latitude: loc.latitude || 0,
+          longitude: loc.longitude || 0,
+          isSelected: loc.isSelected || 0,
+          createdAt: loc.createdAt || 0,
+          updatedAt: loc.updatedAt || 0,
+          deleted: 0,
+        }
+      })),
+      { type: 'set', ref: userDoc(userId), data: { lastSyncedAt: serverTimestamp() }, merge: true }
+    ];
+
+    const CHUNK_SIZE = 450;
+    for (let i = 0; i < allOperations.length; i += CHUNK_SIZE) {
+      const batchChunk = allOperations.slice(i, i + CHUNK_SIZE);
+      const batch = writeBatch(db);
+      for (const op of batchChunk) {
+        if (op.type === 'delete') {
+          batch.delete(op.ref);
+        } else if (op.type === 'set') {
+          if (op.merge) {
+            batch.set(op.ref, op.data, { merge: op.merge });
+          } else {
+            batch.set(op.ref, op.data);
+          }
+        }
+      }
+      await batch.commit();
+    }
+
+  } finally {
+    isSyncing = false;
+    if (dbConnection.current && !wasDbOpen) await toggleDBConnection(dbConnection, "close");
+  }
+}
+
+export async function pullCloudDataToLocal(
+  userId: string,
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
+): Promise<void> {
+  if (isSyncing) throw new Error("Sync already in progress");
+  isSyncing = true;
+  let wasDbOpen = false;
+  try {
+    if (!dbConnection.current) throw new Error("Database connection not available");
+
+    const dbOpenState = await dbConnection.current.isDBOpen();
+    wasDbOpen = dbOpenState.result || false;
+
+    const prefsSnap = await getDoc(prefsDoc(userId));
+    const logsSnap = await getDocs(salahLogsCol(userId));
+    const locsSnap = await getDocs(locationsCol(userId));
+
+    if (!wasDbOpen) {
+      await toggleDBConnection(dbConnection, "open");
+    }
+    
+    // Start replacing local data via statements
+    const statements: any[] = [];
+    
+    // Delete existing syncable data (we don't delete schema)
+    statements.push({ statement: `DELETE FROM userPreferencesTable`, values: [] });
+    statements.push({ statement: `DELETE FROM salahDataTable`, values: [] });
+    statements.push({ statement: `DELETE FROM userLocationsTable`, values: [] });
+
+    if (prefsSnap.exists()) {
+      const data = prefsSnap.data();
+      for (const [k, v] of Object.entries(data)) {
+        if (k === "updatedAt") continue;
+        let strVal = "";
+        let up = 0;
+        if (typeof v === "object" && v !== null && "value" in v) {
+          strVal = (v as any).value;
+          up = normalizeTimestamp((v as any).updatedAt);
+        } else {
+          strVal = Array.isArray(v) ? v.join(",") : String(v);
+        }
+        statements.push({
+          statement: `INSERT INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
+          values: [k, strVal, up]
+        });
+      }
+    }
+
+    logsSnap.forEach(snap => {
+      const d = snap.data();
+      if (d.deleted === 1) return; // Skip deleted from destructive pull
+      statements.push({
+        statement: `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0)`,
+        values: [d.date, d.salahName, d.salahStatus, d.reasons || "", d.notes || "", normalizeTimestamp(d.createdAt), normalizeTimestamp(d.updatedAt)]
+      });
+    });
+
+    locsSnap.forEach(snap => {
+      const d = snap.data();
+      if (d.deleted === 1) return;
+      statements.push({
+        statement: `INSERT INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0)`,
+        values: [d.syncId, d.locationName || "", d.latitude || 0, d.longitude || 0, d.isSelected || 0, normalizeTimestamp(d.createdAt), normalizeTimestamp(d.updatedAt)]
+      });
+    });
+
+    if (statements.length > 0) {
+      const BATCH_SIZE = 50;
+      for (let i = 0; i < statements.length; i += BATCH_SIZE) {
+        await dbConnection.current.executeSet(statements.slice(i, i + BATCH_SIZE));
+      }
+    }
+    
+    await setDoc(userDoc(userId), { lastSyncedAt: serverTimestamp() }, { merge: true });
+
+  } finally {
+    isSyncing = false;
+    if (dbConnection.current && !wasDbOpen) await toggleDBConnection(dbConnection, "close");
+  }
+}
+
+export async function getSyncDataCounts(
+  userId: string,
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
+) {
+  let localSalahs = 0, localLocs = 0;
+  let cloudSalahs = 0, cloudLocs = 0;
+
+  let wasDbOpen = false;
+  try {
+    if (dbConnection.current) {
+      const dbOpenState = await dbConnection.current.isDBOpen();
+      wasDbOpen = dbOpenState.result || false;
+      if (!wasDbOpen) await toggleDBConnection(dbConnection, "open");
+
+      const sResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0`);
+      const lResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM userLocationsTable WHERE deleted = 0`);
+      if (sResult?.values && sResult.values.length > 0) localSalahs = sResult.values[0].count;
+      if (lResult?.values && lResult.values.length > 0) localLocs = lResult.values[0].count;
+      
+      if (!wasDbOpen) await toggleDBConnection(dbConnection, "close");
+    }
+
+    const logsSnap = await getDocs(salahLogsCol(userId));
+    const locsSnap = await getDocs(locationsCol(userId));
+
+    logsSnap.forEach(d => { if (d.data().deleted !== 1) cloudSalahs++; });
+    locsSnap.forEach(d => { if (d.data().deleted !== 1) cloudLocs++; });
+  } catch (error) {
+    console.error("Failed to get counts", error);
+  }
+
+  return {
+    local: { salahs: localSalahs, locations: localLocs },
+    cloud: { salahs: cloudSalahs, locations: cloudLocs },
+  };
+}

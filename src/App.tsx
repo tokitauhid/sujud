@@ -82,6 +82,9 @@ import {
 import BottomSheetChangelog from "./components/BottomSheets/BottomSheetChangeLog";
 import { FirebaseAuthProvider } from "./firebase/useFirebaseAuth";
 import TabletSideNav from "./components/TabletSideNav";
+import { auth } from "./firebase/firebaseConfig";
+import { performBidirectionalSync } from "./firebase/syncService";
+import { showToast } from "./utils/helpers";
 
 const App = () => {
   const justLaunched = useRef(true);
@@ -179,6 +182,16 @@ const App = () => {
                   new Date().toISOString(),
                   setUserPreferences,
                 );
+
+                // Silent background sync if user is logged in
+                if (auth.currentUser) {
+                  try {
+                    await performBidirectionalSync(auth.currentUser.uid, dbConnection);
+                  } catch (syncError) {
+                    console.error("Background sync failed:", syncError);
+                    showToast("Sync failed. Check connection.", "short");
+                  }
+                }
               } catch (error) {
                 console.error(
                   "Unable to generate salah times / schedule notifications",

@@ -3,6 +3,9 @@ import { useFirebaseAuth } from "../../firebase/useFirebaseAuth";
 import {
   getLastSyncTimestamp,
   performBidirectionalSync,
+  pushLocalDataToCloud,
+  pullCloudDataToLocal,
+  getSyncDataCounts,
   SyncStatus,
 } from "../../firebase/syncService";
 import { showToast } from "../../utils/helpers";
@@ -22,7 +25,9 @@ import {
   IoWarningOutline,
   IoPersonCircleOutline,
   IoLogOutOutline,
+  IoSettingsOutline,
 } from "react-icons/io5";
+import { IonActionSheet, useIonAlert } from "@ionic/react";
 
 interface CloudSyncSettingsProps {
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
@@ -42,6 +47,8 @@ const CloudSyncSettings = ({
   const { user, isAuthLoading, signInWithGoogle, signOut } = useFirebaseAuth();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
+  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [presentAlert] = useIonAlert();
 
   // Fetch last sync time on mount + when user changes
   useEffect(() => {
@@ -103,7 +110,7 @@ const CloudSyncSettings = ({
       setSyncStatus("syncing");
 
       await performBidirectionalSync(user.uid, dbConnection);
-      await fetchDataFromDB(true);
+      await fetchDataFromDB();
 
       const ts = await getLastSyncTimestamp(user.uid);
       setLastSynced(ts);
@@ -124,6 +131,75 @@ const CloudSyncSettings = ({
       showToast("Signed out", "short");
     } catch (error) {
       console.error("Sign-out failed:", error);
+    }
+  };
+
+  const handlePush = async () => {
+    if (!user) return;
+    try {
+      setSyncStatus("syncing");
+      await pushLocalDataToCloud(user.uid, dbConnection);
+      const ts = await getLastSyncTimestamp(user.uid);
+      setLastSynced(ts);
+      setSyncStatus("synced");
+      showToast("Pushed to cloud!", "short");
+    } catch (error) {
+      console.error("Push failed:", error);
+      setSyncStatus("error");
+      showToast("Push failed.", "long");
+    }
+  };
+
+  const handlePull = async () => {
+    if (!user) return;
+    try {
+      setSyncStatus("syncing");
+      await pullCloudDataToLocal(user.uid, dbConnection);
+      await fetchDataFromDB();
+      const ts = await getLastSyncTimestamp(user.uid);
+      setLastSynced(ts);
+      setSyncStatus("synced");
+      showToast("Pulled from cloud!", "short");
+    } catch (error) {
+      console.error("Pull failed:", error);
+      setSyncStatus("error");
+      showToast("Pull failed.", "long");
+    }
+  };
+
+  const confirmOperation = async (operation: "push" | "pull") => {
+    if (!user) return;
+    setSyncStatus("syncing"); // Visual feedback while counting
+    
+    try {
+      const counts = await getSyncDataCounts(user.uid, dbConnection);
+      setSyncStatus("idle");
+
+      const isPush = operation === "push";
+      const header = isPush ? "Push local data?" : "Pull cloud data?";
+      const message = isPush
+        ? `This will replace your cloud data with the data currently stored on this device.<br><br><b>This device:</b><br>• ${counts.local.salahs} Salah records<br>• ${counts.local.locations} saved locations<br><br><b>Cloud currently:</b><br>• ${counts.cloud.salahs} Salah records<br>• ${counts.cloud.locations} saved locations<br><br>Cloud-only changes may be permanently lost.`
+        : `This will replace the data on this device with your cloud data.<br><br><b>Cloud:</b><br>• ${counts.cloud.salahs} Salah records<br>• ${counts.cloud.locations} saved locations<br><br><b>This device currently:</b><br>• ${counts.local.salahs} Salah records<br>• ${counts.local.locations} saved locations<br><br>Local-only changes may be permanently lost.`;
+
+      presentAlert({
+        header,
+        message,
+        buttons: [
+          { text: "Cancel", role: "cancel", cssClass: "text-gray-500" },
+          {
+            text: isPush ? "Push to Cloud" : "Pull from Cloud",
+            role: "confirm",
+            cssClass: "text-red-500 font-bold",
+            handler: () => {
+              isPush ? handlePush() : handlePull();
+            },
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Failed to get counts:", error);
+      setSyncStatus("error");
+      showToast("Failed to prepare sync. Please try again.", "long");
     }
   };
 
@@ -196,11 +272,8 @@ const CloudSyncSettings = ({
       </div>
 
       {/* Sync status row */}
-      <div
-        className="flex items-center justify-between bg-[var(--card-bg-color)] mx-auto py-3 px-3 cursor-pointer active:opacity-80 transition-opacity"
-        onClick={handleManualSync}
-      >
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between bg-[var(--card-bg-color)] mx-auto py-3 px-3">
+        <div className="flex items-center gap-3 cursor-pointer active:opacity-80 transition-opacity" onClick={handleManualSync}>
           <div className="w-9 h-9 rounded-full bg-[var(--card-bg-color)] border border-[var(--app-border-color)] flex items-center justify-center">
             {syncStatus === "syncing" && (
               <IoSyncOutline className="text-lg text-blue-400 animate-spin" />
@@ -228,7 +301,45 @@ const CloudSyncSettings = ({
             </p>
           </div>
         </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowActionSheet(true);
+          }}
+          disabled={syncStatus === "syncing"}
+          className="p-2 rounded-lg active:opacity-60 transition-opacity disabled:opacity-30"
+          aria-label="Sync options"
+        >
+          <IoSettingsOutline className="text-xl" />
+        </button>
       </div>
+      <IonActionSheet
+        isOpen={showActionSheet}
+        onDidDismiss={() => setShowActionSheet(false)}
+        header="Sync options"
+        subHeader="Warning: Push and Pull are overwrite operations. Use these only when you are sure which copy is correct."
+        buttons={[
+          {
+            text: "↑ Push local data to cloud",
+            handler: () => {
+              confirmOperation("push");
+            },
+          },
+          {
+            text: "↓ Pull cloud data to this device",
+            handler: () => {
+              confirmOperation("pull");
+            },
+          },
+          {
+            text: "Cancel",
+            role: "cancel",
+            data: {
+              action: "cancel",
+            },
+          },
+        ]}
+      />
     </div>
   );
 };
