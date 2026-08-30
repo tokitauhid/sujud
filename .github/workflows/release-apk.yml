@@ -106,7 +106,9 @@ jobs:
       # Fix Gradle Java Home
       # --------------------------------------------------
       - name: Remove hardcoded org.gradle.java.home
-        run: sed -i '/org.gradle.java.home/d' android/gradle.properties
+        run: |
+          sed -i '/org.gradle.java.home/d' android/gradle.properties
+          echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
 
       # --------------------------------------------------
       # Build signed APK
@@ -121,6 +123,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           ./gradlew assembleRelease \
+            -Dorg.gradle.java.home="$JAVA_HOME" \
             -Pandroid.injected.signing.store.file="$KEYSTORE_FILE" \
             -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
@@ -132,7 +135,7 @@ jobs:
       - name: Build debug APK
         if: steps.signing.outputs.enabled != 'true'
         working-directory: android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug -Dorg.gradle.java.home="$JAVA_HOME"
 
       # --------------------------------------------------
       # Find APK

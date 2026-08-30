@@ -521,7 +521,11 @@ const App = () => {
         `SELECT * FROM userLocationsTable WHERE deleted = 0`,
       );
 
-      // console.log("DBResultLocations: ", DBResultLocations);
+      console.log(`[FETCH DEBUG] Prefs: ${DBResultPreferences?.values?.length ?? 0}, Salahs: ${DBResultAllSalahData?.values?.length ?? 0}, Locs: ${DBResultLocations?.values?.length ?? 0}`);
+      if (DBResultAllSalahData?.values && DBResultAllSalahData.values.length > 0) {
+        const statuses = new Set(DBResultAllSalahData.values.map((r: any) => r.salahStatus));
+        console.log(`[FETCH DEBUG] Unique salahStatus values in local DB:`, Array.from(statuses));
+      }
 
       if (!DBResultPreferences || !DBResultPreferences.values) {
         throw new Error(

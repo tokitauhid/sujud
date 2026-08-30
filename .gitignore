@@ -30,3 +30,4 @@ dist-ssr
 # Firebase / Google Services
 google-services.json
 GoogleService-Info.plist
+public/firebase-viewer.html

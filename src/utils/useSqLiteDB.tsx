@@ -169,6 +169,31 @@ const useSQLiteDB = () => {
       for (const sql of createTablesSql) {
         await dbConnection.current.execute(sql);
       }
+
+      // ---------------------------------------------------------
+      // MIGRATIONS: Add missing columns if user imported old data
+      // ---------------------------------------------------------
+      const migrationSql = [
+        `ALTER TABLE salahDataTable ADD COLUMN createdAt INTEGER DEFAULT 0;`,
+        `ALTER TABLE salahDataTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
+        `ALTER TABLE salahDataTable ADD COLUMN deleted INTEGER DEFAULT 0;`,
+        
+        `ALTER TABLE userLocationsTable ADD COLUMN syncId TEXT DEFAULT '';`,
+        `ALTER TABLE userLocationsTable ADD COLUMN createdAt INTEGER DEFAULT 0;`,
+        `ALTER TABLE userLocationsTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
+        `ALTER TABLE userLocationsTable ADD COLUMN deleted INTEGER DEFAULT 0;`,
+        
+        `ALTER TABLE userPreferencesTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`
+      ];
+
+      for (const sql of migrationSql) {
+        try {
+          await dbConnection.current.execute(sql);
+        } catch (e) {
+          // Ignore errors; column likely already exists.
+        }
+      }
+
     } catch (error) {
       console.error(error);
     } finally {

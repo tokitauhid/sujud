@@ -51,6 +51,39 @@ function normalizeTimestamp(val: any): number {
   return 0;
 }
 
+/**
+ * After syncing salah data into SQLite, ensure userStartDate covers the
+ * earliest salah record so the home screen displays all synced dates.
+ */
+async function adjustUserStartDateIfNeeded(
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
+): Promise<void> {
+  if (!dbConnection.current) return;
+  try {
+    const earliestResult = await dbConnection.current.query(
+      `SELECT MIN(date) as minDate FROM salahDataTable WHERE deleted = 0`
+    );
+    const earliestDate = earliestResult?.values?.[0]?.minDate;
+    if (!earliestDate) return;
+
+    const currentStartResult = await dbConnection.current.query(
+      `SELECT preferenceValue FROM userPreferencesTable WHERE preferenceName = 'userStartDate'`
+    );
+    const currentStart = currentStartResult?.values?.[0]?.preferenceValue;
+
+    // If no start date exists, or the earliest salah date is before it, update
+    if (!currentStart || earliestDate < currentStart) {
+      console.log(`[SYNC] Adjusting userStartDate from "${currentStart}" to "${earliestDate}"`);
+      await dbConnection.current.run(
+        `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES ('userStartDate', ?, ?)`,
+        [earliestDate, Date.now()]
+      );
+    }
+  } catch (e) {
+    console.error("Failed to adjust userStartDate:", e);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // BIDIRECTIONAL SYNC
 // ---------------------------------------------------------------------------
@@ -123,6 +156,7 @@ export async function performBidirectionalSync(
     }
 
     const logsSnap = await getDocs(salahLogsCol(userId));
+    console.log(`[SYNC DEBUG] Cloud salahLogs snapshot size: ${logsSnap.size}`);
     logsSnap.forEach((docSnap) => {
       const data = docSnap.data();
       cloudData.salahLogs.push({
@@ -131,6 +165,11 @@ export async function performBidirectionalSync(
         updatedAt: normalizeTimestamp(data.updatedAt),
       } as DBResultDataObjType);
     });
+    console.log(`[SYNC DEBUG] Cloud salahLogs parsed: ${cloudData.salahLogs.length}`);
+    if (cloudData.salahLogs.length > 0) {
+      console.log(`[SYNC DEBUG] Sample cloud log[0]:`, JSON.stringify(cloudData.salahLogs[0]));
+      console.log(`[SYNC DEBUG] Sample cloud log[last]:`, JSON.stringify(cloudData.salahLogs[cloudData.salahLogs.length - 1]));
+    }
 
     const locsSnap = await getDocs(locationsCol(userId));
     locsSnap.forEach((docSnap) => {
@@ -208,6 +247,10 @@ export async function performBidirectionalSync(
         salahToLocal.push(cloud);
       }
     }
+
+    console.log(`[SYNC DEBUG] Local salah count: ${localSalahs.length}, Cloud salah count: ${cloudData.salahLogs.length}`);
+    console.log(`[SYNC DEBUG] All unique salah keys: ${allSalahKeys.size}`);
+    console.log(`[SYNC DEBUG] salahToLocal: ${salahToLocal.length}, salahToCloud: ${salahToCloud.length}`);
 
     // 5. Merge Locations
     const localLocMap = new Map(localLocations.map((l) => [l.syncId, l]));
@@ -327,14 +370,30 @@ export async function performBidirectionalSync(
       });
     }
     
+    console.log(`[SYNC DEBUG] Total SQLite statements to execute: ${statements.length}`);
     if (statements.length > 0) {
       const BATCH_SIZE = 50;
       for (let i = 0; i < statements.length; i += BATCH_SIZE) {
-        await dbConnection.current.executeSet(statements.slice(i, i + BATCH_SIZE));
+        try {
+          const batch = statements.slice(i, i + BATCH_SIZE);
+          console.log(`[SYNC DEBUG] Executing batch ${i}-${i + batch.length - 1} (${batch.length} statements)`);
+          await dbConnection.current.executeSet(batch);
+          console.log(`[SYNC DEBUG] Batch ${i}-${i + batch.length - 1} succeeded`);
+        } catch (err) {
+          console.error(`[SYNC DEBUG] Batch insert error at index ${i}:`, err);
+          // Log the failing statements for diagnosis
+          const failBatch = statements.slice(i, i + BATCH_SIZE);
+          failBatch.forEach((s: any, idx: number) => {
+            console.error(`[SYNC DEBUG]   Statement[${i + idx}]:`, s.statement.substring(0, 80), "values:", JSON.stringify(s.values));
+          });
+        }
       }
     }
 
     console.log("Bidirectional sync completed successfully.");
+
+    // Ensure userStartDate covers all synced data
+    await adjustUserStartDateIfNeeded(dbConnection);
 
   } catch (error) {
     console.error("Error during bidirectional sync:", error);
@@ -403,8 +462,8 @@ export async function pushLocalDataToCloud(
     }
 
     const localPrefsResult = await dbConnection.current.query(`SELECT * FROM userPreferencesTable`);
-    const localSalahResult = await dbConnection.current.query(`SELECT * FROM salahDataTable WHERE deleted = 0`);
-    const localLocationsResult = await dbConnection.current.query(`SELECT * FROM userLocationsTable WHERE deleted = 0`);
+    const localSalahResult = await dbConnection.current.query(`SELECT * FROM salahDataTable WHERE deleted = 0 OR deleted IS NULL`);
+    const localLocationsResult = await dbConnection.current.query(`SELECT * FROM userLocationsTable WHERE deleted = 0 OR deleted IS NULL`);
 
     const localPrefs = localPrefsResult.values || [];
     const localSalahs = (localSalahResult.values as DBResultDataObjType[]) || [];
@@ -529,30 +588,54 @@ export async function pullCloudDataToLocal(
       }
     }
 
+    console.log(`[PULL DEBUG] Cloud snapshots - prefs exists: ${prefsSnap.exists()}, logs: ${logsSnap.size}, locs: ${locsSnap.size}`);
+
     logsSnap.forEach(snap => {
       const d = snap.data();
-      if (d.deleted === 1) return; // Skip deleted from destructive pull
       statements.push({
-        statement: `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0)`,
-        values: [d.date, d.salahName, d.salahStatus, d.reasons || "", d.notes || "", normalizeTimestamp(d.createdAt), normalizeTimestamp(d.updatedAt)]
+        statement: `INSERT OR REPLACE INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        values: [d.date ?? "", d.salahName ?? "", d.salahStatus ?? "Missed", d.reasons ?? "", d.notes ?? "", normalizeTimestamp(d.createdAt), normalizeTimestamp(d.updatedAt), d.deleted ?? 0],
       });
     });
 
     locsSnap.forEach(snap => {
       const d = snap.data();
-      if (d.deleted === 1) return;
       statements.push({
-        statement: `INSERT INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0)`,
-        values: [d.syncId, d.locationName || "", d.latitude || 0, d.longitude || 0, d.isSelected || 0, normalizeTimestamp(d.createdAt), normalizeTimestamp(d.updatedAt)]
+        statement: `INSERT OR REPLACE INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        values: [d.syncId ?? "", d.locationName ?? "", d.latitude ?? 0, d.longitude ?? 0, d.isSelected ?? 0, normalizeTimestamp(d.createdAt), normalizeTimestamp(d.updatedAt), d.deleted ?? 0],
       });
     });
 
+    console.log(`[PULL DEBUG] Total statements to execute: ${statements.length}`);
     if (statements.length > 0) {
       const BATCH_SIZE = 50;
       for (let i = 0; i < statements.length; i += BATCH_SIZE) {
-        await dbConnection.current.executeSet(statements.slice(i, i + BATCH_SIZE));
+        try {
+          const batch = statements.slice(i, i + BATCH_SIZE);
+          console.log(`[PULL DEBUG] Executing batch ${i}-${i + batch.length - 1} (${batch.length} statements)`);
+          await dbConnection.current.executeSet(batch);
+          console.log(`[PULL DEBUG] Batch ${i}-${i + batch.length - 1} succeeded`);
+        } catch (err) {
+          console.error(`[PULL DEBUG] Batch insert error at index ${i}:`, err);
+          const failBatch = statements.slice(i, i + BATCH_SIZE);
+          failBatch.forEach((s: any, idx: number) => {
+            console.error(`[PULL DEBUG]   Statement[${i + idx}]:`, s.statement.substring(0, 80), "values:", JSON.stringify(s.values));
+          });
+        }
       }
     }
+
+    // Verify what actually ended up in SQLite after pull
+    try {
+      const verifyResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM salahDataTable`);
+      const verifyDeleted = await dbConnection.current.query(`SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0`);
+      console.log(`[PULL DEBUG] After pull - total salah rows: ${verifyResult?.values?.[0]?.count}, non-deleted: ${verifyDeleted?.values?.[0]?.count}`);
+    } catch (e) {
+      console.error(`[PULL DEBUG] Verify query failed:`, e);
+    }
+    
+    // Ensure userStartDate covers all pulled data
+    await adjustUserStartDateIfNeeded(dbConnection);
     
     await setDoc(userDoc(userId), { lastSyncedAt: serverTimestamp() }, { merge: true });
 
@@ -576,8 +659,8 @@ export async function getSyncDataCounts(
       wasDbOpen = dbOpenState.result || false;
       if (!wasDbOpen) await toggleDBConnection(dbConnection, "open");
 
-      const sResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0`);
-      const lResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM userLocationsTable WHERE deleted = 0`);
+      const sResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0 OR deleted IS NULL`);
+      const lResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM userLocationsTable WHERE deleted = 0 OR deleted IS NULL`);
       if (sResult?.values && sResult.values.length > 0) localSalahs = sResult.values[0].count;
       if (lResult?.values && lResult.values.length > 0) localLocs = lResult.values[0].count;
       
