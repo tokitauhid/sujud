@@ -18,12 +18,14 @@ Sujud helps you log your daily prayers, analyse your consistency over time, and 
 ## ✨ Features
 
 - 📿 **Prayer Tracking** — Log each of your five daily prayers with a simple tap.
-- 📊 **Trend Analysis** — Beautiful weekly, monthly, and yearly reports with visual charts.
 - 🔔 **Smart Notifications** — Adhan alerts and gentle post-prayer logging reminders.
 - 🌐 **Cloud Sync** — Seamlessly sync across all your devices using Google Sign-In and Firebase.
-- 📅 **Hijri Calendar** — Browse and reflect on your prayer history by Islamic date.
+
+### 🚧 Coming Soon
+- 📊 **Trend Analysis** — Beautiful weekly, monthly, and yearly reports with visual charts.
 - 🗒️ **Notes** — Attach personal reminders for du'as and adhkar to any prayer.
 - 🎨 **Themes** — Multiple colour themes, including a pure OLED black mode.
+- 📅 **Hijri Calendar** — Browse and reflect on your prayer history by Islamic date.
 
 ---
 
