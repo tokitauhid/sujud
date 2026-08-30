@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./public/assets/icon/icon.png" alt="Sujud Logo" width="120" height="120" />
+  <img src="./assets/logo.png" alt="Sujud Logo" width="150" height="150" style="border-radius: 24px;" />
   <h1>Sujud — سجود</h1>
   <p><em>A personal Salah tracker & habit companion for Android, iOS, and the Web.</em></p>
 
