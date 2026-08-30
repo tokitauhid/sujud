@@ -20,13 +20,18 @@ const firebaseConfig = {
 };
 
 // Prevent re-initialising on Vite hot-reload
-let firebaseApp: FirebaseApp;
-if (getApps().length === 0) {
-  firebaseApp = initializeApp(firebaseConfig);
+let firebaseApp: FirebaseApp | undefined;
+
+if (firebaseConfig.apiKey) {
+  if (getApps().length === 0) {
+    firebaseApp = initializeApp(firebaseConfig);
+  } else {
+    firebaseApp = getApps()[0];
+  }
 } else {
-  firebaseApp = getApps()[0];
+  console.warn("Firebase config is missing or incomplete (missing API key). Firebase will not be initialized.");
 }
 
-export const db: Firestore = getFirestore(firebaseApp);
-export const auth: Auth = getAuth(firebaseApp);
+export const db: Firestore | null = firebaseApp ? getFirestore(firebaseApp) : null;
+export const auth: Auth | null = firebaseApp ? getAuth(firebaseApp) : null;
 export { firebaseApp };

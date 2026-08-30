@@ -33,6 +33,10 @@ export const FirebaseAuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Listen for auth state changes (persists across app restarts)
   useEffect(() => {
+    if (!auth) {
+      setIsAuthLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setIsAuthLoading(false);
@@ -46,6 +50,7 @@ export const FirebaseAuthProvider = ({ children }: { children: ReactNode }) => {
    * native Google Sign-In SDK, then passes the credential to Firebase Auth.
    */
   const signInWithGoogle = async (): Promise<void> => {
+    if (!auth) throw new Error("Firebase Auth is not initialized. Check your configuration.");
     try {
       // 1. Trigger native Google Sign-In dialog
       // useCredentialManager: false falls back to the legacy Google Sign-In
@@ -74,6 +79,7 @@ export const FirebaseAuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async (): Promise<void> => {
+    if (!auth) throw new Error("Firebase Auth is not initialized.");
     try {
       await FirebaseAuthentication.signOut();
       await firebaseSignOut(auth);

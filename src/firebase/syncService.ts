@@ -17,13 +17,13 @@ import {
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import { toggleDBConnection } from "../utils/dbUtils";
 
-const userDoc = (userId: string) => doc(db, "users", userId);
+const userDoc = (userId: string) => doc(db!, "users", userId);
 const prefsDoc = (userId: string) =>
-  doc(db, "users", userId, "preferences", "data");
+  doc(db!, "users", userId, "preferences", "data");
 const locationsCol = (userId: string) =>
-  collection(db, "users", userId, "locations");
+  collection(db!, "users", userId, "locations");
 const salahLogsCol = (userId: string) =>
-  collection(db, "users", userId, "salahLogs");
+  collection(db!, "users", userId, "salahLogs");
 
 export let isSyncing = false;
 
@@ -316,6 +316,7 @@ export async function performBidirectionalSync(
     const CHUNK_SIZE = 450;
     for (let i = 0; i < allOperations.length; i += CHUNK_SIZE) {
       const batchChunk = allOperations.slice(i, i + CHUNK_SIZE);
+      if (!db) throw new Error("Firestore is not initialized.");
       const batch = writeBatch(db);
       for (const op of batchChunk) {
         batch.set(op.ref, op.data, { merge: op.merge });
@@ -519,6 +520,7 @@ export async function pushLocalDataToCloud(
     const CHUNK_SIZE = 450;
     for (let i = 0; i < allOperations.length; i += CHUNK_SIZE) {
       const batchChunk = allOperations.slice(i, i + CHUNK_SIZE);
+      if (!db) throw new Error("Firestore is not initialized.");
       const batch = writeBatch(db);
       for (const op of batchChunk) {
         if (op.type === 'delete') {

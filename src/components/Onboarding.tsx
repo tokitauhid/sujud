@@ -141,7 +141,7 @@ const Onboarding = ({
 
       // Check if returning user has cloud data
       const { auth } = await import("../firebase/firebaseConfig");
-      const currentUser = auth.currentUser;
+      const currentUser = auth?.currentUser;
 
       if (currentUser) {
         const cloudExists = await hasCloudData(currentUser.uid);

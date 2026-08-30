@@ -184,7 +184,7 @@ const App = () => {
                 );
 
                 // Silent background sync if user is logged in
-                if (auth.currentUser) {
+                if (auth && auth.currentUser) {
                   try {
                     await performBidirectionalSync(auth.currentUser.uid, dbConnection);
                   } catch (syncError) {
