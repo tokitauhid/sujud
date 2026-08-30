@@ -363,6 +363,10 @@ ion-select.sort-select::part(inner) {
   margin: 1rem;
 }
 
+.home-page-components-wrap {
+  height: calc(100% - 2rem) !important;
+}
+
 .checkbox-wrap {
   position: absolute;
   width: 100%;
@@ -754,6 +758,10 @@ td {
   .home-page-components-wrap,
   .salah-times-page-components-wrap {
     margin: 1.5rem 2rem;
+  }
+
+  .home-page-components-wrap {
+    height: calc(100% - 3rem) !important;
   }
 }
 
