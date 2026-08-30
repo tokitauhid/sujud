@@ -92,10 +92,14 @@ export type PreferenceObjType = {
 
 export type LocationsDataObjType = {
   id: number;
+  syncId: string;
   locationName: string;
   latitude: number;
   longitude: number;
   isSelected: number;
+  createdAt: number;
+  updatedAt: number;
+  deleted: number;
 };
 
 export type LocationsDataObjTypeArr = LocationsDataObjType[];
@@ -214,6 +218,9 @@ export type DBResultDataObjType = {
   salahStatus: SalahStatusType;
   reasons: string;
   notes: string;
+  createdAt: number;
+  updatedAt: number;
+  deleted: number;
 };
 
 export type DBResultDataObjArrayType = DBResultDataObjType[];

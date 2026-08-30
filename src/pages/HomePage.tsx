@@ -195,7 +195,7 @@ const HomePage = ({
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent scrollY={false} className="h-full">
+      <IonContent>
         <motion.section
           // {...pageTransitionStyles}
           className={`home-page-wrap h-full`}

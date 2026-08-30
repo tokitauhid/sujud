@@ -92,8 +92,8 @@ const BottomSheetLocationsList = ({
     dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>,
     id: number,
   ) => {
-    const stmnt = `DELETE FROM userLocationsTable WHERE id = ?`;
-    const params = [id];
+    const stmnt = `UPDATE userLocationsTable SET deleted = 1, updatedAt = ? WHERE id = ?`;
+    const params = [Date.now(), id];
 
     if (!dbConnection || !dbConnection.current) {
       throw new Error("dbConnection / dbconnection.current does not exist");

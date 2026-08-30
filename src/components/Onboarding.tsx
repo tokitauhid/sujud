@@ -37,8 +37,7 @@ import { AndroidSettings } from "capacitor-native-settings";
 import { useFirebaseAuth } from "../firebase/useFirebaseAuth";
 import {
   hasCloudData,
-  pullFromFirestore,
-  seedSQLiteFromCloud,
+  performBidirectionalSync,
 } from "../firebase/syncService";
 import { FcGoogle } from "react-icons/fc";
 import { IoSyncOutline } from "react-icons/io5";
@@ -148,16 +147,12 @@ const Onboarding = ({
         const cloudExists = await hasCloudData(currentUser.uid);
 
         if (cloudExists) {
-          // Returning user: restore cloud data and skip remaining onboarding
-          const cloudData = await pullFromFirestore(currentUser.uid);
-
-          if (cloudData.salahLogs.length > 0 || cloudData.preferences) {
-            await seedSQLiteFromCloud(dbConnection, cloudData);
-            await fetchDataFromDB?.(true);
-            showToast("Data restored from cloud!", "short");
-            await dismissOnboardingSlides();
-            return;
-          }
+          // Returning user: sync and skip remaining onboarding
+          await performBidirectionalSync(currentUser.uid, dbConnection);
+          await fetchDataFromDB?.(true);
+          showToast("Data synced from cloud!", "short");
+          await dismissOnboardingSlides();
+          return;
         }
       }
 

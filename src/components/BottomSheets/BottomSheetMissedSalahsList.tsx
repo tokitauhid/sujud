@@ -129,8 +129,8 @@ const MissedSalahsListBottomSheet = ({
     date: string,
     salahName: SalahNamesType,
   ) => {
-    const query = `UPDATE salahDataTable SET salahStatus = ? WHERE date = ? AND salahName = ?`;
-    const values = ["late", date, salahName];
+    const query = `UPDATE salahDataTable SET salahStatus = ?, updatedAt = ? WHERE date = ? AND salahName = ?`;
+    const values = ["late", Date.now(), date, salahName];
     if (!dbConnection.current) {
       throw new Error("dbConnection.current does not exist");
     }

@@ -120,14 +120,15 @@ export const updateUserPrefs = async (
     await toggleDBConnection(dbConnection, "open");
 
     if (preferenceName === "reasons") {
-      const query = `UPDATE userPreferencesTable SET preferenceValue = ? WHERE preferenceName = ?`;
+      const query = `UPDATE userPreferencesTable SET preferenceValue = ?, updatedAt = ? WHERE preferenceName = ?`;
       await dbConnection.current.run(query, [
         preferenceValue.toString(),
+        Date.now(),
         preferenceName,
       ]);
     } else {
-      const query = `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue) VALUES (?, ?)`;
-      await dbConnection.current.run(query, [preferenceName, preferenceValue]);
+      const query = `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`;
+      await dbConnection.current.run(query, [preferenceName, preferenceValue, Date.now()]);
     }
 
     setUserPreferences((userPreferences: userPreferencesType) => ({
@@ -473,15 +474,16 @@ export const setAdhanLibraryDefaults = async (
 
     // console.log("SETTING DEFAULTS", defaultCalcMethodValues);
 
-    const query = `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue) VALUES (?, ?)`;
+    const query = `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`;
 
     if (!dbConnection || !dbConnection.current) {
       throw new Error("dbConnection / dbconnection.current does not exist");
     }
 
+    const now = Date.now();
     for (const [key, value] of Object.entries(defaultCalcMethodValues)) {
       // console.log(key, value);
-      await dbConnection.current.run(query, [key, value]);
+      await dbConnection.current.run(query, [key, value, now]);
     }
 
     setUserPreferences((userPreferences: userPreferencesType) => ({
@@ -756,4 +758,15 @@ export const requestIgnoreBatteryOptimization = async () => {
     return;
   }
   await BatteryOptimization.requestIgnoreBatteryOptimization();
+};
+
+export const generateUUID = () => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 };

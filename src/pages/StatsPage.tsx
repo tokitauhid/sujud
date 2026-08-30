@@ -166,8 +166,8 @@ const StatsPage = ({
   const fetchSalahDataFromDB = async () => {
     try {
       await toggleDBConnection(dbConnection, "open");
-      let DBResultAllSalahData = await dbConnection.current!.query(
-        `SELECT * FROM salahDataTable`,
+      const DBResultAllSalahData = await dbConnection.current!.query(
+        `SELECT * FROM salahDataTable WHERE deleted = 0`,
       );
 
       if (!DBResultAllSalahData.values) {

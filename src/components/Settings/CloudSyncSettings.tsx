@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
 import { useFirebaseAuth } from "../../firebase/useFirebaseAuth";
 import {
-  fullSyncToFirestore,
-  pullFromFirestore,
-  hasCloudData,
   getLastSyncTimestamp,
-  seedSQLiteFromCloud,
+  performBidirectionalSync,
   SyncStatus,
 } from "../../firebase/syncService";
-import { toggleDBConnection } from "../../utils/dbUtils";
 import { showToast } from "../../utils/helpers";
 import {
   SQLiteDBConnection,
@@ -17,7 +13,6 @@ import {
 import {
   userPreferencesType,
   LocationsDataObjTypeArr,
-  DBResultDataObjType,
 } from "../../types/types";
 import { FcGoogle } from "react-icons/fc";
 import {
@@ -40,7 +35,7 @@ interface CloudSyncSettingsProps {
 const CloudSyncSettings = ({
   dbConnection,
   sqliteConnection: _sqliteConnection,
-  userPreferences,
+  userPreferences: _userPreferences,
   userLocations: _userLocations,
   fetchDataFromDB,
 }: CloudSyncSettingsProps) => {
@@ -83,21 +78,9 @@ const CloudSyncSettings = ({
     const initialSync = async () => {
       try {
         setSyncStatus("syncing");
-        const cloudExists = await hasCloudData(user.uid);
-
-        if (cloudExists) {
-          // New device: pull cloud data → seed SQLite
-          const cloudData = await pullFromFirestore(user.uid);
-
-          if (cloudData.salahLogs.length > 0) {
-            await seedSQLiteFromCloud(dbConnection, cloudData);
-            await fetchDataFromDB(true);
-            showToast("Data restored from cloud!", "short");
-          }
-        } else {
-          // First sign-in: push local data to cloud
-          await handleManualSync();
-        }
+        
+        await performBidirectionalSync(user.uid, dbConnection);
+        await fetchDataFromDB(true);
 
         const ts = await getLastSyncTimestamp(user.uid);
         setLastSynced(ts);
@@ -113,38 +96,14 @@ const CloudSyncSettings = ({
 
   // seedSQLiteFromCloud is now imported from syncService
 
-  /**
-   * Manual "Sync now" — push all local data to Firestore.
-   */
   const handleManualSync = async () => {
     if (!user) return;
 
     try {
       setSyncStatus("syncing");
 
-      // Read all local data from SQLite
-      await toggleDBConnection(dbConnection, "open");
-
-      const salahResult = await dbConnection.current!.query(
-        "SELECT * FROM salahDataTable"
-      );
-      const locationResult = await dbConnection.current!.query(
-        "SELECT * FROM userLocationsTable"
-      );
-
-      await toggleDBConnection(dbConnection, "close");
-
-      const salahRecords = (salahResult.values || []) as DBResultDataObjType[];
-      const locations =
-        (locationResult.values ||
-          []) as import("../../types/types").LocationsDataObjType[];
-
-      await fullSyncToFirestore(
-        user.uid,
-        userPreferences,
-        salahRecords,
-        locations
-      );
+      await performBidirectionalSync(user.uid, dbConnection);
+      await fetchDataFromDB(true);
 
       const ts = await getLastSyncTimestamp(user.uid);
       setLastSynced(ts);

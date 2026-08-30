@@ -51,7 +51,7 @@ const BottomSheetSingleDateView = ({
   const grabSingleDateData = async (clickedDate: string) => {
     try {
       await toggleDBConnection(dbConnection, "open");
-      const query = `SELECT * FROM salahDataTable WHERE date = ?`;
+      const query = `SELECT * FROM salahDataTable WHERE date = ? AND deleted = 0`;
       const data = await dbConnection.current!.query(query, [clickedDate]);
 
       const sortedData: clickedDateDataObj[] = data.values!.sort(

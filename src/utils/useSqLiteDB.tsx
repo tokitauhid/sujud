@@ -17,6 +17,24 @@ const useSQLiteDB = () => {
     const initialiseDB = async () => {
       const upgradeStatements = [
         {
+          toVersion: 1,
+          statements: [
+            `CREATE TABLE IF NOT EXISTS salahDataTable(
+            id INTEGER PRIMARY KEY NOT NULL,
+            date TEXT NOT NULL, 
+            salahName TEXT NOT NULL, 
+            salahStatus TEXT NOT NULL, 
+            reasons TEXT DEFAULT '', 
+            notes TEXT DEFAULT ''
+            ) STRICT;`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_date_salahName ON salahDataTable (date, salahName)`,
+            `CREATE TABLE IF NOT EXISTS userPreferencesTable(
+            preferenceName TEXT PRIMARY KEY NOT NULL,
+            preferenceValue TEXT NOT NULL DEFAULT ''
+            ) STRICT`,
+          ],
+        },
+        {
           toVersion: 2,
           statements: [
             `CREATE TABLE IF NOT EXISTS userLocationsTable(
@@ -28,6 +46,19 @@ const useSQLiteDB = () => {
         ) STRICT`,
 
             `CREATE UNIQUE INDEX IF NOT EXISTS idx_single_selected_location ON userLocationsTable (isSelected) WHERE isSelected = 1`,
+          ],
+        },
+        {
+          toVersion: 3,
+          statements: [
+            `ALTER TABLE salahDataTable ADD COLUMN createdAt INTEGER DEFAULT 0;`,
+            `ALTER TABLE salahDataTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
+            `ALTER TABLE salahDataTable ADD COLUMN deleted INTEGER DEFAULT 0;`,
+            `ALTER TABLE userLocationsTable ADD COLUMN syncId TEXT DEFAULT '';`,
+            `ALTER TABLE userLocationsTable ADD COLUMN createdAt INTEGER DEFAULT 0;`,
+            `ALTER TABLE userLocationsTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
+            `ALTER TABLE userLocationsTable ADD COLUMN deleted INTEGER DEFAULT 0;`,
+            `ALTER TABLE userPreferencesTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
           ],
         },
       ];
@@ -68,7 +99,7 @@ const useSQLiteDB = () => {
               "sujuddatabase",
               false,
               "no-encryption",
-              2,
+              3,
               false,
             );
         }
@@ -107,7 +138,10 @@ const useSQLiteDB = () => {
         salahName TEXT NOT NULL, 
         salahStatus TEXT NOT NULL, 
         reasons TEXT DEFAULT '', 
-        notes TEXT DEFAULT ''
+        notes TEXT DEFAULT '',
+        createdAt INTEGER DEFAULT 0,
+        updatedAt INTEGER DEFAULT 0,
+        deleted INTEGER DEFAULT 0
         ) STRICT;
         `,
 
@@ -115,15 +149,20 @@ const useSQLiteDB = () => {
 
         `CREATE TABLE IF NOT EXISTS userPreferencesTable(
         preferenceName TEXT PRIMARY KEY NOT NULL,
-        preferenceValue TEXT NOT NULL DEFAULT ''
+        preferenceValue TEXT NOT NULL DEFAULT '',
+        updatedAt INTEGER DEFAULT 0
         ) STRICT`,
 
         `CREATE TABLE IF NOT EXISTS userLocationsTable(
           id INTEGER PRIMARY KEY NOT NULL,
+          syncId TEXT DEFAULT '',
           locationName TEXT NOT NULL,
           latitude REAL NOT NULL,
           longitude REAL NOT NULL,
-          isSelected INTEGER DEFAULT 0
+          isSelected INTEGER DEFAULT 0,
+          createdAt INTEGER DEFAULT 0,
+          updatedAt INTEGER DEFAULT 0,
+          deleted INTEGER DEFAULT 0
         ) STRICT`,
       ];
 

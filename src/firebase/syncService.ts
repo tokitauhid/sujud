@@ -7,20 +7,16 @@ import {
   collection,
   writeBatch,
   serverTimestamp,
-  onSnapshot,
-  Unsubscribe,
   Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import {
   DBResultDataObjType,
   LocationsDataObjType,
-  userPreferencesType,
 } from "../types/types";
+import { SQLiteDBConnection } from "@capacitor-community/sqlite";
+import { toggleDBConnection } from "../utils/dbUtils";
 
-// ---------------------------------------------------------------------------
-// Firestore paths helper
-// ---------------------------------------------------------------------------
 const userDoc = (userId: string) => doc(db, "users", userId);
 const prefsDoc = (userId: string) =>
   doc(db, "users", userId, "preferences", "data");
@@ -29,229 +25,294 @@ const locationsCol = (userId: string) =>
 const salahLogsCol = (userId: string) =>
   collection(db, "users", userId, "salahLogs");
 
-// ---------------------------------------------------------------------------
-// PUSH — Local SQLite → Firestore
-// ---------------------------------------------------------------------------
-
-/**
- * Push all preferences to Firestore as a single document.
- * Includes reasons (as comma-separated string for Firestore compatibility).
- */
-export async function pushPreferencesToFirestore(
-  userId: string,
-  preferences: userPreferencesType
-): Promise<void> {
-  try {
-    const prefsForFirestore = {
-      ...preferences,
-      // Store reasons as comma-separated string in Firestore
-      reasons: Array.isArray(preferences.reasons)
-        ? preferences.reasons.join(",")
-        : preferences.reasons,
-      updatedAt: serverTimestamp(),
-    };
-
-    await setDoc(prefsDoc(userId), prefsForFirestore, { merge: true });
-  } catch (error) {
-    console.error("Failed to push preferences to Firestore:", error);
-  }
-}
-
-/**
- * Push a single preference key-value pair to Firestore.
- */
-export async function pushSinglePreferenceToFirestore(
-  userId: string,
-  key: string,
-  value: string | string[]
-): Promise<void> {
-  try {
-    const firestoreValue =
-      key === "reasons" && Array.isArray(value) ? value.join(",") : value;
-
-    await setDoc(
-      prefsDoc(userId),
-      {
-        [key]: firestoreValue,
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
-  } catch (error) {
-    console.error(`Failed to push preference "${key}" to Firestore:`, error);
-  }
-}
-
-/**
- * Push all salah log records to Firestore in batches.
- * Uses `date_salahName` as document ID for deduplication.
- */
-export async function pushSalahDataToFirestore(
-  userId: string,
-  salahRecords: DBResultDataObjType[]
-): Promise<void> {
-  try {
-    const colRef = salahLogsCol(userId);
-    const BATCH_LIMIT = 450; // Firestore batch limit is 500, leave headroom
-
-    for (let i = 0; i < salahRecords.length; i += BATCH_LIMIT) {
-      const batch = writeBatch(db);
-      const chunk = salahRecords.slice(i, i + BATCH_LIMIT);
-
-      for (const record of chunk) {
-        const docId = `${record.date}_${record.salahName}`;
-        const docRef = doc(colRef, docId);
-        batch.set(
-          docRef,
-          {
-            date: record.date,
-            salahName: record.salahName,
-            salahStatus: record.salahStatus,
-            reasons: record.reasons || "",
-            notes: record.notes || "",
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
-      }
-
-      await batch.commit();
-    }
-
-    console.log(
-      `Pushed ${salahRecords.length} salah records to Firestore`
-    );
-  } catch (error) {
-    console.error("Failed to push salah data to Firestore:", error);
-  }
-}
-
-/**
- * Push a single salah log entry to Firestore (called on individual prayer save).
- */
-export async function pushSingleSalahLogToFirestore(
-  userId: string,
-  record: {
-    date: string;
-    salahName: string;
-    salahStatus: string;
-    reasons?: string;
-    notes?: string;
-  }
-): Promise<void> {
-  try {
-    const docId = `${record.date}_${record.salahName}`;
-    const docRef = doc(salahLogsCol(userId), docId);
-    await setDoc(
-      docRef,
-      {
-        ...record,
-        reasons: record.reasons || "",
-        notes: record.notes || "",
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
-  } catch (error) {
-    console.error("Failed to push salah log to Firestore:", error);
-  }
-}
-
-/**
- * Push all locations to Firestore.
- */
-export async function pushLocationsToFirestore(
-  userId: string,
-  locations: LocationsDataObjType[]
-): Promise<void> {
-  try {
-    const batch = writeBatch(db);
-    const colRef = locationsCol(userId);
-
-    for (const loc of locations) {
-      const docRef = doc(colRef, String(loc.id));
-      batch.set(docRef, {
-        locationName: loc.locationName,
-        latitude: loc.latitude,
-        longitude: loc.longitude,
-        isSelected: loc.isSelected,
-        updatedAt: serverTimestamp(),
-      });
-    }
-
-    await batch.commit();
-  } catch (error) {
-    console.error("Failed to push locations to Firestore:", error);
-  }
-}
+export let isSyncing = false;
 
 // ---------------------------------------------------------------------------
-// PULL — Firestore → Local SQLite (new device / first sign-in)
+// TYPES
 // ---------------------------------------------------------------------------
+
+export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
 export interface CloudData {
-  preferences: Record<string, string> | null;
+  preferences: Record<string, { value: string; updatedAt: number }> | null;
   salahLogs: DBResultDataObjType[];
   locations: LocationsDataObjType[];
 }
 
 /**
- * Pull all data from Firestore for a given user.
- * Returns null for preferences if no cloud data exists.
+ * Helper to normalize Firestore Timestamp objects to milliseconds (integer)
+ * safely handling legacy numerical values or missing fields.
  */
-export async function pullFromFirestore(userId: string): Promise<CloudData> {
-  const cloudData: CloudData = {
-    preferences: null,
-    salahLogs: [],
-    locations: [],
-  };
+function normalizeTimestamp(val: any): number {
+  if (!val) return 0;
+  if (typeof val === 'number') return val;
+  if (val.toMillis && typeof val.toMillis === 'function') return val.toMillis();
+  if (val.seconds) return val.seconds * 1000;
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
+// BIDIRECTIONAL SYNC
+// ---------------------------------------------------------------------------
+
+export async function performBidirectionalSync(
+  userId: string,
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
+): Promise<void> {
+  if (isSyncing) {
+    console.log("Sync already in progress. Skipping.");
+    return;
+  }
+  isSyncing = true;
 
   try {
-    // 1. Preferences
+    if (!dbConnection.current) {
+      throw new Error("Database connection not available");
+    }
+
+    await toggleDBConnection(dbConnection, "open");
+
+    // 1. Fetch Local Data
+    const localPrefsResult = await dbConnection.current.query(
+      `SELECT * FROM userPreferencesTable`
+    );
+    const localSalahResult = await dbConnection.current.query(
+      `SELECT * FROM salahDataTable`
+    );
+    const localLocationsResult = await dbConnection.current.query(
+      `SELECT * FROM userLocationsTable`
+    );
+
+    const localPrefs = localPrefsResult.values || [];
+    const localSalahs = (localSalahResult.values as DBResultDataObjType[]) || [];
+    const localLocations = (localLocationsResult.values as LocationsDataObjType[]) || [];
+
+    // 2. Fetch Cloud Data
+    const cloudData: CloudData = {
+      preferences: null,
+      salahLogs: [],
+      locations: [],
+    };
+
     const prefsSnap = await getDoc(prefsDoc(userId));
     if (prefsSnap.exists()) {
       const data = prefsSnap.data();
-      // Remove Firestore metadata fields
-      const { updatedAt, ...prefs } = data;
-      cloudData.preferences = prefs as Record<string, string>;
+      const normalizedPrefs: Record<string, { value: string; updatedAt: number }> = {};
+      for (const [k, v] of Object.entries(data)) {
+        if (k === "updatedAt") continue; // Metadata field at root
+        if (typeof v === "object" && v !== null && "value" in v) {
+          normalizedPrefs[k] = { 
+            value: (v as any).value, 
+            updatedAt: normalizeTimestamp((v as any).updatedAt) 
+          };
+        } else {
+          // Legacy string preferences or array
+          let strVal = String(v);
+          if (Array.isArray(v)) strVal = v.join(",");
+          normalizedPrefs[k] = { value: strVal, updatedAt: 0 };
+        }
+      }
+      cloudData.preferences = normalizedPrefs;
     }
 
-    // 2. Salah logs
     const logsSnap = await getDocs(salahLogsCol(userId));
     logsSnap.forEach((docSnap) => {
       const data = docSnap.data();
       cloudData.salahLogs.push({
-        id: 0, // Will be assigned by SQLite auto-increment
-        date: data.date,
-        salahName: data.salahName,
-        salahStatus: data.salahStatus,
-        reasons: data.reasons || "",
-        notes: data.notes || "",
-      });
+        ...data,
+        createdAt: normalizeTimestamp(data.createdAt),
+        updatedAt: normalizeTimestamp(data.updatedAt),
+      } as DBResultDataObjType);
     });
 
-    // 3. Locations
     const locsSnap = await getDocs(locationsCol(userId));
     locsSnap.forEach((docSnap) => {
       const data = docSnap.data();
       cloudData.locations.push({
-        id: parseInt(docSnap.id, 10) || 0,
-        locationName: data.locationName,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        isSelected: data.isSelected ?? 0,
-      });
+        ...data,
+        createdAt: normalizeTimestamp(data.createdAt),
+        updatedAt: normalizeTimestamp(data.updatedAt),
+      } as LocationsDataObjType);
     });
-  } catch (error) {
-    console.error("Failed to pull data from Firestore:", error);
-  }
 
-  return cloudData;
+    // 3. Merge Preferences
+    const mergedPrefsToLocal = [];
+    const mergedPrefsToCloud: Record<string, { value: string; updatedAt: number }> = {};
+    
+    const localPrefsMap = new Map<string, { value: string; updatedAt: number }>();
+    for (const p of localPrefs) {
+      localPrefsMap.set(p.preferenceName, {
+        value: p.preferenceValue,
+        updatedAt: p.updatedAt || 0,
+      });
+    }
+
+    const allPrefKeys = new Set([...localPrefsMap.keys(), ...(cloudData.preferences ? Object.keys(cloudData.preferences) : [])]);
+    allPrefKeys.delete("updatedAt"); 
+
+    for (const key of allPrefKeys) {
+      const local = localPrefsMap.get(key);
+      const cloud = cloudData.preferences?.[key];
+
+      let cloudVal = cloud;
+      // Handle legacy string preferences structure if any
+      if (cloud && typeof cloud === 'string') {
+        cloudVal = { value: cloud, updatedAt: 0 };
+      } else if (cloud && Array.isArray(cloud)) {
+        cloudVal = { value: (cloud as string[]).join(","), updatedAt: 0 };
+      }
+
+      if (local && cloudVal) {
+        if (local.updatedAt >= cloudVal.updatedAt) {
+          mergedPrefsToCloud[key] = local;
+        } else {
+          mergedPrefsToCloud[key] = cloudVal;
+          mergedPrefsToLocal.push({ key, val: cloudVal.value, updated: cloudVal.updatedAt });
+        }
+      } else if (local) {
+        mergedPrefsToCloud[key] = local;
+      } else if (cloudVal) {
+        mergedPrefsToCloud[key] = cloudVal;
+        mergedPrefsToLocal.push({ key, val: cloudVal.value, updated: cloudVal.updatedAt });
+      }
+    }
+
+    // 4. Merge Salah Logs
+    const localSalahMap = new Map(localSalahs.map((l) => [`${l.date}_${l.salahName}`, l]));
+    const cloudSalahMap = new Map(cloudData.salahLogs.map((l) => [`${l.date}_${l.salahName}`, l]));
+    const allSalahKeys = new Set([...localSalahMap.keys(), ...cloudSalahMap.keys()]);
+
+    const salahToLocal = [];
+    const salahToCloud = [];
+
+    for (const key of allSalahKeys) {
+      const local = localSalahMap.get(key);
+      const cloud = cloudSalahMap.get(key);
+
+      if (local && cloud) {
+        if ((local.updatedAt || 0) >= (cloud.updatedAt || 0)) {
+          salahToCloud.push(local);
+        } else {
+          salahToLocal.push(cloud);
+        }
+      } else if (local) {
+        salahToCloud.push(local);
+      } else if (cloud) {
+        salahToLocal.push(cloud);
+      }
+    }
+
+    // 5. Merge Locations
+    const localLocMap = new Map(localLocations.map((l) => [l.syncId, l]));
+    const cloudLocMap = new Map(cloudData.locations.map((l) => [l.syncId, l]));
+    const allLocKeys = new Set([...localLocMap.keys(), ...cloudLocMap.keys()].filter(Boolean));
+
+    const locsToLocal = [];
+    const locsToCloud = [];
+
+    for (const key of allLocKeys) {
+      const local = localLocMap.get(key);
+      const cloud = cloudLocMap.get(key);
+
+      if (local && cloud) {
+        if ((local.updatedAt || 0) >= (cloud.updatedAt || 0)) {
+          locsToCloud.push(local);
+        } else {
+          locsToLocal.push(cloud);
+        }
+      } else if (local) {
+        locsToCloud.push(local);
+      } else if (cloud) {
+        locsToLocal.push(cloud);
+      }
+    }
+
+    // 6. Write to Firestore
+    const batch = writeBatch(db);
+    if (Object.keys(mergedPrefsToCloud).length > 0) {
+      batch.set(prefsDoc(userId), { ...mergedPrefsToCloud, updatedAt: serverTimestamp() }, { merge: true });
+    }
+
+    for (const record of salahToCloud) {
+      batch.set(doc(salahLogsCol(userId), `${record.date}_${record.salahName}`), record, { merge: true });
+    }
+
+    for (const loc of locsToCloud) {
+      if (loc.syncId) {
+        batch.set(doc(locationsCol(userId), loc.syncId), loc, { merge: true });
+      }
+    }
+
+    await batch.commit();
+    await setDoc(userDoc(userId), { lastSyncedAt: serverTimestamp() }, { merge: true });
+
+    // 7. Write to Local SQLite
+    const statements: any[] = [];
+    
+    for (const pref of mergedPrefsToLocal) {
+      statements.push({
+        statement: `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
+        values: [pref.key, pref.val, pref.updated],
+      });
+    }
+
+    for (const record of salahToLocal) {
+      statements.push({
+        statement: `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(date, salahName) DO UPDATE SET 
+          salahStatus = excluded.salahStatus,
+          reasons = excluded.reasons,
+          notes = excluded.notes,
+          updatedAt = excluded.updatedAt,
+          deleted = excluded.deleted`,
+        values: [
+          record.date,
+          record.salahName,
+          record.salahStatus,
+          record.reasons || "",
+          record.notes || "",
+          record.createdAt || 0,
+          record.updatedAt || 0,
+          record.deleted || 0,
+        ],
+      });
+    }
+
+    for (const loc of locsToLocal) {
+      statements.push({
+        statement: `UPDATE userLocationsTable SET 
+          locationName = ?, latitude = ?, longitude = ?, isSelected = ?, updatedAt = ?, deleted = ? 
+          WHERE syncId = ?`,
+        values: [loc.locationName, loc.latitude, loc.longitude, loc.isSelected || 0, loc.updatedAt || 0, loc.deleted || 0, loc.syncId],
+      });
+      statements.push({
+        statement: `INSERT INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted) 
+        SELECT ?, ?, ?, ?, ?, ?, ?, ? 
+        WHERE NOT EXISTS (SELECT 1 FROM userLocationsTable WHERE syncId = ?)`,
+        values: [loc.syncId, loc.locationName, loc.latitude, loc.longitude, loc.isSelected || 0, loc.createdAt || 0, loc.updatedAt || 0, loc.deleted || 0, loc.syncId]
+      });
+    }
+    
+    if (statements.length > 0) {
+      const BATCH_SIZE = 50;
+      for (let i = 0; i < statements.length; i += BATCH_SIZE) {
+        await dbConnection.current.executeSet(statements.slice(i, i + BATCH_SIZE));
+      }
+    }
+
+    console.log("Bidirectional sync completed successfully.");
+
+  } catch (error) {
+    console.error("Error during bidirectional sync:", error);
+    throw error;
+  } finally {
+    isSyncing = false;
+    if (dbConnection.current) {
+      await toggleDBConnection(dbConnection, "close");
+    }
+  }
 }
 
-/**
- * Check if a user already has cloud data (quick check).
- */
 export async function hasCloudData(userId: string): Promise<boolean> {
   try {
     const prefsSnap = await getDoc(prefsDoc(userId));
@@ -262,68 +323,7 @@ export async function hasCloudData(userId: string): Promise<boolean> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// FULL SYNC — Push everything from local DB to Firestore
-// ---------------------------------------------------------------------------
-
-/**
- * One-shot full sync: push all local data to Firestore.
- * Called on first sign-in when local data exists but cloud is empty,
- * or when user taps "Sync now".
- */
-export async function fullSyncToFirestore(
-  userId: string,
-  preferences: userPreferencesType,
-  salahRecords: DBResultDataObjType[],
-  locations: LocationsDataObjType[]
-): Promise<void> {
-  await Promise.all([
-    pushPreferencesToFirestore(userId, preferences),
-    pushSalahDataToFirestore(userId, salahRecords),
-    pushLocationsToFirestore(userId, locations),
-  ]);
-
-  // Mark sync timestamp on the user document
-  await setDoc(
-    userDoc(userId),
-    { lastSyncedAt: serverTimestamp() },
-    { merge: true }
-  );
-}
-
-// ---------------------------------------------------------------------------
-// REALTIME LISTENER — Firestore → UI (optional, for multi-device live sync)
-// ---------------------------------------------------------------------------
-
-/**
- * Subscribe to preference changes in real-time.
- * Returns an unsubscribe function.
- */
-export function subscribeToPreferences(
-  userId: string,
-  callback: (prefs: Record<string, string>) => void
-): Unsubscribe {
-  return onSnapshot(prefsDoc(userId), (docSnap) => {
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const { updatedAt, ...prefs } = data;
-      callback(prefs as Record<string, string>);
-    }
-  });
-}
-
-// ---------------------------------------------------------------------------
-// SYNC STATUS helpers
-// ---------------------------------------------------------------------------
-
-export type SyncStatus = "idle" | "syncing" | "synced" | "error";
-
-/**
- * Get last sync timestamp for a user.
- */
-export async function getLastSyncTimestamp(
-  userId: string
-): Promise<Date | null> {
+export async function getLastSyncTimestamp(userId: string): Promise<Date | null> {
   try {
     const snap = await getDoc(userDoc(userId));
     if (snap.exists()) {
@@ -339,66 +339,10 @@ export async function getLastSyncTimestamp(
   }
 }
 
-// ---------------------------------------------------------------------------
-// SEED SQLite FROM CLOUD — shared utility
-// ---------------------------------------------------------------------------
-
-import { SQLiteDBConnection } from "@capacitor-community/sqlite";
-import { toggleDBConnection } from "../utils/dbUtils";
-
-/**
- * Seed the local SQLite database from cloud data.
- * Shared between Onboarding (first sign-in on new device) and
- * CloudSyncSettings (manual restore).
- */
-export async function seedSQLiteFromCloud(
-  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>,
-  cloudData: CloudData
-): Promise<void> {
-  try {
-    if (!dbConnection.current) {
-      throw new Error("Database connection not available");
-    }
-
-    await toggleDBConnection(dbConnection, "open");
-
-    // Seed preferences
-    if (cloudData.preferences) {
-      for (const [key, value] of Object.entries(cloudData.preferences)) {
-        if (key === "updatedAt") continue;
-        await dbConnection.current.run(
-          `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue) VALUES (?, ?)`,
-          [key, value]
-        );
-      }
-    }
-
-    // Seed salah logs
-    for (const log of cloudData.salahLogs) {
-      await dbConnection.current.run(
-        `INSERT OR REPLACE INTO salahDataTable (date, salahName, salahStatus, reasons, notes) VALUES (?, ?, ?, ?, ?)`,
-        [
-          log.date,
-          log.salahName,
-          log.salahStatus,
-          log.reasons || "",
-          log.notes || "",
-        ]
-      );
-    }
-
-    // Seed locations
-    for (const loc of cloudData.locations) {
-      await dbConnection.current.run(
-        `INSERT OR REPLACE INTO userLocationsTable (id, locationName, latitude, longitude, isSelected) VALUES (?, ?, ?, ?, ?)`,
-        [loc.id, loc.locationName, loc.latitude, loc.longitude, loc.isSelected]
-      );
-    }
-  } catch (error) {
-    console.error("Failed to seed SQLite from cloud:", error);
-    throw error;
-  } finally {
-    await toggleDBConnection(dbConnection, "close");
-  }
-}
-
+// Deprecated functions replaced by performBidirectionalSync
+export async function pushSingleSalahLogToFirestore() {}
+export async function pushSinglePreferenceToFirestore() {}
+export async function subscribeToPreferences() { return () => {}; }
+export async function fullSyncToFirestore() {}
+export async function pullFromFirestore() { return { preferences: null, salahLogs: [], locations: [] }; }
+export async function seedSQLiteFromCloud() {}

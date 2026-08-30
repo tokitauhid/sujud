@@ -57,7 +57,6 @@ interface SettingsPageProps {
   showSalahTimesSettingsSheet: boolean;
   userPreferences: userPreferencesType;
   userLocations: LocationsDataObjTypeArr;
-  setShowChangelogSheet: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SettingsPage = ({
@@ -73,17 +72,7 @@ const SettingsPage = ({
   showSalahTimesSettingsSheet,
   userPreferences,
   userLocations,
-  setShowChangelogSheet,
 }: SettingsPageProps) => {
-  const shareThisAppLink = async (link: string) => {
-    await Share.share({
-      title: "",
-      text: "",
-      url: link,
-      dialogTitle: "",
-    });
-  };
-
   const importDBRef = useRef<HTMLInputElement | null>(null);
   // const datePickerRef = useRef<HTMLInputElement | null>(null);
   const diaglogElement = useRef<HTMLDialogElement | null>(null);
@@ -441,90 +430,6 @@ const SettingsPage = ({
             >
               {dialogElementText}
             </dialog>
-            {Capacitor.getPlatform() === "android" && (
-              <SettingIndividual
-                indvidualStyles={
-                  "rounded-t-md, border-b border-[var(--app-border-color)]"
-                }
-                headingText={"Review"}
-                subText={"Rate the app on the Google Play Store"}
-                onClick={() => {
-                  link(
-                    "https://play.google.com/store/apps/details?id=com.sujud.app",
-                  );
-                }}
-              />
-            )}
-            {Capacitor.getPlatform() === "ios" && (
-              <SettingIndividual
-                indvidualStyles={"rounded-t-md"}
-                headingText={"Review"}
-                subText={"Rate the app on the App Store"}
-                onClick={() => {
-                  link(
-                    "https://apps.apple.com/gb/app/sujud/id6478277078",
-                  );
-                }}
-              />
-            )}
-            {Capacitor.isNativePlatform() && (
-              <SettingIndividual
-                indvidualStyles={
-                  "rounded-t-md border-b border-[var(--app-border-color)]"
-                }
-                headingText={"Share"}
-                subText={"Share application"}
-                onClick={() => {
-                  if (Capacitor.getPlatform() === "android") {
-                    shareThisAppLink(
-                      "https://play.google.com/store/apps/details?id=com.sujud.app",
-                    );
-                  } else if (Capacitor.getPlatform() === "ios") {
-                    shareThisAppLink(
-                      "https://apps.apple.com/gb/app/sujud/id6478277078",
-                    );
-                  }
-                }}
-              />
-            )}
-            <SettingIndividual
-              indvidualStyles={
-                "rounded-t-md border-b border-[var(--app-border-color)]"
-              }
-              onClick={() => {
-                setShowChangelogSheet(true);
-              }}
-              headingText={"Changelog"}
-              subText={"View Changelog"}
-            />
-            <SettingIndividual
-              indvidualStyles={"border-b border-[var(--app-border-color)]"}
-              headingText={"Feedback"}
-              subText={"Report Bugs / Request Features"}
-              onClick={() => {
-                link(
-                  "mailto: mohammed@mohammedpatel.dev?subject=Sujud Feedback",
-                );
-              }}
-            />
-            {/* <SettingIndividual
-              indvidualStyles={"border-b border-[var(--app-border-color)]"}
-              headingText={"Website"}
-              subText={"Visit website"}
-              onClick={() => {
-
-              }}
-            /> */}
-            <SettingIndividual
-              indvidualStyles={"border-b border-[var(--app-border-color)]"}
-              headingText={"Privacy Policy"}
-              subText={"View Privacy Policy"}
-              onClick={() => {
-                link(
-                  "https://sites.google.com/view/sujud-app-privacy-policy/home",
-                );
-              }}
-            />
             <SettingIndividual
               indvidualStyles={"border-b border-[var(--app-border-color)]"}
               headingText={"Source Code"}

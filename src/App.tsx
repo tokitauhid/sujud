@@ -501,11 +501,11 @@ const App = () => {
       );
 
       const DBResultAllSalahData = await dbConnection.current.query(
-        `SELECT * FROM salahDataTable`,
+        `SELECT * FROM salahDataTable WHERE deleted = 0`,
       );
 
       const DBResultLocations = await dbConnection.current.query(
-        `SELECT * FROM userLocationsTable`,
+        `SELECT * FROM userLocationsTable WHERE deleted = 0`,
       );
 
       // console.log("DBResultLocations: ", DBResultLocations);
@@ -947,7 +947,6 @@ const App = () => {
     <FirebaseAuthProvider>
     <IonApp>
       <IonReactRouter>
-        <TabletSideNav />
         <IonTabs className="app">
           <IonRouterOutlet
           //  animated={false}
@@ -994,7 +993,6 @@ const App = () => {
                   }
                   showSalahTimesSettingsSheet={showSalahTimesSettingsSheet}
                   userLocations={userLocations}
-                  setShowChangelogSheet={setShowChangelogSheet}
                 />
               )}
             />
@@ -1057,6 +1055,7 @@ const App = () => {
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
+        <TabletSideNav />
         <Route exact path="/" render={() => <Redirect to="/HomePage" />} />
       </IonReactRouter>
       {/* {onboardingMode && ( */}

@@ -117,7 +117,7 @@ const BottomSheetSalahStatus = ({
 
       const res = await dbConnection.current!.query(
         `SELECT * FROM salahDataTable 
-      WHERE date = ? AND salahName = ?;`,
+      WHERE date = ? AND salahName = ? AND deleted = 0;`,
         [selectedDate, selectedSalah],
       );
 
@@ -192,6 +192,7 @@ const BottomSheetSalahStatus = ({
           continue;
         }
 
+        const now = Date.now();
         for (let i = 0; i < salahArr.length; i++) {
           salahDataToInsertIntoDB.push([
             date,
@@ -199,18 +200,27 @@ const BottomSheetSalahStatus = ({
             salahStatus,
             reasonsToInsert,
             notes,
+            now, // createdAt
+            now, // updatedAt
+            0,   // deleted
           ]);
         }
       }
 
-      let query = `INSERT OR REPLACE INTO salahDataTable(date, salahName, salahStatus, reasons, notes`;
+      let query = `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted) `;
 
-      const placeholder = salahDataToInsertIntoDB[0].map(() => "?").join(", ");
+      const placeholder = "(?, ?, ?, ?, ?, ?, ?, ?)";
       const placeholders = salahDataToInsertIntoDB
-        .map(() => `(${placeholder})`)
+        .map(() => placeholder)
         .join(",");
 
-      query += `) VALUES ${placeholders}`;
+      query += `VALUES ${placeholders} 
+        ON CONFLICT(date, salahName) DO UPDATE SET 
+          salahStatus = excluded.salahStatus,
+          reasons = excluded.reasons,
+          notes = excluded.notes,
+          updatedAt = excluded.updatedAt,
+          deleted = excluded.deleted`;
       const flattenedSalahDBValues = salahDataToInsertIntoDB.flat();
 
       await dbConnection.current!.run(query, flattenedSalahDBValues);

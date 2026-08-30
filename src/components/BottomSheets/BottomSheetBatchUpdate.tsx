@@ -85,7 +85,13 @@ const BottomSheetBatchUpdate = ({
 
   const executeBatchUpdate = async () => {
     try {
-      const statement = `INSERT OR REPLACE INTO salahDataTable(date, salahName, salahStatus, reasons, notes) VALUES  (?, ?, ?, ?, ?)`;
+      const statement = `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(date, salahName) DO UPDATE SET 
+          salahStatus = excluded.salahStatus,
+          reasons = excluded.reasons,
+          notes = excluded.notes,
+          updatedAt = excluded.updatedAt,
+          deleted = excluded.deleted`;
       const statements = [];
 
       const salahsToUpdate = batchUpdateObj.salahs;
@@ -131,6 +137,7 @@ const BottomSheetBatchUpdate = ({
       await toggleDBConnection(dbConnection, "open");
 
       for (let i = 0; i < salahsToUpdate.length; i++) {
+        const now = Date.now();
         for (let x = 0; x < dates.length; x++) {
           statements.push({
             statement: statement,
@@ -140,6 +147,9 @@ const BottomSheetBatchUpdate = ({
               salahStatus,
               reasonsToInsert,
               batchUpdateObj.notes,
+              now, // createdAt
+              now, // updatedAt
+              0,   // deleted
             ],
           });
 

@@ -181,7 +181,7 @@ const SalahTable = ({
   };
 
   return (
-    <section className="salah-table-wrap hide-scrollbar h-full">
+    <section className="salah-table-wrap hide-scrollbar">
       <Joyride
         disableOverlay={false}
         disableOverlayClose={true}
@@ -252,7 +252,7 @@ const SalahTable = ({
           </motion.section>
         )}
       </AnimatePresence>
-      <div className="h-full w-full">
+      <div className="h-[95%]">
         <AutoSizer>
           {({ height, width }) => (
             <Table
@@ -291,8 +291,8 @@ const SalahTable = ({
               rowGetter={({ index }) => fetchedSalahData[index]}
               rowHeight={100}
               headerHeight={40}
-              height={height || 600}
-              width={width || 350}
+              height={height}
+              width={width}
               scrollToAlignment="start"
             >
               <Column
@@ -342,7 +342,7 @@ const SalahTable = ({
                     </section>
                   );
                 }}
-                width={width * 0.25}
+                width={180}
                 flexGrow={1}
               />
               {salahNamesArr.map((salahName) => (
@@ -352,7 +352,7 @@ const SalahTable = ({
                   className="items-center text-sm"
                   label={salahName === "Asar" ? "Asr" : salahName}
                   dataKey={""}
-                  width={width * 0.15}
+                  width={120}
                   flexGrow={1}
                   cellRenderer={({ rowData }) => {
                     let isChecked = selectedSalahAndDate[

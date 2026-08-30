@@ -1,5 +1,6 @@
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import { DBConnectionStateType, LocationsDataObjTypeArr } from "../types/types";
+import { generateUUID } from "./helpers";
 
 // let dbLock: Promise<void> = Promise.resolve();
 
@@ -73,7 +74,7 @@ export const fetchAllLocations = async (
     }
 
     const res = await dbConnection.current.query(
-      "SELECT * from userLocationsTable",
+      "SELECT * from userLocationsTable WHERE deleted = 0",
     );
 
     if (!res || !res.values) {
@@ -97,8 +98,8 @@ export const addUserLocation = async (
   isSelected: number,
   isDefaultLocationCheckBoxChecked?: boolean,
 ) => {
-  const stmnt = `INSERT INTO userLocationsTable (locationName, latitude, longitude, isSelected) 
-      VALUES (?, ?, ?, ?);
+  const stmnt = `INSERT INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?);
       `;
 
   if (!dbConnection || !dbConnection.current) {
@@ -111,7 +112,9 @@ export const addUserLocation = async (
     );
   }
 
-  const params = [locationName, latitude, longitude, isSelected];
+  const now = Date.now();
+  const syncId = generateUUID();
+  const params = [syncId, locationName, latitude, longitude, isSelected, now, now, 0];
   const lastId = await dbConnection.current.run(stmnt, params);
   return lastId;
 };
