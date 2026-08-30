@@ -2,11 +2,36 @@
 //  2.Change verisonNum of the first object in changeLogs to a string number (eg "3.0")
 // 3. Add new object to changeLogs Array with its versionNum being the variable LATEST_APP_VERSION
 
-export const LATEST_APP_VERSION = "5.1";
+export const LATEST_APP_VERSION = "5.2";
 
 export const changeLogs = [
   {
     versionNum: LATEST_APP_VERSION,
+    changes: [
+      {
+        heading: "New: Cloud Sync & Backup",
+        text: (
+          <>
+            <strong>Added:</strong> Sign in with Google to seamlessly sync and
+            backup your Salah records, streaks, and settings across your
+            devices.
+          </>
+        ),
+      },
+      {
+        heading: "Improvement: Tablet & Landscape Dashboard",
+        text: (
+          <>
+            <strong>Improved:</strong> Enhanced the landscape layout and
+            dashboard widgets for a better experience on tablets and wider
+            screens.
+          </>
+        ),
+      },
+    ],
+  },
+  {
+    versionNum: "5.1",
     changes: [
       {
         heading: "New: Faster Calendar Navigation",
