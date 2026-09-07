@@ -55,6 +55,7 @@ import {
 import { Style } from "@capacitor/status-bar";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { Capacitor, PluginListenerHandle } from "@capacitor/core";
+import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import {
   format,
   parse,
@@ -79,9 +80,64 @@ import {
   dictPreferencesDefaultValues,
 } from "./utils/constants";
 import TabletSideNav from "./components/TabletSideNav";
-import { FirebaseAuthProvider } from "./firebase/useFirebaseAuth";
-import { auth } from "./firebase/firebaseConfig";
+import { FirebaseAuthProvider, useFirebaseAuth } from "./firebase/useFirebaseAuth";
 import { performBidirectionalSync } from "./firebase/syncService";
+
+interface AutomaticSyncProps {
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
+  isDatabaseInitialised: boolean;
+}
+
+const AutomaticSync = ({
+  dbConnection,
+  isDatabaseInitialised,
+}: AutomaticSyncProps) => {
+  const { user } = useFirebaseAuth();
+  const retryTimer = useRef<ReturnType<typeof setTimeout>>();
+  const syncInFlight = useRef(false);
+
+  useEffect(() => {
+    if (!user || !isDatabaseInitialised || !dbConnection.current) return;
+
+    let disposed = false;
+
+    const sync = async () => {
+      if (disposed || syncInFlight.current) return;
+
+      syncInFlight.current = true;
+      try {
+        await performBidirectionalSync(user.uid, dbConnection);
+      } catch (error) {
+        console.error("Automatic sync failed; will retry:", error);
+        if (!disposed) {
+          retryTimer.current = setTimeout(sync, 10000);
+        }
+      } finally {
+        syncInFlight.current = false;
+      }
+    };
+
+    const handleAppStateChange = ({ isActive }: { isActive: boolean }) => {
+      if (isActive) void sync();
+    };
+
+    void sync();
+    const interval = setInterval(sync, 60000);
+    const appStateListener = capacitorApp.addListener(
+      "appStateChange",
+      handleAppStateChange,
+    );
+
+    return () => {
+      disposed = true;
+      clearInterval(interval);
+      if (retryTimer.current) clearTimeout(retryTimer.current);
+      appStateListener.then((listener) => listener.remove());
+    };
+  }, [dbConnection, isDatabaseInitialised, user]);
+
+  return null;
+};
 
 const App = () => {
   const justLaunched = useRef(true);
@@ -179,14 +235,6 @@ const App = () => {
                   setUserPreferences,
                 );
 
-                // Silent background sync if user is logged in
-                if (auth && auth.currentUser) {
-                  try {
-                    await performBidirectionalSync(auth.currentUser.uid, dbConnection);
-                  } catch (syncError) {
-                    console.error("Background sync failed:", syncError);
-                  }
-                }
               } catch (error) {
                 console.error(
                   "Unable to generate salah times / schedule notifications",
@@ -310,10 +358,6 @@ const App = () => {
           setUserPreferences,
         );
 
-        // Silent background sync on initial load
-        if (auth && auth.currentUser) {
-           performBidirectionalSync(auth.currentUser.uid, dbConnection).catch(e => console.error("Initial sync failed", e));
-        }
       }
     };
 
@@ -949,6 +993,10 @@ const App = () => {
 
   return (
     <FirebaseAuthProvider>
+    <AutomaticSync
+      dbConnection={dbConnection}
+      isDatabaseInitialised={isDatabaseInitialised}
+    />
     <IonApp>
       <IonReactRouter>
         <IonTabs className="app">

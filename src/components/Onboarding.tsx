@@ -22,7 +22,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
-import appLogo from "/src/assets/images/icon-512.png";
+const appLogo = "/assets/icon-512.png";
 import { IonButton, IonContent, IonIcon, IonModal } from "@ionic/react";
 import {
   arrowForwardOutline,
