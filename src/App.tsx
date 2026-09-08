@@ -83,7 +83,7 @@ import { FirebaseAuthProvider, useFirebaseAuth } from "./firebase/useFirebaseAut
 import { initRealtimeSync, initialSyncOnSignIn } from "./firebase/syncService";
 
 
-const App = () => {
+const AppContent = () => {
   const justLaunched = useRef(true);
   const { user } = useFirebaseAuth();
 
@@ -986,7 +986,6 @@ const App = () => {
   };
 
   return (
-    <FirebaseAuthProvider>
     <IonApp>
       <IonReactRouter>
         <IonTabs className="app">
@@ -1119,6 +1118,13 @@ const App = () => {
       {/* // )} */}
 
     </IonApp>
+  );
+};
+
+const App = () => {
+  return (
+    <FirebaseAuthProvider>
+      <AppContent />
     </FirebaseAuthProvider>
   );
 };

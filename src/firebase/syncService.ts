@@ -322,6 +322,7 @@ export async function initialSyncOnSignIn(
   userId: string,
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
 ): Promise<'pulled' | 'pushed' | 'empty'> {
+  if (!db || !userId) return 'empty';
   const cloudHasData = await hasCloudData(userId);
 
   if (cloudHasData) {
@@ -363,6 +364,7 @@ export async function initialSyncOnSignIn(
 // ---------------------------------------------------------------------------
 
 export async function hasCloudData(userId: string): Promise<boolean> {
+  if (!db || !userId) return false;
   try {
     const prefsSnap = await getDoc(prefsDoc(userId));
     return prefsSnap.exists();
@@ -373,6 +375,7 @@ export async function hasCloudData(userId: string): Promise<boolean> {
 }
 
 export async function getLastSyncTimestamp(userId: string): Promise<Date | null> {
+  if (!db || !userId) return null;
   try {
     const snap = await getDoc(userDoc(userId));
     if (snap.exists()) {
@@ -398,6 +401,7 @@ export async function pushLocalDataToCloud(
   userId: string,
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
 ): Promise<void> {
+  if (!db || !userId) throw new Error("Cloud service is not initialized");
   if (isSyncing) throw new Error("Sync already in progress");
   isSyncing = true;
   let wasDbOpen = false;
@@ -495,6 +499,7 @@ export async function pullCloudDataToLocal(
   userId: string,
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
 ): Promise<void> {
+  if (!db || !userId) throw new Error("Cloud service is not initialized");
   if (isSyncing) throw new Error("Sync already in progress");
   isSyncing = true;
   let wasDbOpen = false;
@@ -600,6 +605,12 @@ export async function getSyncDataCounts(
   userId: string,
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
 ) {
+  if (!db || !userId) {
+    return {
+      local: { salahs: 0, locations: 0 },
+      cloud: { salahs: 0, locations: 0 },
+    };
+  }
   let localSalahs = 0, localLocs = 0;
   let cloudSalahs = 0, cloudLocs = 0;
 

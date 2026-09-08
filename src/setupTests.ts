@@ -33,6 +33,7 @@ vi.mock("@ionic/react", async () => {
 });
 
 vi.mock("./firebase/useFirebaseAuth", () => ({
+  FirebaseAuthProvider: ({ children }: any) => children,
   useFirebaseAuth: () => ({
     user: null,
     isAuthLoading: false,

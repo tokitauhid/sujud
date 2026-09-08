@@ -104,9 +104,12 @@ export const FirebaseAuthProvider = ({ children }: { children: ReactNode }) => {
 export const useFirebaseAuth = (): FirebaseAuthContextType => {
   const context = useContext(FirebaseAuthContext);
   if (!context) {
-    throw new Error(
-      "useFirebaseAuth must be used within a FirebaseAuthProvider"
-    );
+    return {
+      user: null,
+      isAuthLoading: false,
+      signInWithGoogle: async () => {},
+      signOut: async () => {},
+    };
   }
   return context;
 };
