@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useFirebaseAuth } from "../../firebase/useFirebaseAuth";
 import {
   getLastSyncTimestamp,
-  performBidirectionalSync,
+  initialSyncOnSignIn,
   pushLocalDataToCloud,
   pullCloudDataToLocal,
   getSyncDataCounts,
@@ -86,8 +86,10 @@ const CloudSyncSettings = ({
       try {
         setSyncStatus("syncing");
         
-        await performBidirectionalSync(user.uid, dbConnection);
-        await fetchDataFromDB();
+        const result = await initialSyncOnSignIn(user.uid, dbConnection);
+        if (result === 'pulled' || result === 'pushed') {
+          await fetchDataFromDB();
+        }
 
         const ts = await getLastSyncTimestamp(user.uid);
         setLastSynced(ts);
@@ -109,17 +111,18 @@ const CloudSyncSettings = ({
     try {
       setSyncStatus("syncing");
 
-      await performBidirectionalSync(user.uid, dbConnection);
+      // Real-time listeners handle ongoing sync;
+      // manual sync just refreshes local state from SQLite
       await fetchDataFromDB();
 
       const ts = await getLastSyncTimestamp(user.uid);
       setLastSynced(ts);
       setSyncStatus("synced");
-      showToast("Sync complete!", "short");
+      showToast("Data refreshed!", "short");
     } catch (error) {
-      console.error("Manual sync failed:", error);
+      console.error("Manual refresh failed:", error);
       setSyncStatus("error");
-      showToast("Sync failed. Please try again.", "long");
+      showToast("Refresh failed. Please try again.", "long");
     }
   };
 
@@ -294,7 +297,7 @@ const CloudSyncSettings = ({
                 ? "Syncing..."
                 : syncStatus === "error"
                   ? "Sync failed"
-                  : "Sync now"}
+                  : "Connected & Live"}
             </p>
             <p className="text-[0.7rem] font-light opacity-60">
               Last synced: {formatLastSynced(lastSynced)}

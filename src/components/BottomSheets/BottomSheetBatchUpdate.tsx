@@ -7,6 +7,7 @@ import {
   IonTextarea,
   useIonLoading,
 } from "@ionic/react";
+import { syncSalahLogToCloud } from "../../firebase/syncService";
 
 import {
   DBResultDataObjType,
@@ -155,6 +156,15 @@ const BottomSheetBatchUpdate = ({
 
           if (statements.length === BATCH_SIZE) {
             await dbConnection.current.executeSet(statements);
+            // Push batch to cloud
+            for (const stmt of statements) {
+              const v = stmt.values;
+              syncSalahLogToCloud({
+                date: v[0] as string, salahName: v[1] as string, salahStatus: v[2] as string,
+                reasons: v[3] as string, notes: v[4] as string, createdAt: v[5] as number,
+                updatedAt: v[6] as number, deleted: v[7] as number,
+              });
+            }
             statements.length = 0; // clear array
           }
         }
@@ -163,6 +173,15 @@ const BottomSheetBatchUpdate = ({
       // flush remaining
       if (statements.length > 0) {
         await dbConnection.current.executeSet(statements);
+        // Push remaining to cloud
+        for (const stmt of statements) {
+          const v = stmt.values;
+          syncSalahLogToCloud({
+            date: v[0] as string, salahName: v[1] as string, salahStatus: v[2] as string,
+            reasons: v[3] as string, notes: v[4] as string, createdAt: v[5] as number,
+            updatedAt: v[6] as number, deleted: v[7] as number,
+          });
+        }
       }
 
       // await dbConnection.current?.execute("BEGIN TRANSACTION");

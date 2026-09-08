@@ -1,6 +1,7 @@
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import { DBConnectionStateType, LocationsDataObjTypeArr } from "../types/types";
 import { generateUUID } from "./helpers";
+import { syncLocationToCloud } from "../firebase/syncService";
 
 // let dbLock: Promise<void> = Promise.resolve();
 
@@ -116,6 +117,19 @@ export const addUserLocation = async (
   const syncId = generateUUID();
   const params = [syncId, locationName, latitude, longitude, isSelected, now, now, 0];
   const lastId = await dbConnection.current.run(stmnt, params);
+
+  // Push to cloud (fire-and-forget)
+  syncLocationToCloud({
+    syncId,
+    locationName,
+    latitude,
+    longitude,
+    isSelected,
+    createdAt: now,
+    updatedAt: now,
+    deleted: 0,
+  });
+
   return lastId;
 };
 

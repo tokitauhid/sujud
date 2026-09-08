@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { syncSalahLogToCloud } from "../firebase/syncService";
 import { FixedSizeList as List } from "react-window";
 import {
   IonIcon,
@@ -68,6 +69,23 @@ const MissedSalahsPanel: React.FC<MissedSalahsPanelProps> = ({
       throw new Error("dbConnection.current does not exist");
     }
     await dbConnection.current.run(query, values);
+
+    // Push to cloud with full record data (fire-and-forget)
+    const existing = await dbConnection.current.query(
+      `SELECT * FROM salahDataTable WHERE date = ? AND salahName = ?`,
+      [date, salahName]
+    );
+    const row = existing?.values?.[0];
+    syncSalahLogToCloud({
+      date,
+      salahName,
+      salahStatus: "late",
+      reasons: row?.reasons ?? "",
+      notes: row?.notes ?? "",
+      createdAt: row?.createdAt ?? 0,
+      updatedAt: row?.updatedAt ?? Date.now(),
+      deleted: 0,
+    });
 
     setTimeout(() => {
       setFetchedSalahData((prev) => {

@@ -37,7 +37,7 @@ import { AndroidSettings } from "capacitor-native-settings";
 import { useFirebaseAuth } from "../firebase/useFirebaseAuth";
 import {
   hasCloudData,
-  performBidirectionalSync,
+  initialSyncOnSignIn,
 } from "../firebase/syncService";
 import { FcGoogle } from "react-icons/fc";
 import { IoSyncOutline } from "react-icons/io5";
@@ -148,7 +148,7 @@ const Onboarding = ({
 
         if (cloudExists) {
           // Returning user: sync and skip remaining onboarding
-          await performBidirectionalSync(currentUser.uid, dbConnection);
+          await initialSyncOnSignIn(currentUser.uid, dbConnection);
           await fetchDataFromDB?.(true);
           showToast("Data synced from cloud!", "short");
           await dismissOnboardingSlides();

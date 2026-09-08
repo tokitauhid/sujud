@@ -61,6 +61,12 @@ const useSQLiteDB = () => {
             `ALTER TABLE userPreferencesTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
           ],
         },
+        {
+          toVersion: 4,
+          statements: [
+            `CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_syncId ON userLocationsTable (syncId) WHERE syncId != '';`,
+          ],
+        },
       ];
 
       try {
@@ -99,53 +105,12 @@ const useSQLiteDB = () => {
               "sujuddatabase",
               false,
               "no-encryption",
-              3,
+              4,
               false,
             );
         }
 
-        // Auto-sync monkey patch with debounce
-        let syncTimeout: any = null;
-        const triggerAutoSync = (queryInfo: string) => {
-          const upperQuery = queryInfo.toUpperCase();
-          if (upperQuery.includes("INSERT") || upperQuery.includes("UPDATE") || upperQuery.includes("DELETE") || upperQuery.includes("EXECUTESET")) {
-            if (syncTimeout) clearTimeout(syncTimeout);
-            syncTimeout = setTimeout(() => {
-              import('../firebase/firebaseConfig').then(({ auth }) => {
-                if (auth && auth.currentUser) {
-                  import('../firebase/syncService').then((syncService) => {
-                    if (!syncService.isSyncing && dbConnection && dbConnection.current) {
-                      syncService.performBidirectionalSync(auth.currentUser!.uid, dbConnection).catch(e => console.error("Auto-sync error", e));
-                    }
-                  });
-                }
-              });
-            }, 3000); // 3-second debounce
-          }
-        };
 
-        if (dbConnection.current) {
-          const originalRun = dbConnection.current.run.bind(dbConnection.current);
-          dbConnection.current.run = async (statement: string, values?: any[], transaction?: boolean, returnType?: string) => {
-            const res = await originalRun(statement, values, transaction, returnType);
-            triggerAutoSync(statement);
-            return res;
-          };
-
-          const originalExecuteSet = dbConnection.current.executeSet.bind(dbConnection.current);
-          dbConnection.current.executeSet = async (set: any[], transaction?: boolean, returnType?: string) => {
-            const res = await originalExecuteSet(set, transaction, returnType);
-            triggerAutoSync("EXECUTESET");
-            return res;
-          };
-          
-          const originalQuery = dbConnection.current.query.bind(dbConnection.current);
-          dbConnection.current.query = async (statement: string, values?: any[]) => {
-            const res = await originalQuery(statement, values);
-            triggerAutoSync(statement);
-            return res;
-          };
-        }
 
         await initialiseTables();
         setisDatabaseInitialised(true);
@@ -226,7 +191,9 @@ const useSQLiteDB = () => {
         `ALTER TABLE userLocationsTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
         `ALTER TABLE userLocationsTable ADD COLUMN deleted INTEGER DEFAULT 0;`,
         
-        `ALTER TABLE userPreferencesTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`
+        `ALTER TABLE userPreferencesTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
+
+        `CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_syncId ON userLocationsTable (syncId) WHERE syncId != '';`
       ];
 
       for (const sql of migrationSql) {

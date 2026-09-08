@@ -55,7 +55,6 @@ import {
 import { Style } from "@capacitor/status-bar";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { Capacitor, PluginListenerHandle } from "@capacitor/core";
-import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import {
   format,
   parse,
@@ -81,66 +80,12 @@ import {
 } from "./utils/constants";
 import TabletSideNav from "./components/TabletSideNav";
 import { FirebaseAuthProvider, useFirebaseAuth } from "./firebase/useFirebaseAuth";
-import { performBidirectionalSync } from "./firebase/syncService";
+import { initRealtimeSync, initialSyncOnSignIn } from "./firebase/syncService";
 
-interface AutomaticSyncProps {
-  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
-  isDatabaseInitialised: boolean;
-}
-
-const AutomaticSync = ({
-  dbConnection,
-  isDatabaseInitialised,
-}: AutomaticSyncProps) => {
-  const { user } = useFirebaseAuth();
-  const retryTimer = useRef<ReturnType<typeof setTimeout>>();
-  const syncInFlight = useRef(false);
-
-  useEffect(() => {
-    if (!user || !isDatabaseInitialised || !dbConnection.current) return;
-
-    let disposed = false;
-
-    const sync = async () => {
-      if (disposed || syncInFlight.current) return;
-
-      syncInFlight.current = true;
-      try {
-        await performBidirectionalSync(user.uid, dbConnection);
-      } catch (error) {
-        console.error("Automatic sync failed; will retry:", error);
-        if (!disposed) {
-          retryTimer.current = setTimeout(sync, 10000);
-        }
-      } finally {
-        syncInFlight.current = false;
-      }
-    };
-
-    const handleAppStateChange = ({ isActive }: { isActive: boolean }) => {
-      if (isActive) void sync();
-    };
-
-    void sync();
-    const interval = setInterval(sync, 60000);
-    const appStateListener = capacitorApp.addListener(
-      "appStateChange",
-      handleAppStateChange,
-    );
-
-    return () => {
-      disposed = true;
-      clearInterval(interval);
-      if (retryTimer.current) clearTimeout(retryTimer.current);
-      appStateListener.then((listener) => listener.remove());
-    };
-  }, [dbConnection, isDatabaseInitialised, user]);
-
-  return null;
-};
 
 const App = () => {
   const justLaunched = useRef(true);
+  const { user } = useFirebaseAuth();
 
   const {
     isDatabaseInitialised,
@@ -199,6 +144,55 @@ const App = () => {
     });
 
   const [isAppActive, setIsAppActive] = useState(true);
+
+  // -----------------------------------------------------------------------
+  // Real-time cloud sync: replaces the old AutomaticSync component
+  // -----------------------------------------------------------------------
+  useEffect(() => {
+    if (!user || !isDatabaseInitialised || !dbConnection.current) return;
+
+    let unsubscribe: (() => void) | null = null;
+
+    const setup = async () => {
+      // One-time initial sync on sign-in
+      try {
+        const result = await initialSyncOnSignIn(user.uid, dbConnection);
+        if (result === 'pulled') {
+          await fetchDataFromDB();
+        }
+      } catch (e) {
+        console.error("[SYNC] Initial sync failed:", e);
+      }
+
+      // Start real-time listeners
+      unsubscribe = initRealtimeSync(user.uid, dbConnection, {
+        onSalahLogsChanged: () => {
+          // Refresh salah data from SQLite to get consistent state
+          fetchDataFromDB();
+        },
+        onPreferencesChanged: (prefs) => {
+          // Update React state directly from incoming prefs
+          setUserPreferences(prev => {
+            const updated = { ...prev };
+            for (const [key, pref] of Object.entries(prefs)) {
+              (updated as any)[key] = pref.value;
+            }
+            return updated;
+          });
+        },
+        onLocationsChanged: () => {
+          // Refresh locations from SQLite
+          fetchDataFromDB();
+        },
+      });
+    };
+
+    setup();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [user?.uid, isDatabaseInitialised]);
 
   useEffect(() => {
     // if (!isDatabaseInitialised) return;
@@ -993,10 +987,6 @@ const App = () => {
 
   return (
     <FirebaseAuthProvider>
-    <AutomaticSync
-      dbConnection={dbConnection}
-      isDatabaseInitialised={isDatabaseInitialised}
-    />
     <IonApp>
       <IonReactRouter>
         <IonTabs className="app">

@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { syncSalahLogToCloud } from "../../firebase/syncService";
 import { GoPerson } from "react-icons/go";
 import { GoPeople } from "react-icons/go";
 import { GoSkip } from "react-icons/go";
@@ -224,6 +225,21 @@ const BottomSheetSalahStatus = ({
       const flattenedSalahDBValues = salahDataToInsertIntoDB.flat();
 
       await dbConnection.current!.run(query, flattenedSalahDBValues);
+
+      // Push each record to cloud (fire-and-forget)
+      for (const row of salahDataToInsertIntoDB) {
+        syncSalahLogToCloud({
+          date: row[0] as string,
+          salahName: row[1] as string,
+          salahStatus: row[2] as string,
+          reasons: row[3] as string,
+          notes: row[4] as string,
+          createdAt: row[5] as number,
+          updatedAt: row[6] as number,
+          deleted: row[7] as number,
+        });
+      }
+
       // TODO: Shouldn't be mutating here, this code works but needs improvement
       for (const obj of fetchedSalahData) {
         if (selectedSalahAndDate[obj.date]) {

@@ -27,6 +27,7 @@ import {
   MODAL_BREAKPOINTS,
 } from "../../../utils/constants";
 import { fetchAllLocations, toggleDBConnection } from "../../../utils/dbUtils";
+import { syncLocationToCloud } from "../../../firebase/syncService";
 import ActionSheet from "../../ActionSheet";
 import Toast from "../../Toast";
 
@@ -86,6 +87,29 @@ const BottomSheetLocationsList = ({
       `UPDATE userlocationsTable SET isSelected = 1 WHERE id = ?`,
       [id],
     );
+
+    // Sync all location isSelected changes to cloud
+    try {
+      const allLocs = await dbConnection.current.query(
+        `SELECT * FROM userLocationsTable WHERE deleted = 0 AND syncId != ''`
+      );
+      if (allLocs?.values) {
+        for (const loc of allLocs.values) {
+          syncLocationToCloud({
+            syncId: loc.syncId,
+            locationName: loc.locationName,
+            latitude: loc.latitude,
+            longitude: loc.longitude,
+            isSelected: loc.isSelected,
+            createdAt: loc.createdAt || 0,
+            updatedAt: loc.updatedAt || 0,
+            deleted: loc.deleted || 0,
+          });
+        }
+      }
+    } catch (e) {
+      console.error("[SYNC] Failed to sync location selection:", e);
+    }
   };
 
   const deleteUserLocation = async (
@@ -100,6 +124,30 @@ const BottomSheetLocationsList = ({
     }
 
     await dbConnection.current.run(stmnt, params);
+
+    // Sync soft-delete to cloud
+    try {
+      const locResult = await dbConnection.current.query(
+        `SELECT * FROM userLocationsTable WHERE id = ?`,
+        [id]
+      );
+      if (locResult?.values?.[0]?.syncId) {
+        const loc = locResult.values[0];
+        syncLocationToCloud({
+          syncId: loc.syncId,
+          locationName: loc.locationName,
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+          isSelected: loc.isSelected,
+          createdAt: loc.createdAt || 0,
+          updatedAt: loc.updatedAt || 0,
+          deleted: 1,
+        });
+      }
+    } catch (e) {
+      console.error("[SYNC] Failed to sync location deletion:", e);
+    }
+
     setShowLocationDeletedToast(true);
   };
 

@@ -10,6 +10,7 @@ import {
   userPreferencesType,
 } from "../types/types";
 import { toggleDBConnection } from "./dbUtils";
+import { syncPreferenceToCloud } from "../firebase/syncService";
 import {
   CalculationMethod,
   CalculationParameters,
@@ -135,6 +136,13 @@ export const updateUserPrefs = async (
       ...userPreferences,
       [preferenceName]: preferenceValue,
     }));
+
+    // Push to cloud (fire-and-forget)
+    syncPreferenceToCloud(
+      preferenceName,
+      typeof preferenceValue === 'string' ? preferenceValue : preferenceValue.toString(),
+      Date.now()
+    );
   } catch (error) {
     console.error(`ERROR ENTERING ${preferenceName} into DB`);
     console.error(error);
