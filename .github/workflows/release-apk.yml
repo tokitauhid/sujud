@@ -195,23 +195,52 @@ jobs:
       # --------------------------------------------------
       # Generate Changelog
       # --------------------------------------------------
-      - name: Build Changelog
-        id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate changelog
+        run: |
+          CURRENT_TAG="${GITHUB_REF_NAME}"
+
+          # Find the previous tag (the one before the current)
+          PREV_TAG=$(git tag --sort=-v:refname | grep -A1 "^${CURRENT_TAG}$" | tail -n1)
+
+          # If there's no previous tag or it's the same, use all commits
+          if [ -z "$PREV_TAG" ] || [ "$PREV_TAG" = "$CURRENT_TAG" ]; then
+            echo "First release — including all commits."
+            COMMITS=$(git log --pretty=format:"- %s (\`%h\`)" --no-merges)
+          else
+            echo "Generating changelog: ${PREV_TAG}..${CURRENT_TAG}"
+            COMMITS=$(git log --pretty=format:"- %s (\`%h\`)" --no-merges "${PREV_TAG}..${CURRENT_TAG}")
+          fi
+
+          {
+            echo "## 🕌 Sujud ${CURRENT_TAG}"
+            echo ""
+            echo "### What's Changed"
+            echo ""
+            echo "$COMMITS"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### Installation"
+            echo ""
+            echo "1. Download \`Sujud-${CURRENT_TAG}.apk\` below"
+            echo "2. Transfer it to your Android device"
+            echo "3. Open the APK and follow the install prompts"
+            echo ""
+            if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${CURRENT_TAG}"
+            fi
+          } > changelog.md
+
+          echo "--- Generated changelog ---"
+          cat changelog.md
 
       # --------------------------------------------------
       # Create GitHub Release
       # --------------------------------------------------
       - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          TAG="${GITHUB_REF_NAME}"
-
-          gh release create "$TAG" \
-            "${{ steps.release_apk.outputs.path }}" \
-            --title "Sujud ${TAG}" \
-            --notes "${{ steps.build_changelog.outputs.changelog }}" \
-            --verify-tag
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: changelog.md
+          files: ${{ steps.release_apk.outputs.path }}
+          draft: false
+          prerelease: false
