@@ -9,7 +9,7 @@ import {
   salahTimesObjType,
   userPreferencesType,
 } from "../types/types";
-import { toggleDBConnection } from "./dbUtils";
+import { toggleDBConnection, ensureDBOpen } from "./dbUtils";
 import { syncPreferenceToCloud } from "../firebase/syncService";
 import {
   CalculationMethod,
@@ -118,7 +118,7 @@ export const updateUserPrefs = async (
       throw new Error("dbConnection / dbconnection.current does not exist");
     }
 
-    await toggleDBConnection(dbConnection, "open");
+    await ensureDBOpen(dbConnection);
 
     if (preferenceName === "reasons") {
       const query = `UPDATE userPreferencesTable SET preferenceValue = ?, updatedAt = ? WHERE preferenceName = ?`;
@@ -146,15 +146,6 @@ export const updateUserPrefs = async (
   } catch (error) {
     console.error(`ERROR ENTERING ${preferenceName} into DB`);
     console.error(error);
-  } finally {
-    if (!dbConnection || !dbConnection.current) {
-      throw new Error("dbConnection / dbconnection.current does not exist");
-    }
-    // let DBResultPreferences = await dbConnection.current.query(
-    //   `SELECT * FROM userPreferencesTable`,
-    // );
-    // console.log("DBResultPreferences: ", DBResultPreferences.values);
-    await toggleDBConnection(dbConnection, "close");
   }
 };
 

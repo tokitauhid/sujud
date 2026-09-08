@@ -18,7 +18,7 @@ import {
   LocationsDataObjType,
 } from "../types/types";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
-import { toggleDBConnection } from "../utils/dbUtils";
+import { toggleDBConnection, ensureDBOpen } from "../utils/dbUtils";
 
 const userDoc = (userId: string) => doc(db!, "users", userId);
 const prefsDoc = (userId: string) =>
@@ -165,6 +165,12 @@ export function syncLocationToCloud(record: {
 /**
  * Initialize real-time Firestore listeners for all syncable collections.
  * Returns a cleanup function that unsubscribes all listeners.
+ *
+ * SQLite writes now go through ensureDBOpen() so they never silently fail
+ * because a concurrent caller (e.g. updateUserPrefs) closed the connection.
+ *
+ * Callbacks are debounced (300 ms) so rapid-fire snapshot changes are batched
+ * into a single React state update instead of N consecutive ones.
  */
 export function initRealtimeSync(
   userId: string,
@@ -173,13 +179,22 @@ export function initRealtimeSync(
 ): () => void {
   if (!db) return () => {};
 
+  // Debounce helpers — collect changes, flush once after 300 ms of silence
+  let salahDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let locationsDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const DEBOUNCE_MS = 300;
+
   // --- Salah Logs listener ---
   const unsubSalahs = onSnapshot(
     collection(db, "users", userId, "salahLogs"),
     (snapshot: QuerySnapshot) => {
+      const docChanges = snapshot.docChanges();
+      if (docChanges.length === 0) return;
+
       const changes: Array<{ type: 'added' | 'modified' | 'removed'; data: DBResultDataObjType }> = [];
 
-      snapshot.docChanges().forEach(change => {
+      docChanges.forEach(change => {
         // Skip local echoes — this change originated on THIS device
         if (change.doc.metadata.hasPendingWrites) return;
 
@@ -198,24 +213,30 @@ export function initRealtimeSync(
 
         changes.push({ type: change.type, data: record });
 
-        // Write to local SQLite immediately
+        // Write to local SQLite — ensure DB is open first
         if (dbConnection.current && (change.type === 'added' || change.type === 'modified')) {
-          dbConnection.current.run(
-            `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-             ON CONFLICT(date, salahName) DO UPDATE SET
-               salahStatus = excluded.salahStatus,
-               reasons = excluded.reasons,
-               notes = excluded.notes,
-               updatedAt = excluded.updatedAt,
-               deleted = excluded.deleted`,
-            [record.date, record.salahName, record.salahStatus, record.reasons, record.notes, record.createdAt, record.updatedAt, record.deleted]
+          ensureDBOpen(dbConnection).then(() =>
+            dbConnection.current!.run(
+              `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(date, salahName) DO UPDATE SET
+                 salahStatus = excluded.salahStatus,
+                 reasons = excluded.reasons,
+                 notes = excluded.notes,
+                 updatedAt = excluded.updatedAt,
+                 deleted = excluded.deleted`,
+              [record.date, record.salahName, record.salahStatus, record.reasons, record.notes, record.createdAt, record.updatedAt, record.deleted]
+            )
           ).catch(e => console.error("[SYNC] Failed to write incoming salah to SQLite:", e));
         }
       });
 
       if (changes.length > 0) {
-        callbacks.onSalahLogsChanged(changes);
+        // Debounce the callback so N rapid snapshots → 1 fetchDataFromDB call
+        if (salahDebounceTimer) clearTimeout(salahDebounceTimer);
+        salahDebounceTimer = setTimeout(() => {
+          callbacks.onSalahLogsChanged(changes);
+        }, DEBOUNCE_MS);
       }
     },
     (error) => console.error("[SYNC] Salah logs listener error:", error)
@@ -238,14 +259,16 @@ export function initRealtimeSync(
         }
       }
 
-      // Write each pref to SQLite
+      // Write each pref to SQLite — ensure DB is open first
       if (dbConnection.current) {
-        for (const [key, pref] of Object.entries(prefs)) {
-          dbConnection.current.run(
-            `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
-            [key, pref.value, pref.updatedAt]
-          ).catch(e => console.error("[SYNC] Failed to write incoming pref:", e));
-        }
+        ensureDBOpen(dbConnection).then(() => {
+          for (const [key, pref] of Object.entries(prefs)) {
+            dbConnection.current!.run(
+              `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
+              [key, pref.value, pref.updatedAt]
+            ).catch(e => console.error("[SYNC] Failed to write incoming pref:", e));
+          }
+        }).catch(e => console.error("[SYNC] ensureDBOpen for prefs failed:", e));
       }
 
       callbacks.onPreferencesChanged(prefs);
@@ -257,9 +280,12 @@ export function initRealtimeSync(
   const unsubLocations = onSnapshot(
     collection(db, "users", userId, "locations"),
     (snapshot: QuerySnapshot) => {
+      const docChanges = snapshot.docChanges();
+      if (docChanges.length === 0) return;
+
       const changes: Array<{ type: 'added' | 'modified' | 'removed'; data: LocationsDataObjType }> = [];
 
-      snapshot.docChanges().forEach(change => {
+      docChanges.forEach(change => {
         if (change.doc.metadata.hasPendingWrites) return;
 
         const data = change.doc.data();
@@ -278,30 +304,38 @@ export function initRealtimeSync(
         changes.push({ type: change.type, data: record });
 
         if (dbConnection.current && (change.type === 'added' || change.type === 'modified') && record.syncId) {
-          // UPSERT by syncId
-          dbConnection.current.run(
-            `INSERT INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-             ON CONFLICT(syncId) DO UPDATE SET
-               locationName = excluded.locationName,
-               latitude = excluded.latitude,
-               longitude = excluded.longitude,
-               isSelected = excluded.isSelected,
-               updatedAt = excluded.updatedAt,
-               deleted = excluded.deleted`,
-            [record.syncId, record.locationName, record.latitude, record.longitude, record.isSelected, record.createdAt, record.updatedAt, record.deleted]
+          // UPSERT by syncId — ensure DB is open first
+          ensureDBOpen(dbConnection).then(() =>
+            dbConnection.current!.run(
+              `INSERT INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(syncId) DO UPDATE SET
+                 locationName = excluded.locationName,
+                 latitude = excluded.latitude,
+                 longitude = excluded.longitude,
+                 isSelected = excluded.isSelected,
+                 updatedAt = excluded.updatedAt,
+                 deleted = excluded.deleted`,
+              [record.syncId, record.locationName, record.latitude, record.longitude, record.isSelected, record.createdAt, record.updatedAt, record.deleted]
+            )
           ).catch(e => console.error("[SYNC] Failed to write incoming location:", e));
         }
       });
 
       if (changes.length > 0) {
-        callbacks.onLocationsChanged(changes);
+        // Debounce the callback so N rapid snapshots → 1 fetchDataFromDB call
+        if (locationsDebounceTimer) clearTimeout(locationsDebounceTimer);
+        locationsDebounceTimer = setTimeout(() => {
+          callbacks.onLocationsChanged(changes);
+        }, DEBOUNCE_MS);
       }
     },
     (error) => console.error("[SYNC] Locations listener error:", error)
   );
 
   return () => {
+    if (salahDebounceTimer) clearTimeout(salahDebounceTimer);
+    if (locationsDebounceTimer) clearTimeout(locationsDebounceTimer);
     unsubSalahs();
     unsubPrefs();
     unsubLocations();

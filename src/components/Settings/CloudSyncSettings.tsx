@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useFirebaseAuth } from "../../firebase/useFirebaseAuth";
 import {
   getLastSyncTimestamp,
-  initialSyncOnSignIn,
   pushLocalDataToCloud,
   pullCloudDataToLocal,
   getSyncDataCounts,
@@ -78,29 +77,23 @@ const CloudSyncSettings = ({
     }
   };
 
-  // Trigger initial sync after successful sign-in
+  // Refresh sync status when this component mounts (NOT a duplicate sync —
+  // the actual initial sync is handled in App.tsx's useEffect).
   useEffect(() => {
     if (!user || isAuthLoading) return;
 
-    const initialSync = async () => {
+    const refreshStatus = async () => {
       try {
-        setSyncStatus("syncing");
-        
-        const result = await initialSyncOnSignIn(user.uid, dbConnection);
-        if (result === 'pulled' || result === 'pushed') {
-          await fetchDataFromDB();
-        }
-
         const ts = await getLastSyncTimestamp(user.uid);
         setLastSynced(ts);
-        setSyncStatus("synced");
+        setSyncStatus(ts ? "synced" : "idle");
       } catch (error) {
-        console.error("Initial sync failed:", error);
+        console.error("Failed to refresh sync status:", error);
         setSyncStatus("error");
       }
     };
 
-    initialSync();
+    refreshStatus();
   }, [user?.uid]);
 
   // seedSQLiteFromCloud is now imported from syncService

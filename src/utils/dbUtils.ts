@@ -3,16 +3,62 @@ import { DBConnectionStateType, LocationsDataObjTypeArr } from "../types/types";
 import { generateUUID } from "./helpers";
 import { syncLocationToCloud } from "../firebase/syncService";
 
-// let dbLock: Promise<void> = Promise.resolve();
+// ---------------------------------------------------------------------------
+// Serialized DB operation queue
+// ---------------------------------------------------------------------------
+// All DB operations are funneled through this queue so that concurrent callers
+// (sync listeners, updateUserPrefs, fetchDataFromDB, etc.) never race against
+// each other when opening/closing the connection.
 
-// export function toggleDBConnection(
-//   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>,
-//   action: DBConnectionStateType
-// ) {
-//   dbLock = dbLock.then(() => queuedToggleDBConnection(dbConnection, action));
+let dbQueue: Promise<void> = Promise.resolve();
 
-//   return dbLock;
-// }
+/**
+ * Enqueue a DB operation. The callback receives the open DB connection.
+ * Operations are executed one at a time in FIFO order.
+ */
+export function withDB<T>(
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>,
+  operation: (db: SQLiteDBConnection) => Promise<T>
+): Promise<T> {
+  let resolve: (v: T) => void;
+  let reject: (e: any) => void;
+  const resultPromise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
+  dbQueue = dbQueue.then(async () => {
+    try {
+      if (!dbConnection.current) {
+        throw new Error("dbConnection.current is not available");
+      }
+      await ensureDBOpen(dbConnection);
+      const result = await operation(dbConnection.current);
+      resolve!(result);
+    } catch (e) {
+      reject!(e);
+    }
+  });
+
+  return resultPromise;
+}
+
+/**
+ * Ensure the DB is open. Does NOT close it — the DB stays open during the
+ * app lifecycle. Only call toggleDBConnection("close") when the app is
+ * being backgrounded or destroyed.
+ */
+export async function ensureDBOpen(
+  dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>
+) {
+  if (!dbConnection.current) {
+    throw new Error("dbConnection.current is not available");
+  }
+  const isDatabaseOpen = await dbConnection.current.isDBOpen();
+  if (!isDatabaseOpen.result) {
+    await dbConnection.current.open();
+  }
+}
 
 // export async function queuedToggleDBConnection(
 export async function toggleDBConnection(

@@ -235,7 +235,15 @@ const SettingsPage = ({
     window.location.href = url;
   };
 
+  // Guard: skip the first invocation (mount) so navigating to Settings
+  // doesn't trigger a DB write that interrupts sync listeners.
+  const hasMountedMissedSalah = useRef(false);
   useEffect(() => {
+    if (!hasMountedMissedSalah.current) {
+      hasMountedMissedSalah.current = true;
+      return;
+    }
+
     const updateStateAndDB = async () => {
       if (isMissedSalahCounterOptionChecked) {
         await updateUserPrefs(

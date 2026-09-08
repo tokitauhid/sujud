@@ -72,7 +72,7 @@ import useSQLiteDB from "./utils/useSqLiteDB";
 import Onboarding from "./components/Onboarding";
 import { Route } from "react-router-dom";
 import SalahTimesPage from "./pages/SalahTimesPage";
-import { toggleDBConnection as toggleDBConnection } from "./utils/dbUtils";
+import { ensureDBOpen } from "./utils/dbUtils";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import {
   adhanLibrarySalahs,
@@ -532,7 +532,8 @@ const AppContent = () => {
         );
       }
 
-      await toggleDBConnection(dbConnection, "open");
+      // Keep the DB open — don't close it! Sync listeners need it.
+      await ensureDBOpen(dbConnection);
 
       let DBResultPreferences = await dbConnection.current.query(
         `SELECT * FROM userPreferencesTable`,
@@ -547,10 +548,6 @@ const AppContent = () => {
       );
 
       console.log(`[FETCH DEBUG] Prefs: ${DBResultPreferences?.values?.length ?? 0}, Salahs: ${DBResultAllSalahData?.values?.length ?? 0}, Locs: ${DBResultLocations?.values?.length ?? 0}`);
-      if (DBResultAllSalahData?.values && DBResultAllSalahData.values.length > 0) {
-        const statuses = new Set(DBResultAllSalahData.values.map((r: any) => r.salahStatus));
-        console.log(`[FETCH DEBUG] Unique salahStatus values in local DB:`, Array.from(statuses));
-      }
 
       if (!DBResultPreferences || !DBResultPreferences.values) {
         throw new Error(
@@ -568,9 +565,6 @@ const AppContent = () => {
         );
       }
 
-      // console.log("DBResultAllSalahData: ", DBResultAllSalahData);
-      // console.log("DBResultPreferences: ", DBResultPreferences);
-
       setUserLocations(DBResultLocations.values);
 
       const userNotificationPermission = await checkNotificationPermissions();
@@ -584,14 +578,7 @@ const AppContent = () => {
           (row) => row.preferenceName === "isExistingUser",
         ) || "";
 
-      // console.log("isExistingUser is: ", isExistingUser);
-
       if (isExistingUser === "" || isExistingUser.preferenceValue === "0") {
-        // console.log(
-        //   "SETTING ONBOARDING MODE TO NEW USER, ONBOARDING MODE IS: ",
-        //   onboardingMode,
-        // );
-
         setOnboardingMode("newUser");
       }
 
@@ -606,14 +593,8 @@ const AppContent = () => {
             "0",
             setUserPreferences,
           );
-          await toggleDBConnection(dbConnection, "open");
 
-          // const locationPref = "location";
-          // await dbConnection.current.run(
-          //   `DELETE FROM userPreferencesTable WHERE preferenceName = ?`,
-          //   [locationPref]
-          // );
-
+          // Re-read preferences after the update (DB stays open)
           DBResultPreferences = await dbConnection.current.query(
             `SELECT * FROM userPreferencesTable`,
           );
@@ -622,8 +603,6 @@ const AppContent = () => {
             "Error modifying dailyNotification value in database:",
             error,
           );
-        } finally {
-          await toggleDBConnection(dbConnection, "close");
         }
       }
       try {
@@ -636,17 +615,14 @@ const AppContent = () => {
           DBResultPreferences.values as PreferenceObjType[],
           DBResultAllSalahData.values,
         );
-
-        // await handleSalahTrackingDataFromDB(DBResultAllSalahData.values);
       } catch (error) {
         console.error(error);
       }
     } catch (error) {
       console.error(error);
       return;
-    } finally {
-      await toggleDBConnection(dbConnection, "close");
     }
+    // NOTE: DB intentionally NOT closed here — it stays open for sync listeners
   };
 
   const handleUserPreferencesDataFromDB = async (
@@ -708,9 +684,15 @@ const AppContent = () => {
       console.error(error);
     }
 
-    const assignPreference = async (
-      preference: PreferenceType,
-    ): Promise<void> => {
+    // ---------------------------------------------------------------
+    // BATCHED preference assignment: build the full prefs object in
+    // one pass, then call setUserPreferences ONCE instead of 30+ times
+    // ---------------------------------------------------------------
+    const batchedPrefs: Partial<userPreferencesType> = {};
+    const missingPrefs: PreferenceType[] = [];
+
+    for (const key of Object.keys(dictPreferencesDefaultValues)) {
+      const preference = key as keyof userPreferencesType;
       const preferenceQuery = DBResultPreferencesValues.find(
         (row) => row.preferenceName === preference,
       );
@@ -718,36 +700,31 @@ const AppContent = () => {
       if (preferenceQuery) {
         const prefName = preferenceQuery.preferenceName;
         const prefValue = preferenceQuery.preferenceValue;
-
-        setUserPreferences((userPreferences: userPreferencesType) => ({
-          ...userPreferences,
-          [prefName]: prefName === "reasons" ? prefValue.split(",") : prefValue,
-        }));
+        (batchedPrefs as any)[prefName] =
+          prefName === "reasons" ? prefValue.split(",") : prefValue;
       } else {
-        // console.log("preference: ", preference);
-
-        await updateUserPrefs(
-          dbConnection,
-          preference,
-          dictPreferencesDefaultValues[preference],
-          setUserPreferences,
-        );
+        missingPrefs.push(preference);
       }
-    };
+    }
 
-    const batchAssignPreferences = async () => {
-      for (const key of Object.keys(dictPreferencesDefaultValues)) {
-        await assignPreference(key as keyof userPreferencesType);
-      }
-    };
+    // Insert missing preferences into DB (rare — first run or import)
+    for (const pref of missingPrefs) {
+      await updateUserPrefs(
+        dbConnection,
+        pref,
+        dictPreferencesDefaultValues[pref],
+        setUserPreferences,
+      );
+      // Also add to our batch so the final state is complete
+      (batchedPrefs as any)[pref] = dictPreferencesDefaultValues[pref];
+    }
 
-    await batchAssignPreferences();
+    // Single setState call for all preferences
+    setUserPreferences((prev) => ({ ...prev, ...batchedPrefs }));
 
     const startDatePref = DBResultPreferencesValues.find(
       (row) => row.preferenceName === "userStartDate",
     )?.preferenceValue;
-
-    // console.log("START DATE: ", startDatePref);
 
     if (!startDatePref) {
       throw new Error("userStartDate not found in preferences");
@@ -830,19 +807,11 @@ const AppContent = () => {
       currentDate = subDays(currentDate, 1);
     }
 
-    // ! The above is the bottleneck
-
-    console.log("ALL DATA GENERATED");
-
-    setFetchedSalahData([...singleSalahObjArr]);
-    setMissedSalahList({ ...missedSalahObj });
-    generateStreaks([...singleSalahObjArr]);
-
-    // setFetchedSalahData(singleSalahObjArr);
-    // setMissedSalahList(missedSalahObj);
-    // generateStreaks(singleSalahObjArr);
-
-    console.log("STATES UPDATED");
+    // Direct assignment — no need to spread-copy, the arrays/objects
+    // are freshly constructed above and not shared with anything else.
+    setFetchedSalahData(singleSalahObjArr);
+    setMissedSalahList(missedSalahObj);
+    generateStreaks(singleSalahObjArr);
   };
 
   // const [activeLocation, setActiveLocation] = useState();
