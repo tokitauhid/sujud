@@ -45,6 +45,12 @@ BottomSheetStartDateProps) => {
   const [charCount, setCharCount] = useState(CHAR_LIMIT);
   const [newReasonInput, setNewReasonInput] = useState("");
 
+  const reasonsList: string[] = Array.isArray(userPreferences?.reasons)
+    ? [...userPreferences.reasons]
+    : typeof userPreferences?.reasons === "string"
+    ? (userPreferences.reasons as string).split(",").filter(Boolean)
+    : [];
+
   // const configureResize = async () => {
   //   await Keyboard.setResizeMode({ mode: KeyboardResize.None });
   // };
@@ -104,7 +110,7 @@ BottomSheetStartDateProps) => {
                 onClick={async () => {
                   if (newReasonInput.length === 0) return;
                   if (
-                    userPreferences.reasons.some(
+                    reasonsList.some(
                       (item) =>
                         item.toLocaleLowerCase() ===
                         newReasonInput.toLocaleLowerCase(),
@@ -114,7 +120,7 @@ BottomSheetStartDateProps) => {
                     return;
                   }
                   const updatedReasons = [
-                    ...userPreferences.reasons,
+                    ...reasonsList,
                     newReasonInput,
                   ];
                   await updateUserPrefs(
@@ -170,7 +176,7 @@ BottomSheetStartDateProps) => {
 
         <ul className="pt-3 px-2 bg-[var(--card-bg-color)]">
           <AnimatePresence>
-            {userPreferences.reasons
+            {[...reasonsList]
               .sort((a, b) => a.localeCompare(b))
               .map((reason) => (
                 <motion.li
@@ -189,7 +195,7 @@ BottomSheetStartDateProps) => {
                   <p>{reason}</p>
                   <p
                     onClick={async () => {
-                      const modifiedReasons = userPreferences.reasons.filter(
+                      const modifiedReasons = reasonsList.filter(
                         (item) => item !== reason,
                       );
                       await updateUserPrefs(

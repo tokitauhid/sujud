@@ -193,7 +193,8 @@ const useSQLiteDB = () => {
         
         `ALTER TABLE userPreferencesTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
 
-        `CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_syncId ON userLocationsTable (syncId) WHERE syncId != '';`
+        `CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_syncId ON userLocationsTable (syncId) WHERE syncId != '';`,
+        `CREATE INDEX IF NOT EXISTS idx_userLocations_syncId ON userLocationsTable (syncId);`
       ];
 
       for (const sql of migrationSql) {

@@ -72,7 +72,7 @@ import useSQLiteDB from "./utils/useSqLiteDB";
 import Onboarding from "./components/Onboarding";
 import { Route } from "react-router-dom";
 import SalahTimesPage from "./pages/SalahTimesPage";
-import { ensureDBOpen } from "./utils/dbUtils";
+import { withDB } from "./utils/dbUtils";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import {
   adhanLibrarySalahs,
@@ -175,7 +175,16 @@ const AppContent = () => {
           setUserPreferences(prev => {
             const updated = { ...prev };
             for (const [key, pref] of Object.entries(prefs)) {
-              (updated as any)[key] = pref.value;
+              if (key === "reasons") {
+                const val = pref.value;
+                (updated as any).reasons = Array.isArray(val)
+                  ? val
+                  : typeof val === "string"
+                  ? val.split(",").filter(Boolean)
+                  : [];
+              } else {
+                (updated as any)[key] = pref.value;
+              }
             }
             return updated;
           });
@@ -532,20 +541,20 @@ const AppContent = () => {
         );
       }
 
-      // Keep the DB open — don't close it! Sync listeners need it.
-      await ensureDBOpen(dbConnection);
+      // Query SQLite inside withDB so reads are queued behind any in-progress writes
+      const { DBResultPreferences: prefsResult, DBResultAllSalahData, DBResultLocations } =
+        await withDB(dbConnection, async (db) => {
+          const p = await db.query(`SELECT * FROM userPreferencesTable`);
+          const s = await db.query(`SELECT * FROM salahDataTable WHERE deleted = 0`);
+          const l = await db.query(`SELECT * FROM userLocationsTable WHERE deleted = 0`);
+          return {
+            DBResultPreferences: p,
+            DBResultAllSalahData: s,
+            DBResultLocations: l,
+          };
+        });
 
-      let DBResultPreferences = await dbConnection.current.query(
-        `SELECT * FROM userPreferencesTable`,
-      );
-
-      const DBResultAllSalahData = await dbConnection.current.query(
-        `SELECT * FROM salahDataTable WHERE deleted = 0`,
-      );
-
-      const DBResultLocations = await dbConnection.current.query(
-        `SELECT * FROM userLocationsTable WHERE deleted = 0`,
-      );
+      let DBResultPreferences = prefsResult;
 
       console.log(`[FETCH DEBUG] Prefs: ${DBResultPreferences?.values?.length ?? 0}, Salahs: ${DBResultAllSalahData?.values?.length ?? 0}, Locs: ${DBResultLocations?.values?.length ?? 0}`);
 
@@ -701,7 +710,9 @@ const AppContent = () => {
         const prefName = preferenceQuery.preferenceName;
         const prefValue = preferenceQuery.preferenceValue;
         (batchedPrefs as any)[prefName] =
-          prefName === "reasons" ? prefValue.split(",") : prefValue;
+          prefName === "reasons"
+            ? (typeof prefValue === "string" ? prefValue.split(",").filter(Boolean) : (Array.isArray(prefValue) ? prefValue : []))
+            : prefValue;
       } else {
         missingPrefs.push(preference);
       }

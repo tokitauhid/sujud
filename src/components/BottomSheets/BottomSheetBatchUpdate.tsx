@@ -84,6 +84,12 @@ const BottomSheetBatchUpdate = ({
       ? ["group", "male-alone", "late", "missed"]
       : ["female-alone", "excused", "late", "missed"];
 
+  const reasonsList: string[] = Array.isArray(userPreferences?.reasons)
+    ? userPreferences.reasons
+    : typeof userPreferences?.reasons === "string"
+    ? (userPreferences.reasons as string).split(",").filter(Boolean)
+    : [];
+
   const executeBatchUpdate = async () => {
     try {
       const statement = `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -374,7 +380,7 @@ const BottomSheetBatchUpdate = ({
               <section className="border rounded-lg border-[var(--app-border-color)] mx-4 py-2 text-center">
                 <p className="w-full mb-5 text-center">Reasons</p>
                 <div className="flex flex-wrap justify-around">
-                  {userPreferences.reasons.map((reason) => (
+                  {reasonsList.map((reason) => (
                     <IonCheckbox
                       className="mb-4"
                       style={{

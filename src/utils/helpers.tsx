@@ -9,7 +9,7 @@ import {
   salahTimesObjType,
   userPreferencesType,
 } from "../types/types";
-import { toggleDBConnection, ensureDBOpen } from "./dbUtils";
+import { toggleDBConnection, withDB } from "./dbUtils";
 import { syncPreferenceToCloud } from "../firebase/syncService";
 import {
   CalculationMethod,
@@ -118,19 +118,19 @@ export const updateUserPrefs = async (
       throw new Error("dbConnection / dbconnection.current does not exist");
     }
 
-    await ensureDBOpen(dbConnection);
+    const valToStore = Array.isArray(preferenceValue)
+      ? preferenceValue.join(",")
+      : String(preferenceValue);
 
-    if (preferenceName === "reasons") {
-      const query = `UPDATE userPreferencesTable SET preferenceValue = ?, updatedAt = ? WHERE preferenceName = ?`;
-      await dbConnection.current.run(query, [
-        preferenceValue.toString(),
-        Date.now(),
-        preferenceName,
-      ]);
-    } else {
-      const query = `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`;
-      await dbConnection.current.run(query, [preferenceName, preferenceValue, Date.now()]);
-    }
+    await withDB(dbConnection, async (db) => {
+      if (preferenceName === "reasons") {
+        const query = `UPDATE userPreferencesTable SET preferenceValue = ?, updatedAt = ? WHERE preferenceName = ?`;
+        await db.run(query, [valToStore, Date.now(), preferenceName]);
+      } else {
+        const query = `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`;
+        await db.run(query, [preferenceName, valToStore, Date.now()]);
+      }
+    });
 
     setUserPreferences((userPreferences: userPreferencesType) => ({
       ...userPreferences,
@@ -140,7 +140,7 @@ export const updateUserPrefs = async (
     // Push to cloud (fire-and-forget)
     syncPreferenceToCloud(
       preferenceName,
-      typeof preferenceValue === 'string' ? preferenceValue : preferenceValue.toString(),
+      valToStore,
       Date.now()
     );
   } catch (error) {

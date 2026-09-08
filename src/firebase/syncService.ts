@@ -18,7 +18,7 @@ import {
   LocationsDataObjType,
 } from "../types/types";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
-import { toggleDBConnection, ensureDBOpen } from "../utils/dbUtils";
+import { withDB } from "../utils/dbUtils";
 
 const userDoc = (userId: string) => doc(db!, "users", userId);
 const prefsDoc = (userId: string) =>
@@ -67,25 +67,27 @@ async function adjustUserStartDateIfNeeded(
 ): Promise<void> {
   if (!dbConnection.current) return;
   try {
-    const earliestResult = await dbConnection.current.query(
-      `SELECT MIN(date) as minDate FROM salahDataTable WHERE deleted = 0`
-    );
-    const earliestDate = earliestResult?.values?.[0]?.minDate;
-    if (!earliestDate) return;
-
-    const currentStartResult = await dbConnection.current.query(
-      `SELECT preferenceValue FROM userPreferencesTable WHERE preferenceName = 'userStartDate'`
-    );
-    const currentStart = currentStartResult?.values?.[0]?.preferenceValue;
-
-    // If no start date exists, or the earliest salah date is before it, update
-    if (!currentStart || earliestDate < currentStart) {
-      console.log(`[SYNC] Adjusting userStartDate from "${currentStart}" to "${earliestDate}"`);
-      await dbConnection.current.run(
-        `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES ('userStartDate', ?, ?)`,
-        [earliestDate, Date.now()]
+    await withDB(dbConnection, async (db) => {
+      const earliestResult = await db.query(
+        `SELECT MIN(date) as minDate FROM salahDataTable WHERE deleted = 0`
       );
-    }
+      const earliestDate = earliestResult?.values?.[0]?.minDate;
+      if (!earliestDate) return;
+
+      const currentStartResult = await db.query(
+        `SELECT preferenceValue FROM userPreferencesTable WHERE preferenceName = 'userStartDate'`
+      );
+      const currentStart = currentStartResult?.values?.[0]?.preferenceValue;
+
+      // If no start date exists, or the earliest salah date is before it, update
+      if (!currentStart || earliestDate < currentStart) {
+        console.log(`[SYNC] Adjusting userStartDate from "${currentStart}" to "${earliestDate}"`);
+        await db.run(
+          `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES ('userStartDate', ?, ?)`,
+          [earliestDate, Date.now()]
+        );
+      }
+    });
   } catch (e) {
     console.error("Failed to adjust userStartDate:", e);
   }
@@ -193,6 +195,7 @@ export function initRealtimeSync(
       if (docChanges.length === 0) return;
 
       const changes: Array<{ type: 'added' | 'modified' | 'removed'; data: DBResultDataObjType }> = [];
+      const statements: Array<{ statement: string; values: any[] }> = [];
 
       docChanges.forEach(change => {
         // Skip local echoes — this change originated on THIS device
@@ -213,11 +216,9 @@ export function initRealtimeSync(
 
         changes.push({ type: change.type, data: record });
 
-        // Write to local SQLite — ensure DB is open first
-        if (dbConnection.current && (change.type === 'added' || change.type === 'modified')) {
-          ensureDBOpen(dbConnection).then(() =>
-            dbConnection.current!.run(
-              `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted)
+        if (change.type === 'added' || change.type === 'modified') {
+          statements.push({
+            statement: `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                ON CONFLICT(date, salahName) DO UPDATE SET
                  salahStatus = excluded.salahStatus,
@@ -225,19 +226,32 @@ export function initRealtimeSync(
                  notes = excluded.notes,
                  updatedAt = excluded.updatedAt,
                  deleted = excluded.deleted`,
-              [record.date, record.salahName, record.salahStatus, record.reasons, record.notes, record.createdAt, record.updatedAt, record.deleted]
-            )
-          ).catch(e => console.error("[SYNC] Failed to write incoming salah to SQLite:", e));
+            values: [record.date, record.salahName, record.salahStatus, record.reasons, record.notes, record.createdAt, record.updatedAt, record.deleted],
+          });
         }
       });
 
-      if (changes.length > 0) {
-        // Debounce the callback so N rapid snapshots → 1 fetchDataFromDB call
-        if (salahDebounceTimer) clearTimeout(salahDebounceTimer);
-        salahDebounceTimer = setTimeout(() => {
-          callbacks.onSalahLogsChanged(changes);
-        }, DEBOUNCE_MS);
-      }
+      const persistAndNotifySalahs = async () => {
+        try {
+          if (statements.length > 0 && dbConnection.current) {
+            await withDB(dbConnection, async (db) => {
+              const BATCH_SIZE = 50;
+              for (let i = 0; i < statements.length; i += BATCH_SIZE) {
+                await db.executeSet(statements.slice(i, i + BATCH_SIZE));
+              }
+            });
+          }
+          if (changes.length > 0) {
+            if (salahDebounceTimer) clearTimeout(salahDebounceTimer);
+            salahDebounceTimer = setTimeout(() => {
+              callbacks.onSalahLogsChanged(changes);
+            }, DEBOUNCE_MS);
+          }
+        } catch (e) {
+          console.error("[SYNC] Failed to write incoming salah batch:", e);
+        }
+      };
+      persistAndNotifySalahs();
     },
     (error) => console.error("[SYNC] Salah logs listener error:", error)
   );
@@ -259,19 +273,31 @@ export function initRealtimeSync(
         }
       }
 
-      // Write each pref to SQLite — ensure DB is open first
-      if (dbConnection.current) {
-        ensureDBOpen(dbConnection).then(() => {
-          for (const [key, pref] of Object.entries(prefs)) {
-            dbConnection.current!.run(
-              `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
-              [key, pref.value, pref.updatedAt]
-            ).catch(e => console.error("[SYNC] Failed to write incoming pref:", e));
-          }
-        }).catch(e => console.error("[SYNC] ensureDBOpen for prefs failed:", e));
+      const statements: Array<{ statement: string; values: any[] }> = [];
+      for (const [key, pref] of Object.entries(prefs)) {
+        statements.push({
+          statement: `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
+          values: [key, pref.value, pref.updatedAt],
+        });
       }
 
-      callbacks.onPreferencesChanged(prefs);
+      const persistAndNotifyPrefs = async () => {
+        try {
+          if (statements.length > 0 && dbConnection.current) {
+            await withDB(dbConnection, async (db) => {
+              const BATCH_SIZE = 50;
+              for (let i = 0; i < statements.length; i += BATCH_SIZE) {
+                await db.executeSet(statements.slice(i, i + BATCH_SIZE));
+              }
+            });
+          }
+          callbacks.onPreferencesChanged(prefs);
+        } catch (e) {
+          console.error("[SYNC] Failed to write incoming prefs batch:", e);
+          callbacks.onPreferencesChanged(prefs);
+        }
+      };
+      persistAndNotifyPrefs();
     },
     (error) => console.error("[SYNC] Preferences listener error:", error)
   );
@@ -284,6 +310,7 @@ export function initRealtimeSync(
       if (docChanges.length === 0) return;
 
       const changes: Array<{ type: 'added' | 'modified' | 'removed'; data: LocationsDataObjType }> = [];
+      const incomingLocations: LocationsDataObjType[] = [];
 
       docChanges.forEach(change => {
         if (change.doc.metadata.hasPendingWrites) return;
@@ -303,32 +330,45 @@ export function initRealtimeSync(
 
         changes.push({ type: change.type, data: record });
 
-        if (dbConnection.current && (change.type === 'added' || change.type === 'modified') && record.syncId) {
-          // UPSERT by syncId — ensure DB is open first
-          ensureDBOpen(dbConnection).then(() =>
-            dbConnection.current!.run(
-              `INSERT INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-               ON CONFLICT(syncId) DO UPDATE SET
-                 locationName = excluded.locationName,
-                 latitude = excluded.latitude,
-                 longitude = excluded.longitude,
-                 isSelected = excluded.isSelected,
-                 updatedAt = excluded.updatedAt,
-                 deleted = excluded.deleted`,
-              [record.syncId, record.locationName, record.latitude, record.longitude, record.isSelected, record.createdAt, record.updatedAt, record.deleted]
-            )
-          ).catch(e => console.error("[SYNC] Failed to write incoming location:", e));
+        if ((change.type === 'added' || change.type === 'modified') && record.syncId) {
+          incomingLocations.push(record);
         }
       });
 
-      if (changes.length > 0) {
-        // Debounce the callback so N rapid snapshots → 1 fetchDataFromDB call
-        if (locationsDebounceTimer) clearTimeout(locationsDebounceTimer);
-        locationsDebounceTimer = setTimeout(() => {
-          callbacks.onLocationsChanged(changes);
-        }, DEBOUNCE_MS);
-      }
+      const persistAndNotifyLocations = async () => {
+        try {
+          if (incomingLocations.length > 0 && dbConnection.current) {
+            await withDB(dbConnection, async (db) => {
+              for (const loc of incomingLocations) {
+                const existing = await db.query(
+                  `SELECT id FROM userLocationsTable WHERE syncId = ?`,
+                  [loc.syncId]
+                );
+                if (existing?.values && existing.values.length > 0) {
+                  await db.run(
+                    `UPDATE userLocationsTable SET locationName = ?, latitude = ?, longitude = ?, isSelected = ?, updatedAt = ?, deleted = ? WHERE syncId = ?`,
+                    [loc.locationName, loc.latitude, loc.longitude, loc.isSelected, loc.updatedAt, loc.deleted, loc.syncId]
+                  );
+                } else {
+                  await db.run(
+                    `INSERT INTO userLocationsTable (syncId, locationName, latitude, longitude, isSelected, createdAt, updatedAt, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [loc.syncId, loc.locationName, loc.latitude, loc.longitude, loc.isSelected, loc.createdAt, loc.updatedAt, loc.deleted]
+                  );
+                }
+              }
+            });
+          }
+          if (changes.length > 0) {
+            if (locationsDebounceTimer) clearTimeout(locationsDebounceTimer);
+            locationsDebounceTimer = setTimeout(() => {
+              callbacks.onLocationsChanged(changes);
+            }, DEBOUNCE_MS);
+          }
+        } catch (e) {
+          console.error("[SYNC] Failed to write incoming locations:", e);
+        }
+      };
+      persistAndNotifyLocations();
     },
     (error) => console.error("[SYNC] Locations listener error:", error)
   );
@@ -367,27 +407,20 @@ export async function initialSyncOnSignIn(
   // Check if local has data
   if (!dbConnection.current) return 'empty';
 
-  let wasDbOpen = false;
   try {
-    const dbOpenState = await dbConnection.current.isDBOpen();
-    wasDbOpen = dbOpenState.result || false;
-    if (!wasDbOpen) {
-      await toggleDBConnection(dbConnection, "open");
-    }
-
-    const localCount = await dbConnection.current.query(
-      `SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0`
-    );
-    const hasLocal = (localCount?.values?.[0]?.count ?? 0) > 0;
+    const hasLocal = await withDB(dbConnection, async (db) => {
+      const localCount = await db.query(
+        `SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0`
+      );
+      return (localCount?.values?.[0]?.count ?? 0) > 0;
+    });
 
     if (hasLocal) {
       await pushLocalDataToCloud(userId, dbConnection);
       return 'pushed';
     }
-  } finally {
-    if (dbConnection.current && !wasDbOpen) {
-      await toggleDBConnection(dbConnection, "close");
-    }
+  } catch (e) {
+    console.error("[SYNC] initialSyncOnSignIn check failed:", e);
   }
 
   return 'empty';
@@ -438,24 +471,19 @@ export async function pushLocalDataToCloud(
   if (!db || !userId) throw new Error("Cloud service is not initialized");
   if (isSyncing) throw new Error("Sync already in progress");
   isSyncing = true;
-  let wasDbOpen = false;
   try {
     if (!dbConnection.current) throw new Error("Database connection not available");
-    
-    const dbOpenState = await dbConnection.current.isDBOpen();
-    wasDbOpen = dbOpenState.result || false;
 
-    if (!wasDbOpen) {
-      await toggleDBConnection(dbConnection, "open");
-    }
-
-    const localPrefsResult = await dbConnection.current.query(`SELECT * FROM userPreferencesTable`);
-    const localSalahResult = await dbConnection.current.query(`SELECT * FROM salahDataTable WHERE deleted = 0 OR deleted IS NULL`);
-    const localLocationsResult = await dbConnection.current.query(`SELECT * FROM userLocationsTable WHERE deleted = 0 OR deleted IS NULL`);
-
-    const localPrefs = localPrefsResult.values || [];
-    const localSalahs = (localSalahResult.values as DBResultDataObjType[]) || [];
-    const localLocations = (localLocationsResult.values as LocationsDataObjType[]) || [];
+    const { localPrefs, localSalahs, localLocations } = await withDB(dbConnection, async (db) => {
+      const localPrefsResult = await db.query(`SELECT * FROM userPreferencesTable`);
+      const localSalahResult = await db.query(`SELECT * FROM salahDataTable WHERE deleted = 0 OR deleted IS NULL`);
+      const localLocationsResult = await db.query(`SELECT * FROM userLocationsTable WHERE deleted = 0 OR deleted IS NULL`);
+      return {
+        localPrefs: localPrefsResult.values || [],
+        localSalahs: (localSalahResult.values as DBResultDataObjType[]) || [],
+        localLocations: (localLocationsResult.values as LocationsDataObjType[]) || [],
+      };
+    });
 
     // Clear existing cloud syncable data for safety/exact match
     const existingLogsSnap = await getDocs(salahLogsCol(userId));
@@ -525,7 +553,6 @@ export async function pushLocalDataToCloud(
 
   } finally {
     isSyncing = false;
-    if (dbConnection.current && !wasDbOpen) await toggleDBConnection(dbConnection, "close");
   }
 }
 
@@ -536,21 +563,13 @@ export async function pullCloudDataToLocal(
   if (!db || !userId) throw new Error("Cloud service is not initialized");
   if (isSyncing) throw new Error("Sync already in progress");
   isSyncing = true;
-  let wasDbOpen = false;
   try {
     if (!dbConnection.current) throw new Error("Database connection not available");
-
-    const dbOpenState = await dbConnection.current.isDBOpen();
-    wasDbOpen = dbOpenState.result || false;
 
     const prefsSnap = await getDoc(prefsDoc(userId));
     const logsSnap = await getDocs(salahLogsCol(userId));
     const locsSnap = await getDocs(locationsCol(userId));
 
-    if (!wasDbOpen) {
-      await toggleDBConnection(dbConnection, "open");
-    }
-    
     // Start replacing local data via statements
     const statements: any[] = [];
     
@@ -598,28 +617,32 @@ export async function pullCloudDataToLocal(
 
     console.log(`[PULL DEBUG] Total statements to execute: ${statements.length}`);
     if (statements.length > 0) {
-      const BATCH_SIZE = 50;
-      for (let i = 0; i < statements.length; i += BATCH_SIZE) {
-        try {
-          const batch = statements.slice(i, i + BATCH_SIZE);
-          console.log(`[PULL DEBUG] Executing batch ${i}-${i + batch.length - 1} (${batch.length} statements)`);
-          await dbConnection.current.executeSet(batch);
-          console.log(`[PULL DEBUG] Batch ${i}-${i + batch.length - 1} succeeded`);
-        } catch (err) {
-          console.error(`[PULL DEBUG] Batch insert error at index ${i}:`, err);
-          const failBatch = statements.slice(i, i + BATCH_SIZE);
-          failBatch.forEach((s: any, idx: number) => {
-            console.error(`[PULL DEBUG]   Statement[${i + idx}]:`, s.statement.substring(0, 80), "values:", JSON.stringify(s.values));
-          });
+      await withDB(dbConnection, async (db) => {
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < statements.length; i += BATCH_SIZE) {
+          try {
+            const batch = statements.slice(i, i + BATCH_SIZE);
+            console.log(`[PULL DEBUG] Executing batch ${i}-${i + batch.length - 1} (${batch.length} statements)`);
+            await db.executeSet(batch);
+            console.log(`[PULL DEBUG] Batch ${i}-${i + batch.length - 1} succeeded`);
+          } catch (err) {
+            console.error(`[PULL DEBUG] Batch insert error at index ${i}:`, err);
+            const failBatch = statements.slice(i, i + BATCH_SIZE);
+            failBatch.forEach((s: any, idx: number) => {
+              console.error(`[PULL DEBUG]   Statement[${i + idx}]:`, s.statement.substring(0, 80), "values:", JSON.stringify(s.values));
+            });
+          }
         }
-      }
+      });
     }
 
     // Verify what actually ended up in SQLite after pull
     try {
-      const verifyResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM salahDataTable`);
-      const verifyDeleted = await dbConnection.current.query(`SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0`);
-      console.log(`[PULL DEBUG] After pull - total salah rows: ${verifyResult?.values?.[0]?.count}, non-deleted: ${verifyDeleted?.values?.[0]?.count}`);
+      await withDB(dbConnection, async (db) => {
+        const verifyResult = await db.query(`SELECT COUNT(*) as count FROM salahDataTable`);
+        const verifyDeleted = await db.query(`SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0`);
+        console.log(`[PULL DEBUG] After pull - total salah rows: ${verifyResult?.values?.[0]?.count}, non-deleted: ${verifyDeleted?.values?.[0]?.count}`);
+      });
     } catch (e) {
       console.error(`[PULL DEBUG] Verify query failed:`, e);
     }
@@ -631,7 +654,6 @@ export async function pullCloudDataToLocal(
 
   } finally {
     isSyncing = false;
-    if (dbConnection.current && !wasDbOpen) await toggleDBConnection(dbConnection, "close");
   }
 }
 
@@ -648,19 +670,18 @@ export async function getSyncDataCounts(
   let localSalahs = 0, localLocs = 0;
   let cloudSalahs = 0, cloudLocs = 0;
 
-  let wasDbOpen = false;
   try {
     if (dbConnection.current) {
-      const dbOpenState = await dbConnection.current.isDBOpen();
-      wasDbOpen = dbOpenState.result || false;
-      if (!wasDbOpen) await toggleDBConnection(dbConnection, "open");
-
-      const sResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0 OR deleted IS NULL`);
-      const lResult = await dbConnection.current.query(`SELECT COUNT(*) as count FROM userLocationsTable WHERE deleted = 0 OR deleted IS NULL`);
-      if (sResult?.values && sResult.values.length > 0) localSalahs = sResult.values[0].count;
-      if (lResult?.values && lResult.values.length > 0) localLocs = lResult.values[0].count;
-      
-      if (!wasDbOpen) await toggleDBConnection(dbConnection, "close");
+      const counts = await withDB(dbConnection, async (db) => {
+        const sResult = await db.query(`SELECT COUNT(*) as count FROM salahDataTable WHERE deleted = 0 OR deleted IS NULL`);
+        const lResult = await db.query(`SELECT COUNT(*) as count FROM userLocationsTable WHERE deleted = 0 OR deleted IS NULL`);
+        return {
+          salahs: sResult?.values?.[0]?.count ?? 0,
+          locations: lResult?.values?.[0]?.count ?? 0,
+        };
+      });
+      localSalahs = counts.salahs;
+      localLocs = counts.locations;
     }
 
     const logsSnap = await getDocs(salahLogsCol(userId));

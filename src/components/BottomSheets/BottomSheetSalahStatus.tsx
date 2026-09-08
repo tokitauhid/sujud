@@ -79,6 +79,12 @@ const BottomSheetSalahStatus = ({
     setNotes(e.detail.value);
   };
 
+  const reasonsList: string[] = Array.isArray(userPreferences?.reasons)
+    ? userPreferences.reasons
+    : typeof userPreferences?.reasons === "string"
+    ? (userPreferences.reasons as string).split(",").filter(Boolean)
+    : [];
+
   const sheetWrapper = useRef<HTMLDivElement | null>(null);
 
   if (Capacitor.getPlatform() === "ios") {
@@ -508,20 +514,20 @@ const BottomSheetSalahStatus = ({
             ref={modalSheetSalahReasonsWrap}
             className="mt-4 mb-5 overflow-x-hidden salah-status-modal-reasons-wrap scrollable-container"
           >
-            {userPreferences.reasons.length > 0 && (
+            {reasonsList.length > 0 && (
               <div>
                 <h2 className="mb-3 text-sm text-start text-[var(--ion-text-color)]">
                   Reasons:{" "}
                 </h2>
               </div>
             )}
-            {Array.isArray(userPreferences.reasons) && (
+            {reasonsList.length > 0 && (
               <div className="flex flex-wrap text-[var(--ion-text-color)]">
                 <AnimatePresence>
                   {[
                     ...new Set([
                       ...selectedReasons,
-                      ...userPreferences.reasons,
+                      ...reasonsList,
                     ]),
                   ]
                     .sort((a, b) => a.localeCompare(b))
@@ -546,7 +552,7 @@ const BottomSheetSalahStatus = ({
                           if (!selectedReasons.includes(item)) {
                             setSelectedReasons((prev) => [...prev, item]);
                           } else if (selectedReasons.includes(item)) {
-                            if (!userPreferences.reasons.includes(item)) {
+                            if (!reasonsList.includes(item)) {
                               const confirmMsgRes = await showConfirmMsg(
                                 "Confirm",
                                 "This reason has been deleted from the reasons list, deselecting it will cause it to be removed permanently from this Salah entry, proceed?",
@@ -609,7 +615,7 @@ const BottomSheetSalahStatus = ({
       >
         <div>
           <div className="overflow-x-hidden salah-status-modal-reasons-wrap">
-            {userPreferences.reasons.length > 0 && (
+            {reasonsList.length > 0 && (
               <div>
                 <h2 className="mb-3 text-sm text-start">Reasons: </h2>
               </div>
@@ -617,9 +623,9 @@ const BottomSheetSalahStatus = ({
           </div>
         </div>
 
-        {Array.isArray(userPreferences.reasons) && (
+        {reasonsList.length > 0 && (
           <div className="flex flex-wrap">
-            {[...new Set([...selectedReasons, ...userPreferences.reasons])]
+            {[...new Set([...selectedReasons, ...reasonsList])]
               .sort((a, b) => a.localeCompare(b))
               .map((item) => (
                 <p
@@ -634,7 +640,7 @@ const BottomSheetSalahStatus = ({
                     if (!selectedReasons.includes(item)) {
                       setSelectedReasons((prev) => [...prev, item]);
                     } else if (selectedReasons.includes(item)) {
-                      if (!userPreferences.reasons.includes(item)) {
+                      if (!reasonsList.includes(item)) {
                         const confirmMsgRes = await showConfirmMsg(
                           "Confirm",
                           "This reason has been deleted from the reasons list in the settings page, deselecting it will cause it to be removed permanently from this Salah entry, proceed?",
