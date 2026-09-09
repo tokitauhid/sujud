@@ -318,16 +318,16 @@ const AppContent = () => {
     }
 
     if (themeColor === "dark") {
-      statusBarThemeColor = "#161515";
+      statusBarThemeColor = "#121315";
       document.body.classList.add("dark");
     } else if (themeColor === "light") {
-      statusBarThemeColor = "#EDEDED";
+      statusBarThemeColor = "#FAF7F4";
       document.body.classList.remove("dark");
     }
 
     if (Capacitor.isNativePlatform()) {
       const statusBarIconsColor =
-        statusBarThemeColor === "#EDEDED" ? Style.Light : Style.Dark;
+        statusBarThemeColor === "#FAF7F4" ? Style.Light : Style.Dark;
       if (Capacitor.getPlatform() === "android" && justLaunched.current) {
         setTimeout(() => {
           setStatusAndNavBarBGColor(statusBarThemeColor, statusBarIconsColor);

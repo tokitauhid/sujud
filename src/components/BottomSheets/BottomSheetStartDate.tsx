@@ -100,9 +100,10 @@ const BottomSheetStartDate = ({
         </section>
       </div>
       <button
-        className={`text-base border-none rounded-xl bg-[#3880ff] text-white w-[90%] p-3 mx-auto mb-[7%] ${
+        className={`text-base border-none rounded-2xl text-white font-medium w-[90%] p-3 mx-auto mb-[7%] ${
           selectedStartDate ? "opacity-100" : "opacity-20"
         }`}
+        style={{ background: 'linear-gradient(135deg, var(--accent-color), var(--accent-color-hover))' }}
         onClick={async () => {
           if (selectedStartDate) {
             const todaysDate = startOfDay(new Date());

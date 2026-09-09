@@ -278,7 +278,7 @@ const Onboarding = ({
             <SwiperSlide>
               <section className="flex flex-col justify-center h-full onboarding-slide-content">
                 <section className="m-4 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--card-bg-color)] border border-[var(--app-border-color)] flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--card-bg-color)] border border-[var(--app-border-color)] flex items-center justify-center shadow-bronze-sm">
                     <FcGoogle className="text-3xl" />
                   </div>
                   <h1 className="mb-3 text-2xl font-bold">
@@ -401,7 +401,7 @@ const Onboarding = ({
                       swiperRef.current?.slideTo(9, 0);
                       // setIsSalahTimesOnboarding(false);
                     }}
-                    className="text-center text-white mb- rounded-2xl"
+                    className="text-center text-[var(--ion-text-color)] mb- rounded-2xl opacity-70"
                   >
                     No
                   </IonButton>

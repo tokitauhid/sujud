@@ -33,7 +33,7 @@ const MadhabOptions = ({
         }}
         className={`options-wrap ${
           userPreferences.madhab === "shafi"
-            ? "border-blue-500"
+            ? "border-bronze-500"
             : "border-transparent"
         }`}
       >
@@ -65,7 +65,7 @@ const MadhabOptions = ({
         }}
         className={`options-wrap   ${
           userPreferences.madhab === "hanafi"
-            ? "border-blue-500"
+            ? "border-bronze-500"
             : "border-transparent"
         }`}
       >

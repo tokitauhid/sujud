@@ -157,8 +157,8 @@ const HomePage = ({
                   </svg>
                   <div className="mt-1">
                     <AnimatePresence mode="wait">
-                      <motion.p
-                        className="text-xs text-white"
+                    <motion.p
+                        className="text-xs font-semibold" style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--accent-color)' }}
                         key={activeStreakCount}
                         {...(animateStreakCounter
                           ? {
@@ -247,7 +247,7 @@ const HomePage = ({
                 </div>
               )}
               {Object.keys(missedSalahList).length > 0 && (
-                <div className="flex-1 min-h-0 flex flex-col bg-[var(--card-bg-color)] rounded-2xl overflow-hidden">
+                <div className="flex-1 min-h-0 flex flex-col bg-[var(--card-bg-color)] border border-[var(--app-border-color)] rounded-2xl overflow-hidden">
                   <MissedSalahsPanel 
                     dbConnection={dbConnection}
                     setFetchedSalahData={setFetchedSalahData}

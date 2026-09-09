@@ -150,14 +150,14 @@ const Calendar = ({
       <section
         // transition={{ layout: { duration: 0.5, ease: "easeInOut" } }}
         style={{ height: "auto" }}
-        className={`bg-[var(--card-bg-color)] mt-5 pb-5 calendar-single-month-wrap whitespace-nowrap box-shadow: 0 25px 50px -12px rgb(31, 35, 36) rounded-2xl`}
+        className={`bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mt-5 pb-5 calendar-single-month-wrap whitespace-nowrap box-shadow: 0 25px 50px -12px rgb(31, 35, 36) rounded-2xl`}
       >
         <div
           ref={calenderSingleMonthHeightRef}
           className={`month-name-days-dates-wrap`}
         >
           <section className="flex items-center justify-between p-4">
-            <p className="font-semibold text-center">
+            <p className="font-semibold text-center" style={{ color: 'var(--accent-color)' }}>
               {formattedMonths[currentMonth]}
             </p>
             <div className="bg-[var(--sheet-option-bg)] rounded-full">
@@ -234,7 +234,7 @@ const Calendar = ({
             {["M", "T", "W", "T", "F", "S", "S"].map((day, i) => (
               <div
                 key={`${day}-${i}`}
-                className="w-5 h-5 text-sm font-semibold text-center individual-day"
+                className="w-5 h-5 text-sm font-semibold text-center individual-day opacity-60"
               >
                 {day}
               </div>
@@ -341,7 +341,7 @@ const Calendar = ({
                   )}
 
                   <p
-                    className={`text-sm cursor-pointer flex items-center justify-center font-semibold h-6 w-6 hover:text-white
+                    className={`text-sm cursor-pointer flex items-center justify-center font-semibold h-6 w-6 hover:text-[var(--accent-color)] transition-colors
   `}
                   >
                     {format(date, "d")}

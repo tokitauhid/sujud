@@ -57,21 +57,21 @@ const MissedSalahCounter = ({
         callback={handleJoyRideCompletion}
         styles={{
           options: {
-            backgroundColor: "#27272a",
-            arrowColor: "#27272a",
-            textColor: "#fff",
+            backgroundColor: "#1E1F24",
+            arrowColor: "#1E1F24",
+            textColor: "#F3F3F4",
             zIndex: 10000,
           },
           buttonNext: {
-            backgroundColor: "#2563eb",
+            backgroundColor: "#B5876E",
             color: "#fff",
-            borderRadius: "5px",
+            borderRadius: "8px",
             padding: "8px 12px",
           },
           buttonBack: {
-            backgroundColor: "#f44336",
+            backgroundColor: "#C84646",
             color: "#fff",
-            borderRadius: "5px",
+            borderRadius: "8px",
             padding: "8px 12px",
           },
         }}
@@ -92,7 +92,7 @@ const MissedSalahCounter = ({
           style={{ borderColor: salahStatusColorsHexCodes["missed"] }}
         >
           {/* <p className="text-xs text-white">99</p> */}
-          <p className="text-xs text-white">
+          <p className="text-xs" style={{ color: 'var(--ion-text-color)' }}>
             {getMissedSalahCount(missedSalahList) < 100
               ? getMissedSalahCount(missedSalahList)
               : "99+"}

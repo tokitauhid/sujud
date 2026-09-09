@@ -214,7 +214,7 @@ const CalculationMethodOptions = ({
             <div>
               <p>
                 <span className="font-bold">Using: </span>
-                <span className="text-blue-500">
+                <span className="text-bronze-500">
                   {
                     prayerCalculationMethodLabels[
                       userPreferences.prayerCalculationMethod
@@ -263,7 +263,7 @@ const CalculationMethodOptions = ({
                 className={`options-wrap  ${
                   userPreferences.prayerCalculationMethod ===
                   item.calculationMethod
-                    ? "border-blue-500"
+                    ? "border-bronze-500"
                     : "border-transparent"
                 }`}
               >

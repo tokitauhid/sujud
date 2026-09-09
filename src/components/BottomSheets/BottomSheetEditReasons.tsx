@@ -93,7 +93,7 @@ BottomSheetStartDateProps) => {
             <section className="flex">
               <input
                 aria-label="reason"
-                className="p-1 rounded-md text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)]"
+                className="p-1 rounded-lg text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] border border-[var(--app-border-color)]"
                 onChange={(e) => {
                   if (e.target.value.length > CHAR_LIMIT) return;
                   setNewReasonInput(e.target.value);
@@ -106,7 +106,7 @@ BottomSheetStartDateProps) => {
               ></input>
               <button
                 aria-label="Add reason"
-                className="px-2 ml-2 text-white bg-blue-600 rounded-md"
+                className="px-2 ml-2 text-white rounded-lg font-medium" style={{ background: 'linear-gradient(135deg, var(--accent-color), var(--accent-color-hover))' }}
                 onClick={async () => {
                   if (newReasonInput.length === 0) return;
                   if (
@@ -180,7 +180,7 @@ BottomSheetStartDateProps) => {
               .sort((a, b) => a.localeCompare(b))
               .map((reason) => (
                 <motion.li
-                  className={`flex justify-between items-center bg-[var(--card-bg-color)] px-2 py-4 my-3 rounded-lg`}
+                  className={`flex justify-between items-center bg-[var(--card-bg-color)] border border-[var(--app-border-color)] px-2 py-4 my-3 rounded-xl`}
                   layout
                   initial={{ x: 0 }}
                   animate={{ x: 0 }}
@@ -206,7 +206,7 @@ BottomSheetStartDateProps) => {
                       );
                     }}
                   >
-                    <TiDelete className="text-2xl" />
+                    <TiDelete className="text-2xl" style={{ color: 'var(--missed-status-color)' }} />
                   </p>
                 </motion.li>
               ))}

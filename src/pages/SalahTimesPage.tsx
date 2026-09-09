@@ -143,7 +143,7 @@ const SalahTimesPage = ({
                     <div
                       key={location.id}
                       aria-label="show all locations"
-                      className="p-2 text-sm inline-flex items-center justify-center py-2 mb-4 border-[var(--ion-text-color)] border rounded-2xl cursor-pointer"
+                      className="p-2 text-sm inline-flex items-center justify-center py-2 mb-4 border-[var(--app-border-color)] bg-[var(--card-bg-color)] border rounded-2xl cursor-pointer"
                       onClick={() => {
                         setShowLocationsListSheet(true);
                       }}
@@ -353,17 +353,29 @@ const SalahTimesPage = ({
               >
                 {(
                   Object.entries(salahTimes) as [keyof typeof salahTimes, string][]
-                ).map(([name, time]) => (
+                ).map(([name, time]) => {
+                  const arabicNames: Record<string, string> = {
+                    fajr: 'الفجر',
+                    sunrise: 'الشروق',
+                    dhuhr: 'الظهر',
+                    asr: 'العصر',
+                    maghrib: 'المغرب',
+                    isha: 'العشاء',
+                  };
+                  const isCurrentPrayer = name === nextSalahNameAndTime.currentSalah && name !== "sunrise";
+                  return (
                   <div
-                    className={`bg-[var(--card-bg-color)] flex items-center justify-between py-1 text-sm rounded-lg mb-2 ${
-                      name === nextSalahNameAndTime.currentSalah &&
-                      name !== "sunrise"
-                        ? "my-2 rounded-lg shadow-md scale-102 border-blue-500 border-2 font-bold text-blue-500"
-                        : "opacity-80"
+                    className={`bg-[var(--card-bg-color)] flex items-center justify-between py-1 text-sm rounded-xl mb-2 border ${
+                      isCurrentPrayer
+                        ? "my-2 rounded-xl shadow-bronze-sm scale-[1.01] border-[var(--accent-color)] font-bold text-[var(--accent-color)]"
+                        : "opacity-80 border-transparent"
                     }`}
                     key={name + time}
                   >
-                    <p className="ml-3 font-medium">{upperCaseFirstLetter(name)}</p>
+                    <div className="ml-3">
+                      <p className="font-medium">{upperCaseFirstLetter(name)}</p>
+                      <p className="text-[0.65rem] opacity-50 font-normal" dir="rtl">{arabicNames[name] || ''}</p>
+                    </div>
                     <div className="flex items-center">
                       <p>
                         {time === "Invalid Date" ||
@@ -395,9 +407,8 @@ const SalahTimesPage = ({
                       >
                         <IonIcon
                           className={`text-[var(--ion-text-color)] ${
-                            name === nextSalahNameAndTime.currentSalah &&
-                            name !== "sunrise"
-                              ? "rounded-lg shadow-md scale-102 font-bold text-blue-500"
+                            isCurrentPrayer
+                              ? "rounded-lg shadow-sm font-bold text-[var(--accent-color)]"
                               : "opacity-80"
                           }`}
                           icon={
@@ -413,7 +424,8 @@ const SalahTimesPage = ({
                       </IonButton>
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </section>
             </div>
           </div>

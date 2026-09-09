@@ -33,7 +33,7 @@ const BottomSheetThemeOptions = ({
     >
       <section className="py-10 theme-sheet-content-wrap">
         {/* <h1 className="modal-header-text">Themes</h1> */}
-        <ul className="mx-2 my-5 rounded-lg notification-ul-wrap">
+        <ul className="mx-2 my-5 rounded-2xl border border-[var(--app-border-color)] bg-[var(--card-bg-color)] notification-ul-wrap overflow-hidden">
           {/* // TODO: May need to add aria-pressed to each button */}
           <li className="flex justify-between p-3 border-b border-[var(--table-row-border-color)]">
             <button
@@ -50,7 +50,7 @@ const BottomSheetThemeOptions = ({
             >
               Light
             </button>
-            {theme === "light" && <MdCheck />}
+            {theme === "light" && <MdCheck style={{ color: 'var(--accent-color)' }} />}
           </li>
           <li className="flex justify-between p-3 border-b border-[var(--table-row-border-color)]">
             <button
@@ -67,7 +67,7 @@ const BottomSheetThemeOptions = ({
             >
               Dark
             </button>
-            {theme === "dark" && <MdCheck />}
+            {theme === "dark" && <MdCheck style={{ color: 'var(--accent-color)' }} />}
           </li>
           <li className="flex justify-between p-3 ">
             <button
@@ -84,7 +84,7 @@ const BottomSheetThemeOptions = ({
             >
               System
             </button>
-            {theme === "system" && <MdCheck />}
+            {theme === "system" && <MdCheck style={{ color: 'var(--accent-color)' }} />}
           </li>
         </ul>
       </section>

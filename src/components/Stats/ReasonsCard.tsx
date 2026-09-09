@@ -26,7 +26,7 @@ const ReasonsCard = ({
     <AnimatePresence>
       <motion.section
         // layout
-        className="text-sm bg-[var(--card-bg-color)] mt-5 rounded-2xl h-full"
+        className="text-sm bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mt-5 rounded-2xl h-full"
       >
         <h1 className="py-4 mx-4 text-lg text-center">
           {`Top Reasons For ${
@@ -107,7 +107,7 @@ const ReasonsCard = ({
               : "invisible"
           }`}
         >
-          <p className="text-[1rem]">Show More</p>
+          <p className="text-[1rem]" style={{ color: 'var(--accent-color)' }}>Show More</p>
         </button>
       </motion.section>
     </AnimatePresence>

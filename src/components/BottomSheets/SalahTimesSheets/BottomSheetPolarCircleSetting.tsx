@@ -71,7 +71,7 @@ const BottomSheetPolarCircleSetting = ({
           }}
           className={`options-wrap   ${
             userPreferences.polarCircleResolution === "Unresolved"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >
@@ -105,7 +105,7 @@ const BottomSheetPolarCircleSetting = ({
           }}
           className={`p-2 mb-5 border rounded-lg bg-[var(--sheet-option-bg)] flex ${
             userPreferences.polarCircleResolution === "AqrabBalad"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >
@@ -139,7 +139,7 @@ const BottomSheetPolarCircleSetting = ({
           }}
           className={`options-wrap  ${
             userPreferences.polarCircleResolution === "AqrabYaum"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >

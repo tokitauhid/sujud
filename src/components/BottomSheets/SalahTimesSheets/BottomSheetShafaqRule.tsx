@@ -74,7 +74,7 @@ const BottomSheetShafaqRules = ({
           }}
           className={`options-wrap ${
             userPreferences.shafaqRule === "general"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >
@@ -109,7 +109,7 @@ const BottomSheetShafaqRules = ({
           }}
           className={`options-wrap ${
             userPreferences.shafaqRule === "ahmer"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >
@@ -144,7 +144,7 @@ const BottomSheetShafaqRules = ({
           }}
           className={`p-2 mb-5 border rounded-lg flex bg-[var(--sheet-option-bg)] ${
             userPreferences.shafaqRule === "abyad"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >

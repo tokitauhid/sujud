@@ -143,7 +143,7 @@ const MissedSalahsPanel: React.FC<MissedSalahsPanelProps> = ({
         <div className="flex items-center justify-between text-[var(--ion-text-color)] py-3">
           <p className="text-sm opacity-80">{createLocalisedDate(date)[1]}</p>
           <button
-            className="rounded-full bg-[var(--missed-salah-sheet-btn-color)]"
+            className="rounded-full bg-[var(--accent-color-muted)]"
             onClick={async () => {
               setIsClickedItem(key);
               // Open DB connection before modifying just in case
@@ -164,7 +164,7 @@ const MissedSalahsPanel: React.FC<MissedSalahsPanelProps> = ({
     <section className="mt-4 mb-4 text-[var(--ion-text-color)] flex flex-col h-full">
       <p className="mx-2 mb-4 text-center text-[var(--ion-text-color)]">
         You have{" "}
-        <span className="text-[rgb(230,57,70)]">
+        <span className="text-[#C84646] font-semibold">
           {restructuredMissedSalahList.length}{" "}
         </span>{" "}
         {salahToShow !== "All" ? salahToShow : ""} Salah to make up

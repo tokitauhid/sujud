@@ -17,19 +17,19 @@ const SettingIndividual = ({
     <div
       id={id}
       style={{ borderTopRightRadius: indvidualStyles }}
-      className={`flex items-center justify-between py-2 shadow-sm individual-setting-wrap bg-[var(--card-bg-color)] mx-auto p-0.5 ${indvidualStyles}`}
+      className={`flex items-center justify-between py-3 individual-setting-wrap bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mx-auto px-1 rounded-xl ${indvidualStyles}`}
       onClick={onClick}
     >
-      <div className="mx-2">
-        <p className="support-main-text-heading pt-[0.3rem] pb-[0.1rem] text-lg">
+      <div className="mx-3">
+        <p className="support-main-text-heading pt-[0.3rem] pb-[0.1rem] text-[0.95rem] font-medium">
           {headingText}
         </p>
-        <p className="support-sub-text pt-[0.3rem]  pb-[0.1rem] text-[0.8rem] font-light">
+        <p className="support-sub-text pt-[0.3rem] pb-[0.1rem] text-[0.78rem] font-light opacity-60">
           {subText}
         </p>
       </div>
 
-      <MdOutlineChevronRight className="chevron text-[#b5b5b5]" />
+      <MdOutlineChevronRight className="chevron text-[var(--accent-color)] opacity-50 mr-1" />
     </div>
   );
 };

@@ -198,22 +198,22 @@ const SalahTable = ({
         callback={handleJoyRide}
         styles={{
           options: {
-            backgroundColor: "#27272a",
-            arrowColor: "#ffffff",
-            textColor: "#fff",
+            backgroundColor: "#1E1F24",
+            arrowColor: "#F3F3F4",
+            textColor: "#F3F3F4",
             zIndex: 10000,
           },
           buttonNext: {
-            backgroundColor: "#2563eb",
+            backgroundColor: "#B5876E",
             color: "#fff",
-            borderRadius: "5px",
-            padding: "8px 12px",
+            borderRadius: "8px",
+            padding: "8px 14px",
           },
           buttonBack: {
-            backgroundColor: "#f44336",
+            backgroundColor: "#C84646",
             color: "#fff",
-            borderRadius: "5px",
-            padding: "8px 12px",
+            borderRadius: "8px",
+            padding: "8px 14px",
           },
         }}
       />
@@ -224,7 +224,7 @@ const SalahTable = ({
             animate={{ y: "-15vh", scale: 1, opacity: 1 }}
             exit={{ y: "100%", scale: 0.5, opacity: 0 }}
             // transition={{ type: "ease-out" }}
-            className="absolute bottom-0 z-10 flex shadow-2xl text-sm text-white border border-stone-500 transform -translate-x-1/2 rounded-2xl bg-[#414141] left-1/2"
+            className="absolute bottom-0 z-10 flex shadow-2xl text-sm text-[#F3F3F4] border border-[rgba(204,147,116,0.25)] transform -translate-x-1/2 rounded-full bg-[#1F2024]/95 left-1/2"
           >
             <button
               className="py-4 pl-4 pr-2 mr-1 text-white"

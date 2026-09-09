@@ -63,7 +63,7 @@ const BottomSheetLatitudeRules = ({
           }}
           className={`options-wrap ${
             userPreferences.highLatitudeRule === "middleofthenight"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >
@@ -98,7 +98,7 @@ const BottomSheetLatitudeRules = ({
           }}
           className={`options-wrap  ${
             userPreferences.highLatitudeRule === "seventhofthenight"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >
@@ -135,7 +135,7 @@ const BottomSheetLatitudeRules = ({
           }}
           className={`options-wrap ${
             userPreferences.highLatitudeRule === "twilightangle"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >

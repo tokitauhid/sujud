@@ -336,7 +336,7 @@ const BottomSheetSalahStatus = ({
   // const statusBoxStyles =
   //   "h-full px-5 py-3 rounded-xl mx-auto text-center flex flex-col items-center justify-around w-full";
   const statusBoxStyles =
-    "aspect-square rounded-xl flex flex-col items-center justify-center";
+    "aspect-square rounded-2xl flex flex-col items-center justify-center";
 
   useEffect(() => {
     if (
@@ -379,7 +379,7 @@ const BottomSheetSalahStatus = ({
           ref={sheetWrapper}
           className="w-[90%] mx-auto mb-5 rounded-lg text-white pb-env-safe-area-inset-bottom transition-all duration-300 ease-in-out"
         >
-          <h1 className="text-[var(--ion-text-color)] mb-10 text-3xl font-light text-center leading-10">
+          <h1 className="text-[var(--ion-text-color)] mb-10 text-3xl font-light text-center leading-10" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             How did you pray{" "}
             {Object.keys(selectedSalahAndDate).length === 1 &&
             Object.values(selectedSalahAndDate)[0].length === 1
@@ -599,9 +599,10 @@ const BottomSheetSalahStatus = ({
                 onSheetCloseCleanup();
               }
             }}
-            className={`w-full p-4 mt-5 rounded-2xl bg-blue-600 ${
+            className={`w-full p-4 mt-5 rounded-2xl text-white font-medium ${
               salahStatus ? "opacity-100" : "opacity-20"
             }`}
+            style={{ background: salahStatus ? 'linear-gradient(135deg, var(--accent-color), var(--accent-color-hover))' : 'var(--sheet-option-bg)' }}
           >
             Save
           </motion.button>

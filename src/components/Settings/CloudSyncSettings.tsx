@@ -216,18 +216,18 @@ const CloudSyncSettings = ({
   // --- SIGNED OUT STATE ---
   if (!user) {
     return (
-      <div className="my-5 rounded-md overflow-hidden">
+      <div className="my-5 rounded-2xl overflow-hidden border border-[var(--app-border-color)]">
         <div
           className="flex items-center justify-between bg-[var(--card-bg-color)] mx-auto py-4 px-3 cursor-pointer active:opacity-80 transition-opacity"
           onClick={handleSignIn}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[var(--card-bg-color)] border border-[var(--app-border-color)] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-[var(--sheet-option-bg)] border border-[var(--app-border-color)] flex items-center justify-center">
               <FcGoogle className="text-xl" />
             </div>
             <div>
-              <p className="text-lg">Cloud Sync</p>
-              <p className="text-[0.8rem] font-light opacity-70">
+              <p className="text-lg font-medium">Cloud Sync</p>
+              <p className="text-[0.8rem] font-light opacity-60">
                 Sign in with Google to sync your data across devices
               </p>
             </div>
@@ -239,7 +239,7 @@ const CloudSyncSettings = ({
 
   // --- SIGNED IN STATE ---
   return (
-    <div className="my-5 rounded-md overflow-hidden">
+    <div className="my-5 rounded-2xl overflow-hidden border border-[var(--app-border-color)]">
       {/* User info row */}
       <div className="flex items-center justify-between bg-[var(--card-bg-color)] mx-auto py-3 px-3 border-b border-[var(--app-border-color)]">
         <div className="flex items-center gap-3">
@@ -270,12 +270,12 @@ const CloudSyncSettings = ({
       {/* Sync status row */}
       <div className="flex items-center justify-between bg-[var(--card-bg-color)] mx-auto py-3 px-3">
         <div className="flex items-center gap-3 cursor-pointer active:opacity-80 transition-opacity" onClick={handleManualSync}>
-          <div className="w-9 h-9 rounded-full bg-[var(--card-bg-color)] border border-[var(--app-border-color)] flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-[var(--sheet-option-bg)] border border-[var(--app-border-color)] flex items-center justify-center">
             {syncStatus === "syncing" && (
-              <IoSyncOutline className="text-lg text-blue-400 animate-spin" />
+              <IoSyncOutline className="text-lg animate-spin" style={{ color: 'var(--accent-color)' }} />
             )}
             {syncStatus === "synced" && (
-              <IoCloudDoneOutline className="text-lg text-green-400" />
+              <IoCloudDoneOutline className="text-lg" style={{ color: 'var(--accent-color)' }} />
             )}
             {syncStatus === "error" && (
               <IoWarningOutline className="text-lg text-red-400" />

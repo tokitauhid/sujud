@@ -46,7 +46,7 @@ const StreakCounter = ({
 
   return (
     <>
-      <div className={`mb-5 bg-[var(--card-bg-color)] rounded-2xl`}>
+      <div className={`mb-5 bg-[var(--card-bg-color)] border border-[var(--app-border-color)] rounded-2xl`}>
         <section className="flex items-center justify-between p-2 text-xs">
           <div>
             {activeStreakObj && activeStreakObj.days > 0 && (
@@ -67,7 +67,7 @@ const StreakCounter = ({
               </p>
             )}
           </div>
-          <p onClick={showStreakInfo} className="">
+          <p onClick={showStreakInfo} className="text-[var(--accent-color)] cursor-pointer">
             <GoInfo />
           </p>
         </section>
@@ -90,7 +90,7 @@ const StreakCounter = ({
             ></path>
           </svg>
           <div className="absolute -translate-x-1/2 -translate-y-[60%] top-[60%] left-1/2">
-            <h1 className="mt-4 mb-1 text-4xl font-extrabold text-center text-[var(--ion-text-color)]">
+            <h1 className="mt-4 mb-1 text-4xl font-extrabold text-center text-[var(--ion-text-color)]" style={{ fontFeatureSettings: "'tnum'", fontVariantNumeric: "tabular-nums" }}>
               {activeStreakCount} {activeStreakCount !== 1 ? "Days" : "Day"}
             </h1>
             <h2 className="m-0 text-xs text-center text-[var(--ion-text-color)]">
@@ -123,7 +123,7 @@ const StreakCounter = ({
             style={{ borderTop: "1px solid var(--app-border-color)" }}
             className={`mb-2 pt-2 text-center w-full`}
           >
-            <p className="text-[var(--ion-text-color)]">Show All Streaks</p>
+            <p className="text-[var(--accent-color)] text-sm font-medium">Show All Streaks</p>
           </button>
         )}
       </div>

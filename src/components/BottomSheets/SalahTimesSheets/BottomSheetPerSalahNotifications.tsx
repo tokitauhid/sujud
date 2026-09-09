@@ -84,7 +84,7 @@ const BottomSheetPerSalahNotifications = ({
           }}
           className={`options-wrap justify-between ${
             userPreferences[key as keyof userPreferencesType] === "off"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >
@@ -134,7 +134,7 @@ const BottomSheetPerSalahNotifications = ({
           }}
           className={`options-wrap justify-between  ${
             userPreferences[key as keyof userPreferencesType] === "on"
-              ? "border-blue-500"
+              ? "border-bronze-500"
               : "border-transparent"
           }`}
         >
@@ -192,7 +192,7 @@ const BottomSheetPerSalahNotifications = ({
             }}
             className={`options-wrap justify-between ${
               userPreferences[key as keyof userPreferencesType] === "adhan"
-                ? "border-blue-500"
+                ? "border-bronze-500"
                 : "border-transparent"
             }`}
           >

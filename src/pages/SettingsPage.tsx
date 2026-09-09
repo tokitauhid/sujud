@@ -289,16 +289,16 @@ const SettingsPage = ({
                 fetchDataFromDB={fetchDataFromDB}
               />
             <div
-              className={`flex items-center justify-between individual-setting-wrap bg-[var(--card-bg-color)] mx-auto py-3 px-1 mb-5 rounded-md`}
+              className={`flex items-center justify-between individual-setting-wrap bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mx-auto py-3 px-1 mb-5 rounded-xl`}
               id="open-notification-options-sheet"
             >
-              <div className="mx-2">
-                <p className="pt-[0.3rem] pb-[0.1rem] text-lg">Notifications</p>
-                <p className="pt-[0.3rem]  pb-[0.1rem] text-[0.8rem] font-light">
+              <div className="mx-3">
+                <p className="pt-[0.3rem] pb-[0.1rem] text-[0.95rem] font-medium">Notifications</p>
+                <p className="pt-[0.3rem]  pb-[0.1rem] text-[0.78rem] font-light opacity-60">
                   Toggle Notifications
                 </p>
               </div>
-              <MdOutlineChevronRight className="chevron text-[#b5b5b5]" />
+              <MdOutlineChevronRight className="chevron text-[var(--accent-color)] opacity-50 mr-1" />
               <BottomSheetNotifications
                 dbConnection={dbConnection}
                 triggerId="open-notification-options-sheet"
@@ -347,19 +347,19 @@ const SettingsPage = ({
               handleTheme={handleTheme}
             />
             <div
-              className={`flex items-center justify-between individual-setting-wrap bg-[var(--card-bg-color)] mx-auto py-3 px-1 mb-5 rounded-md`}
+              className={`flex items-center justify-between individual-setting-wrap bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mx-auto py-3 px-1 mb-5 rounded-xl`}
             >
-              <div className="mx-2">
-                <p className="pt-[0.3rem] pb-[0.1rem] text-lg">
+              <div className="mx-3">
+                <p className="pt-[0.3rem] pb-[0.1rem] text-[0.95rem] font-medium">
                   {"Missed Salah Counter"}
                 </p>
-                <p className=" pt-[0.3rem]  pb-[0.1rem] text-[0.8rem] font-light">
+                <p className=" pt-[0.3rem]  pb-[0.1rem] text-[0.78rem] font-light opacity-60">
                   {"Display missed salah counter (when applicable) on homepage"}
                 </p>
               </div>
               <section className="pl-4 pr-2">
                 <IonToggle
-                  style={{ "--track-background": "#555" }}
+                  style={{ "--track-background": "#3A3C42", "--track-background-checked": "var(--accent-color)" }}
                   checked={isMissedSalahCounterOptionChecked}
                   onIonChange={async () => {
                     setIsMissedSalahCounterOptionChecked((prev) => !prev);
