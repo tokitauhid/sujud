@@ -33,7 +33,7 @@ const BottomSheetStreaksHistory = ({
       <IonContent>
         <section className="mt-8 mb-10 px-4">
           <div className="flex items-center justify-center gap-2 mb-6">
-            <Flame className="w-5 h-5 text-[#CC9374] fill-[#B5876E]/25" />
+            <Flame className="w-5 h-5 text-[#F59E0B] fill-[#F59E0B]/25" />
             <h1 className="text-xl font-bold font-mono tracking-wider uppercase text-white m-0">
               STREAKS HISTORY
             </h1>
@@ -54,8 +54,8 @@ const BottomSheetStreaksHistory = ({
                     key={i}
                     className={`p-3.5 rounded-none border font-mono transition-all ${
                       item.isActive
-                        ? "border-[#B5876E]/60 bg-[#1A1410] shadow-[0_0_12px_rgba(181,135,110,0.1)]"
-                        : "border-[#242424] bg-[#141414]"
+                        ? "border-[#F59E0B]/40 bg-[#16120E] shadow-[0_0_12px_rgba(245,158,11,0.12)]"
+                        : "border-[var(--app-border)] bg-[var(--app-card-bg)]"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -63,26 +63,26 @@ const BottomSheetStreaksHistory = ({
                         <Flame
                           className={`w-4 h-4 shrink-0 ${
                             item.isActive
-                              ? "text-[#CC9374] fill-[#B5876E]/30"
-                              : "text-[#71717A]"
+                              ? "text-[#F59E0B] fill-[#F59E0B]/25"
+                              : "text-[#64748B]"
                           }`}
                         />
-                        <span className="text-xs text-[#A1A1AA]">
+                        <span className="text-xs text-[#94A3B8]">
                           {startDateStr === endDateStr
                             ? startDateStr
                             : `${startDateStr} — ${endDateStr}`}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                       <div className="flex items-center gap-2">
                         {item.isActive && (
-                          <span className="px-1.5 py-0.5 text-[9px] uppercase bg-[#B5876E]/20 text-[#CC9374] border border-[#B5876E]/40 font-bold">
+                          <span className="px-1.5 py-0.5 text-[9px] uppercase bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40 font-bold">
                             ACTIVE
                           </span>
                         )}
                         <span
                           className={`text-sm font-bold tabular-nums ${
-                            item.isActive ? "text-[#CC9374]" : "text-white"
+                            item.isActive ? "text-[#F59E0B]" : "text-white"
                           }`}
                         >
                           {item.days} {item.days !== 1 ? "Days" : "Day"}

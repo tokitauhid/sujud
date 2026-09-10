@@ -15,6 +15,7 @@ interface DayData {
   total: number;
   percentage: number;
   missed: number;
+  inJamaah: number;
 }
 
 const prayerKeys: ("Fajr" | "Dhuhr" | "Asar" | "Maghrib" | "Isha")[] = [
@@ -31,7 +32,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
   statsToShow,
 }) => {
   // Compute last 7 days data
-  const { days, averagePercentage, totalMissed, totalOnTime, totalExpected } =
+  const { days, averagePercentage, totalMissed, totalOnTime, totalExpected, totalInJamaah } =
     useMemo(() => {
       const dataDict = new Map<string, (typeof fetchedSalahData)[0]>();
       fetchedSalahData.forEach((record) => {
@@ -50,14 +51,17 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
         let completed = 0;
         let missed = 0;
         let total = 0;
+        let inJamaah = 0;
 
         if (statsToShow === "All") {
           total = 5;
           if (record) {
             prayerKeys.forEach((pKey) => {
               const status = record.salahs[pKey];
-              if (
-                status === "group" ||
+              if (status === "group") {
+                completed++;
+                inJamaah++;
+              } else if (
                 status === "male-alone" ||
                 status === "female-alone" ||
                 status === "excused"
@@ -76,8 +80,10 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
             statsToShow === "Asr" ? "Asar" : (statsToShow as (typeof prayerKeys)[0]);
           if (record) {
             const status = record.salahs[targetKey];
-            if (
-              status === "group" ||
+            if (status === "group") {
+              completed++;
+              inJamaah++;
+            } else if (
               status === "male-alone" ||
               status === "female-alone" ||
               status === "excused" ||
@@ -99,6 +105,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
           total,
           percentage,
           missed,
+          inJamaah,
         });
       }
 
@@ -107,6 +114,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
       const sumMissed = last7Days.reduce((acc, d) => acc + d.missed, 0);
       const sumOnTime = last7Days.reduce((acc, d) => acc + d.completed, 0);
       const sumExpected = last7Days.reduce((acc, d) => acc + d.total, 0);
+      const sumJamaah = last7Days.reduce((acc, d) => acc + d.inJamaah, 0);
 
       return {
         days: last7Days,
@@ -114,17 +122,18 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
         totalMissed: sumMissed,
         totalOnTime: sumOnTime,
         totalExpected: sumExpected,
+        totalInJamaah: sumJamaah,
       };
     }, [fetchedSalahData, statsToShow]);
 
   return (
-    <div className="w-full bg-[#121212] border border-[#242424] rounded-none p-4 text-white font-mono">
+    <div className="w-full bg-[var(--app-card-bg)] border border-[var(--app-border)] rounded-none p-4 text-white font-mono">
       {/* Header */}
       <div className="mb-4">
         <h2 className="text-xs font-bold tracking-wider uppercase text-white">
           PROGRESS STATS
         </h2>
-        <p className="text-[11px] text-[#71717A]">
+        <p className="text-[11px] text-[#94A3B8]">
           Prayer Consistency — Last 7 Days
         </p>
       </div>
@@ -134,7 +143,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
         {/* Y Axis Grid Lines & Labels */}
         <div className="flex h-44 w-full">
           {/* Y Axis Labels */}
-          <div className="flex flex-col justify-between pr-2 text-[10px] text-[#71717A] select-none text-right w-10">
+          <div className="flex flex-col justify-between pr-2 text-[10px] text-[#64748B] select-none text-right w-10">
             <span>100%</span>
             <span>80%</span>
             <span>60%</span>
@@ -144,14 +153,14 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
           </div>
 
           {/* Chart Area */}
-          <div className="relative flex-1 flex items-end justify-between border-l border-b border-[#242424] pl-2 pr-1">
+          <div className="relative flex-1 flex items-end justify-between border-l border-b border-[var(--app-border)] pl-2 pr-1">
             {/* Horizontal Grid lines */}
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-40">
-              <div className="border-b border-[#242424] w-full"></div>
-              <div className="border-b border-[#242424] w-full"></div>
-              <div className="border-b border-[#242424] w-full"></div>
-              <div className="border-b border-[#242424] w-full"></div>
-              <div className="border-b border-[#242424] w-full"></div>
+              <div className="border-b border-[var(--app-border)] w-full"></div>
+              <div className="border-b border-[var(--app-border)] w-full"></div>
+              <div className="border-b border-[var(--app-border)] w-full"></div>
+              <div className="border-b border-[var(--app-border)] w-full"></div>
+              <div className="border-b border-[var(--app-border)] w-full"></div>
               <div className="w-full"></div>
             </div>
 
@@ -162,15 +171,45 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
                 className="relative z-10 flex flex-col items-center flex-1 h-full justify-end group px-0.5"
               >
                 {/* Value on top of bar */}
-                <span className="text-[9px] text-[#A1A1AA] mb-1 font-mono tabular-nums leading-none">
-                  {day.percentage}%
-                </span>
+                <div className="flex items-center gap-1 mb-1 leading-none">
+                  {day.inJamaah > 0 && (
+                    <span
+                      className="w-1.5 h-1.5 rotate-45 bg-[#F59E0B] shadow-[0_0_4px_#F59E0B] inline-block shrink-0"
+                      title={`${day.inJamaah} in Jamaah`}
+                    />
+                  )}
+                  <span
+                    className={`text-[9px] font-mono tabular-nums font-semibold ${
+                      day.inJamaah > 0
+                        ? "text-[#F59E0B]"
+                        : day.completed > 0
+                        ? "text-[#38BDF8]"
+                        : day.missed > 0
+                        ? "text-[#C2414B]"
+                        : "text-[#64748B]"
+                    }`}
+                  >
+                    {day.percentage}%
+                  </span>
+                </div>
 
-                {/* Vertical Bar */}
+                {/* Vertical Bar with Highlight crown if In Jamaah or Blue if Alone */}
                 <div
                   style={{ height: `${Math.max(day.percentage, 2)}%` }}
-                  className="w-full max-w-[24px] bg-white rounded-none transition-all duration-300 group-hover:bg-[#E4E4E7]"
-                />
+                  className={`w-full max-w-[24px] rounded-none transition-all duration-300 relative ${
+                    day.inJamaah > 0
+                      ? "bg-[#10B981] ring-1 ring-[#F59E0B] shadow-[0_0_10px_rgba(245,158,11,0.3)] group-hover:bg-[#059669]"
+                      : day.completed > 0
+                      ? "bg-[#3B82A0] group-hover:bg-[#2F6B84] shadow-[0_0_8px_rgba(59,130,160,0.25)]"
+                      : day.missed > 0
+                      ? "bg-[#C2414B]/60 group-hover:bg-[#C2414B]"
+                      : "bg-[#1E232F]"
+                  }`}
+                >
+                  {day.inJamaah > 0 && (
+                    <div className="absolute top-0 inset-x-0 h-[2px] bg-[#F59E0B]" />
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -181,7 +220,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
           {days.map((day, idx) => (
             <div
               key={"label-" + day.dateStr + idx}
-              className="flex-1 text-center text-xs font-semibold text-[#8E8E93] font-mono uppercase"
+              className="flex-1 text-center text-xs font-semibold text-[#94A3B8] font-mono uppercase"
             >
               {day.dayLabel}
             </div>
@@ -190,28 +229,40 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
       </div>
 
       {/* High-Density Data Summary Table */}
-      <div className="mt-4 border-t border-[#242424] pt-1 text-xs">
-        <div className="flex justify-between py-2 border-b border-[#242424]">
-          <span className="text-[#8E8E93]">Average:</span>
+      <div className="mt-4 border-t border-[var(--app-border)] pt-1 text-xs">
+        {/* In Jamaah - Highest Achievement Row */}
+        <div className="flex justify-between py-2 border-b border-[var(--app-border)] bg-[#10B981]/5 px-2 -mx-2">
+          <span className="text-white font-medium flex items-center gap-1.5">
+            <span className="text-[#F59E0B]">✦</span> In Jamaah
+            <span className="text-[9px] px-1 py-0.2 bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40 tracking-wider font-mono">
+              TOP
+            </span>
+          </span>
+          <span className="text-[#10B981] font-bold tabular-nums">
+            {totalInJamaah} {totalInJamaah === 1 ? "prayer" : "prayers"}
+          </span>
+        </div>
+        <div className="flex justify-between py-2 border-b border-[var(--app-border)]">
+          <span className="text-[#94A3B8]">Average:</span>
           <span className="text-white font-bold tabular-nums">
             {averagePercentage}%
           </span>
         </div>
-        <div className="flex justify-between py-2 border-b border-[#242424]">
-          <span className="text-[#8E8E93]">Missed:</span>
-          <span className="text-white font-bold tabular-nums">
+        <div className="flex justify-between py-2 border-b border-[var(--app-border)]">
+          <span className="text-[#94A3B8]">Missed:</span>
+          <span className={`font-bold tabular-nums ${totalMissed > 0 ? "text-[#C2414B]" : "text-white"}`}>
             {totalMissed}
           </span>
         </div>
-        <div className="flex justify-between py-2 border-b border-[#242424]">
-          <span className="text-[#8E8E93]">On Time:</span>
-          <span className="text-white font-bold tabular-nums">
+        <div className="flex justify-between py-2 border-b border-[var(--app-border)]">
+          <span className="text-[#94A3B8]">On Time:</span>
+          <span className="text-[#10B981] font-bold tabular-nums">
             {totalOnTime}/{totalExpected}
           </span>
         </div>
         <div className="flex justify-between py-2">
-          <span className="text-[#8E8E93]">Active Streak:</span>
-          <span className="text-[#CC9374] font-bold tabular-nums">
+          <span className="text-[#94A3B8]">Active Streak:</span>
+          <span className="text-[#F59E0B] font-bold tabular-nums">
             {activeStreakCount} {activeStreakCount === 1 ? "day" : "days"}
           </span>
         </div>

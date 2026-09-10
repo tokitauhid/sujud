@@ -262,33 +262,35 @@ const QuickLogModal = ({
         </div>
 
         {/* Status Selection Buttons */}
-        <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] mb-1.5">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] mb-1.5">
           STATUS:
         </div>
         <div className="grid grid-cols-2 gap-2 mb-3">
+          {/* In Jamaah - Highest Achievement */}
           <button
             onClick={() => {
               triggerHaptic();
               setSelectedStatus("group");
             }}
-            className={`flex items-center justify-between p-2.5 rounded-none transition-all border ${
+            className={`flex items-center justify-between p-2.5 rounded-none transition-all border relative ${
               selectedStatus === "group"
-                ? "bg-[#1C1612] border-[#B5876E] text-white shadow-[0_0_8px_rgba(181,135,110,0.15)]"
-                : "bg-[#141414] border-[#242424] text-[#71717A] hover:text-white"
+                ? "bg-[#10B981]/25 border-[#F59E0B] text-white ring-1 ring-[#F59E0B]/70 shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+                : "bg-[#13161D] border-[#F59E0B]/40 text-white hover:border-[#F59E0B] hover:shadow-[0_0_8px_rgba(245,158,11,0.15)]"
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-none bg-[#B5876E]" />
-              <span className="text-xs font-medium tracking-wide">In Jamaah</span>
+              <span className="w-2 h-2 rounded-none bg-[#10B981] ring-1 ring-[#F59E0B]" />
+              <span className="text-xs font-semibold tracking-wide">In Jamaah</span>
             </div>
             <IonIcon
               icon={checkmarkCircle}
               className={`text-sm ${
-                selectedStatus === "group" ? "text-[#B5876E]" : "text-[#71717A]"
+                selectedStatus === "group" ? "text-[#F59E0B]" : "text-[#F59E0B]/70"
               }`}
             />
           </button>
 
+          {/* Alone - Calm & Secondary, does not compete with Jamaah */}
           <button
             onClick={() => {
               triggerHaptic();
@@ -300,12 +302,20 @@ const QuickLogModal = ({
             }}
             className={`flex items-center justify-between p-2.5 rounded-none transition-all border ${
               selectedStatus === "male-alone" || selectedStatus === "female-alone"
-                ? "bg-[#1A1A1A] border-[#10B981] text-white"
-                : "bg-[#141414] border-[#242424] text-[#71717A] hover:text-white"
+                ? userPreferences.userGender === "male"
+                  ? "bg-[#3B82A0]/20 border-[#3B82A0] text-white shadow-[0_0_8px_rgba(59,130,160,0.15)]"
+                  : "bg-[#10B981]/20 border-[#10B981] text-white shadow-[0_0_8px_rgba(16,185,129,0.15)]"
+                : "bg-[#13161D] border-[#1E232F] text-[#94A3B8] hover:text-white"
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-none bg-[#10B981]" />
+              <span
+                className={`w-2 h-2 rounded-none ${
+                  userPreferences.userGender === "male"
+                    ? "bg-[#3B82A0]"
+                    : "bg-[#10B981]"
+                }`}
+              />
               <span className="text-xs font-medium tracking-wide">
                 {userPreferences.userGender === "male" ? "Alone" : "Prayed"}
               </span>
@@ -313,13 +323,16 @@ const QuickLogModal = ({
             <IonIcon
               icon={checkmarkOutline}
               className={`text-sm ${
-                selectedStatus === "male-alone" || selectedStatus === "female-alone"
+                selectedStatus === "male-alone"
+                  ? "text-[#3B82A0]"
+                  : selectedStatus === "female-alone"
                   ? "text-[#10B981]"
-                  : "text-[#71717A]"
+                  : "text-[#64748B]"
               }`}
             />
           </button>
 
+          {/* Late - Warm Amber */}
           <button
             onClick={() => {
               triggerHaptic();
@@ -327,17 +340,23 @@ const QuickLogModal = ({
             }}
             className={`flex items-center justify-between p-2.5 rounded-none transition-all border ${
               selectedStatus === "late"
-                ? "bg-[#1A1A1A] border-[#F59E0B] text-white"
-                : "bg-[#141414] border-[#242424] text-[#71717A] hover:text-white"
+                ? "bg-[#D97706]/15 border-[#D97706] text-white shadow-[0_0_8px_rgba(217,119,6,0.15)]"
+                : "bg-[#13161D] border-[#1E232F] text-[#94A3B8] hover:text-white"
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-none bg-[#F59E0B]" />
+              <span className="w-2 h-2 rounded-none bg-[#D97706]" />
               <span className="text-xs font-medium tracking-wide">Late</span>
             </div>
-            <IonIcon icon={timeOutline} className="text-sm text-[#F59E0B]" />
+            <IonIcon
+              icon={timeOutline}
+              className={`text-sm ${
+                selectedStatus === "late" ? "text-[#D97706]" : "text-[#64748B]"
+              }`}
+            />
           </button>
 
+          {/* Missed - Muted Red */}
           <button
             onClick={() => {
               triggerHaptic();
@@ -345,36 +364,48 @@ const QuickLogModal = ({
             }}
             className={`flex items-center justify-between p-2.5 rounded-none transition-all border ${
               selectedStatus === "missed"
-                ? "bg-[#1A1A1A] border-[#EF4444] text-white"
-                : "bg-[#141414] border-[#242424] text-[#71717A] hover:text-white"
+                ? "bg-[#C2414B]/15 border-[#C2414B] text-white shadow-[0_0_8px_rgba(194,65,75,0.15)]"
+                : "bg-[#13161D] border-[#1E232F] text-[#94A3B8] hover:text-white"
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-none bg-[#EF4444]" />
+              <span className="w-2 h-2 rounded-none bg-[#C2414B]" />
               <span className="text-xs font-medium tracking-wide">Missed</span>
             </div>
-            <IonIcon icon={closeCircleOutline} className="text-sm text-[#EF4444]" />
+            <IonIcon
+              icon={closeCircleOutline}
+              className={`text-sm ${
+                selectedStatus === "missed" ? "text-[#C2414B]" : "text-[#64748B]"
+              }`}
+            />
           </button>
         </div>
 
         {/* Excused Option */}
-        <button
-          onClick={() => {
-            triggerHaptic();
-            setSelectedStatus("excused");
-          }}
-          className={`flex items-center justify-between p-2 rounded-none mb-3 transition-all border ${
-            selectedStatus === "excused"
-              ? "bg-[#1A1A1A] border-white text-white"
-              : "bg-[#141414] border-[#242424] text-[#71717A] hover:text-white"
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-none bg-[#71717A]" />
-            <span className="text-xs font-medium tracking-wide">Excused / Exempt</span>
-          </div>
-          <IonIcon icon={removeCircleOutline} className="text-sm text-[#71717A]" />
-        </button>
+        {userPreferences?.userGender === "female" && (
+          <button
+            onClick={() => {
+              triggerHaptic();
+              setSelectedStatus("excused");
+            }}
+            className={`flex items-center justify-between p-2 rounded-none mb-3 transition-all border ${
+              selectedStatus === "excused"
+                ? "bg-[#64748B]/20 border-[#64748B] text-white"
+                : "bg-[#13161D] border-[#1E232F] text-[#94A3B8] hover:text-white"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-none bg-[#64748B]" />
+              <span className="text-xs font-medium tracking-wide">Excused / Exempt</span>
+            </div>
+            <IonIcon
+              icon={removeCircleOutline}
+              className={`text-sm ${
+                selectedStatus === "excused" ? "text-[#64748B]" : "text-[#64748B]"
+              }`}
+            />
+          </button>
+        )}
 
         {/* Reasons Section */}
         {reasonsList.length > 0 && (

@@ -365,7 +365,7 @@ const BottomSheetBatchUpdate = ({
                         : status === "female-alone"
                           ? "Prayed"
                           : status === "group"
-                            ? "In Group"
+                            ? "In Jamaah"
                             : upperCaseFirstLetter(status)}
                     </IonCheckbox>
                   ))}

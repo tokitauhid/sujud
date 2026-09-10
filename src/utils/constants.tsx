@@ -93,14 +93,17 @@ export const reasonsStyles =
   "p-2 m-1 text-xs bg-[var(--reasons-bg-color-status-sheet)] rounded-none border border-[#242424]";
 
 export const salahStatusColorsHexCodes = {
-  group: "#B5876E",
-  "male-alone": "#10B981",
+  group: "#10B981",
+  "male-alone": "#3B82A0",
   "female-alone": "#10B981",
-  excused: "#71717A",
-  late: "#F59E0B",
-  missed: "#EF4444",
-  "": "#222222",
+  excused: "#64748B",
+  late: "#D97706",
+  missed: "#C2414B",
+  "": "#1A1E26",
 };
+
+export const jamaahHighlightHex = "#F59E0B";
+export const streakFlameHex = "#F59E0B";
 
 // export const prayerStatusColorsHexCodes = {
 //   group: "#0ec188",

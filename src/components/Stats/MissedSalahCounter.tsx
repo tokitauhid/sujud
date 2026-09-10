@@ -63,7 +63,7 @@ const MissedSalahCounter = ({
             zIndex: 10000,
           },
           buttonNext: {
-            backgroundColor: "#B5876E",
+            backgroundColor: "#10B981",
             color: "#fff",
             borderRadius: "0px",
             padding: "8px 12px",

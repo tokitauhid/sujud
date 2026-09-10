@@ -88,6 +88,7 @@ const Calendar = ({
       maghribColor: "transparent",
       ishaColor: "transparent",
       individualRadialColor: "transparent",
+      allJamaah: false,
     };
 
     if (date < userStartDateParsed || date > todaysDate) {
@@ -100,6 +101,18 @@ const Calendar = ({
       // console.log("KEY: ", fetchedSalahData[key].salahs);
       if (fetchedSalahData[key].date === formattedDate) {
         const matchedData = fetchedSalahData[key].salahs;
+
+        if (statsToShow === "All") {
+          colors.allJamaah =
+            matchedData.Fajr === "group" &&
+            matchedData.Dhuhr === "group" &&
+            matchedData.Asar === "group" &&
+            matchedData.Maghrib === "group" &&
+            matchedData.Isha === "group";
+        } else {
+          const targetKey = statsToShow === "Asr" ? "Asar" : statsToShow;
+          colors.allJamaah = matchedData[targetKey] === "group";
+        }
 
         for (const [salah, salahStatus] of Object.entries(matchedData) as [
           keyof SalahsType,
@@ -150,7 +163,7 @@ const Calendar = ({
       <section
         // transition={{ layout: { duration: 0.5, ease: "easeInOut" } }}
         style={{ height: "auto" }}
-        className={`bg-[#121212] border border-[#242424] mt-4 pb-5 calendar-single-month-wrap whitespace-nowrap rounded-none`}
+        className={`bg-[var(--app-card-bg)] border border-[var(--app-border)] mt-4 pb-5 calendar-single-month-wrap whitespace-nowrap rounded-none`}
       >
         <div
           ref={calenderSingleMonthHeightRef}
@@ -160,7 +173,7 @@ const Calendar = ({
             <p className="font-semibold text-center font-mono text-white text-sm">
               {formattedMonths[currentMonth]}
             </p>
-            <div className="bg-[#181818] border border-[#242424] rounded-none flex items-center">
+            <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-none flex items-center">
               <button
                 type="button"
                 aria-label="Previous year"
@@ -251,6 +264,7 @@ const Calendar = ({
                 maghribColor,
                 ishaColor,
                 individualRadialColor,
+                allJamaah,
               } = determineRadialColors(date);
 
               return (
@@ -266,6 +280,13 @@ const Calendar = ({
                   }}
                   className="relative flex items-center justify-center individual-date"
                 >
+                  {/* Streak color diamond indicator for days where ALL salah are In Jamaah */}
+                  {allJamaah && (
+                    <span
+                      className="absolute -top-1 -right-1 w-1.5 h-1.5 rotate-45 bg-[#F59E0B] shadow-[0_0_6px_#F59E0B] pointer-events-none z-10"
+                      title="All salah prayed in Jamaah"
+                    />
+                  )}
                   {statsToShow === "All" ? (
                     <svg
                       className="absolute"

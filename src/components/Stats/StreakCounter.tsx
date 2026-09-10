@@ -74,36 +74,36 @@ const StreakCounter = ({
       <div
         className={`mb-4 border rounded-none font-mono transition-all ${
           activeStreakCount > 0
-            ? "bg-[#161311] border-[#B5876E]/40 shadow-[0_0_18px_rgba(181,135,110,0.1)]"
-            : "bg-[#121212] border-[#242424]"
+            ? "bg-[#16120E] border-[#F59E0B]/40 shadow-[0_0_18px_rgba(245,158,11,0.12)]"
+            : "bg-[var(--app-card-bg)] border border-[var(--app-border)]"
         }`}
       >
         {/* Top Highlight Accent Bar */}
         {activeStreakCount > 0 && (
-          <div className="h-[2px] w-full bg-[#B5876E]" />
+          <div className="h-[2px] w-full bg-[#F59E0B]" />
         )}
 
-        <section className="flex items-center justify-between p-3 border-b border-[#242424] text-xs">
+        <section className="flex items-center justify-between p-3 border-b border-[var(--app-border)] text-xs">
           <div className="flex items-center gap-2">
             <Flame
               className={`w-4 h-4 shrink-0 ${
                 activeStreakCount > 0
-                  ? "text-[#CC9374] fill-[#B5876E]/25"
-                  : "text-[#725A4C]"
+                  ? "text-[#F59E0B] fill-[#F59E0B]/25"
+                  : "text-[#64748B]"
               }`}
             />
             <span className="text-xs font-bold tracking-wider uppercase text-white">
               CURRENT STREAK
             </span>
             {activeStreakCount > 0 && (
-              <span className="px-1.5 py-0.5 text-[9px] font-mono uppercase bg-[#B5876E]/20 text-[#CC9374] border border-[#B5876E]/40 font-bold">
+              <span className="px-1.5 py-0.5 text-[9px] font-mono uppercase bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40 font-bold">
                 ACTIVE
               </span>
             )}
           </div>
           <button
             onClick={showStreakInfo}
-            className="text-[#71717A] hover:text-white transition-colors cursor-pointer"
+            className="text-[#94A3B8] hover:text-white transition-colors cursor-pointer"
             aria-label="Streak info"
           >
             <GoInfo className="text-sm" />
@@ -116,40 +116,40 @@ const StreakCounter = ({
             <span className="text-5xl font-black text-white tabular-nums tracking-tight font-mono">
               {activeStreakCount}
             </span>
-            <span className="text-sm font-bold text-[#CC9374] font-mono tracking-widest uppercase">
+            <span className="text-sm font-bold text-[#F59E0B] font-mono tracking-widest uppercase">
               {activeStreakCount === 1 ? "DAY" : "DAYS"}
             </span>
           </div>
 
           {activeStreakObj && activeStreakObj.days > 0 ? (
-            <div className="text-[11px] text-[#A1A1AA] font-mono mt-1">
+            <div className="text-[11px] text-[#94A3B8] font-mono mt-1">
               {createLocalisedDate(format(activeStreakObj.startDate, "yyyy-MM-dd"))[1]}
               {!isSameDay(activeStreakObj.startDate, activeStreakObj.endDate) &&
                 ` — ${createLocalisedDate(format(activeStreakObj.endDate, "yyyy-MM-dd"))[1]}`}
             </div>
           ) : (
-            <span className="text-[11px] text-[#71717A] mt-1 font-mono">
+            <span className="text-[11px] text-[#64748B] mt-1 font-mono">
               No active streak today
             </span>
           )}
 
-          <p className="text-[11px] text-[#8E8E93] max-w-[290px] mt-3 italic leading-relaxed">
+          <p className="text-[11px] text-[#94A3B8] max-w-[290px] mt-3 italic leading-relaxed">
             "{getMotivationalMessage(activeStreakCount)}"
           </p>
         </div>
 
         {/* Comparison Strip: Current vs Best */}
-        <div className="grid grid-cols-2 border-t border-[#242424] divide-x divide-[#242424] text-xs font-mono py-2.5 bg-[#141414]">
+        <div className="grid grid-cols-2 border-t border-[var(--app-border)] divide-x divide-[var(--app-border)] text-xs font-mono py-2.5 bg-[var(--app-surface)]">
           <div className="flex flex-col items-center justify-center px-2">
-            <span className="text-[10px] uppercase text-[#71717A] tracking-wider">
+            <span className="text-[10px] uppercase text-[#94A3B8] tracking-wider">
               Current
             </span>
-            <span className="text-sm font-bold text-[#CC9374] tabular-nums mt-0.5">
+            <span className="text-sm font-bold text-[#F59E0B] tabular-nums mt-0.5">
               {activeStreakCount} {activeStreakCount === 1 ? "Day" : "Days"}
             </span>
           </div>
           <div className="flex flex-col items-center justify-center px-2">
-            <span className="text-[10px] uppercase text-[#71717A] tracking-wider">
+            <span className="text-[10px] uppercase text-[#94A3B8] tracking-wider">
               Best Record
             </span>
             <span className="text-sm font-bold text-white tabular-nums mt-0.5">
@@ -161,7 +161,7 @@ const StreakCounter = ({
         {hasStreakDays && filteredStreakDatesObjectsArr.length > 0 && (
           <button
             onClick={() => setShowStreakHistorySheet(true)}
-            className="w-full py-2.5 border-t border-[#242424] text-[11px] uppercase tracking-wider text-[#B5876E] hover:text-[#CC9374] hover:bg-[#181412] transition-colors font-mono font-semibold"
+            className="w-full py-2.5 border-t border-[var(--app-border)] text-[11px] uppercase tracking-wider text-[#F59E0B] hover:text-[#FBBF24] hover:bg-[#1A140E] transition-colors font-mono font-semibold"
           >
             View Streak History →
           </button>

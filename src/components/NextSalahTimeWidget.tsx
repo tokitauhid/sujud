@@ -25,7 +25,7 @@ const NextSalahTimeWidget: React.FC<NextSalahTimeWidgetProps> = ({
   return (
     <>
       {nextSalahNameAndTime.nextSalah !== "dhuhr" && (
-        <section className="p-4 rounded-none bg-[#121212] border border-[#242424] font-mono">
+        <section className="p-4 rounded-none bg-[var(--app-card-bg)] border border-[var(--app-border)] font-mono">
           {nextSalahNameAndTime.currentSalah !== "sunrise" && (
             <div>
               <div className="flex items-center justify-center gap-1.5 mb-1">
@@ -68,9 +68,9 @@ const NextSalahTimeWidget: React.FC<NextSalahTimeWidgetProps> = ({
       )}
       {nextSalahNameAndTime.nextSalah === "dhuhr" &&
         nextSalahNameAndTime.currentSalah === "sunrise" && (
-          <section className="p-4 rounded-none bg-[#121212] border border-[#242424] font-mono">
+          <section className="p-4 rounded-none bg-[var(--app-card-bg)] border border-[var(--app-border)] font-mono">
             <div>
-              <p className="mb-1 text-[11px] font-bold tracking-widest text-center uppercase text-[#71717A]">
+              <p className="mb-1 text-[11px] font-bold tracking-widest text-center uppercase text-[#94A3B8]">
                 UPCOMING PRAYER
               </p>
               <p className="text-4xl font-bold text-center text-white tracking-wide">

@@ -312,17 +312,17 @@ const SalahTable = ({
                 headerRenderer={() => (
                   <button
                     onClick={() => {
-                      if (isMultiEditMode) {
-                        setIsMultiEditMode(false);
-                        resetSelectedSalahAndDate();
-                      } else {
+                      if (!isMultiEditMode) {
                         setIsMultiEditMode(true);
+                      } else {
+                        setIsMultiEditMode(false);
+                        setSelectedSalahAndDate({});
                       }
                     }}
-                    className={`multi-edit-icon inline-flex items-center gap-1 text-[11px] font-mono tracking-wider transition-colors uppercase ${
+                    className={`multi-edit-icon w-full inline-flex items-center justify-center gap-1 text-[11px] font-mono tracking-wider transition-colors uppercase ${
                       isMultiEditMode
                         ? "text-white font-bold"
-                        : "text-[#71717A] hover:text-white"
+                        : "text-[#94A3B8] hover:text-white"
                     }`}
                     title={
                       isMultiEditMode
@@ -333,7 +333,7 @@ const SalahTable = ({
                     <span>DATE</span>
                     <TbEdit
                       className={`text-xs transition-colors ${
-                        isMultiEditMode ? "text-[#B5876E]" : "text-[#71717A]"
+                        isMultiEditMode ? "text-[#10B981]" : "text-[#94A3B8]"
                       }`}
                     />
                   </button>
@@ -354,7 +354,7 @@ const SalahTable = ({
 
                   return (
                     <section
-                      className={`py-0.5 leading-tight select-none transition-colors ${
+                      className={`w-full py-0.5 leading-tight select-none transition-colors ${
                         isMultiEditMode
                           ? "cursor-pointer hover:opacity-80"
                           : ""
@@ -370,7 +370,7 @@ const SalahTable = ({
                           : undefined
                       }
                     >
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center justify-center gap-1.5 text-center">
                         {isMultiEditMode && (
                           <div
                             className={`w-2.5 h-2.5 rounded-none border flex items-center justify-center shrink-0 ${
@@ -397,11 +397,11 @@ const SalahTable = ({
                             ) : null}
                           </div>
                         )}
-                        <div>
+                        <div className="text-center">
                           <p className="text-xs font-semibold text-white font-mono">
                             {formattedParsedDate}
                           </p>
-                          <p className="text-[10px] text-[#71717A] uppercase font-mono tracking-wider">
+                          <p className="text-[10px] text-[#94A3B8] uppercase font-mono tracking-wider">
                             {day}
                           </p>
                         </div>

@@ -113,16 +113,16 @@ const HomePage = ({
                 onClick={showStreakInfoHomePage}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all ${
                   activeStreakCount > 0
-                    ? "border-[#B5876E]/60 bg-[#1A1410] hover:border-[#CC9374] shadow-[0_0_12px_rgba(181,135,110,0.15)]"
-                    : "border-[#2A2A2A] bg-[#161616] hover:border-[#3F3F46]"
+                    ? "border-[#F59E0B]/40 bg-[#16120E] hover:border-[#F59E0B] shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                    : "border-[var(--app-border)] bg-[var(--app-surface)] hover:border-[#3F3F46]"
                 }`}
                 aria-label="View streak info"
               >
                 <Flame
                   className={`w-3.5 h-3.5 shrink-0 ${
                     activeStreakCount > 0
-                      ? "text-[#CC9374] fill-[#B5876E]/30"
-                      : "text-[#725A4C]"
+                      ? "text-[#F59E0B] fill-[#F59E0B]/25"
+                      : "text-[#64748B]"
                   }`}
                 />
                 <div className="flex items-baseline gap-1 font-mono">
@@ -131,7 +131,7 @@ const HomePage = ({
                   </span>
                   <span
                     className={`text-[9px] font-semibold tracking-wider uppercase ${
-                      activeStreakCount > 0 ? "text-[#CC9374]" : "text-[#71717A]"
+                      activeStreakCount > 0 ? "text-[#F59E0B]" : "text-[#94A3B8]"
                     }`}
                   >
                     {activeStreakCount === 1 ? "DAY" : "DAYS"}
@@ -175,7 +175,7 @@ const HomePage = ({
               />
             </div>
             
-            <div className="home-page-tablet-widgets hidden md:flex flex-col h-[95%] overflow-hidden shrink-0">
+            <div className="home-page-tablet-widgets hidden md:landscape:flex flex-col h-[95%] overflow-hidden shrink-0">
               {nextSalahNameAndTime && (
                 <div className="mb-4 shrink-0">
                   <NextSalahTimeWidget 

@@ -15,6 +15,27 @@ export default {
     },
     extend: {
       colors: {
+        app: {
+          bg: "#0B0D11",
+          surface: "#13161D",
+          card: "#11141A",
+          border: "#1E232F",
+          "border-subtle": "#181C25",
+        },
+        status: {
+          jamaah: "#10B981",
+          "jamaah-highlight": "#F59E0B",
+          alone: "#3B82A0",
+          late: "#D97706",
+          missed: "#C2414B",
+          excused: "#64748B",
+          empty: "#1A1E26",
+        },
+        accent: {
+          primary: "#10B981",
+          hover: "#059669",
+          subtle: "rgba(16, 185, 129, 0.12)",
+        },
         bronze: {
           50: "#FDF8F5",
           100: "#F8EDE6",
@@ -30,14 +51,25 @@ export default {
       },
       fontFamily: {
         sans: [
+          "'JetBrains Mono'",
           "-apple-system",
           "BlinkMacSystemFont",
           "'SF Pro Text'",
           "'SF Pro Display'",
           "'Segoe UI'",
           "Roboto",
-          "system-ui",
-          "sans-serif",
+          "monospace",
+        ],
+        mono: [
+          "'JetBrains Mono'",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "'Liberation Mono'",
+          "'Courier New'",
+          "monospace",
         ],
       },
       boxShadow: {

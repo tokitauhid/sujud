@@ -23,7 +23,7 @@ const DonutPieChart = ({
   );
 
   return (
-    <div className="mt-4 flex w-[100%] justify-around items-center donut-pie-chart-wrapper bg-[#121212] border border-[#242424] rounded-none py-3">
+    <div className="mt-4 flex w-[100%] justify-around items-center donut-pie-chart-wrapper bg-[var(--app-card-bg)] border border-[var(--app-border)] rounded-none py-3 font-mono text-white">
       <section
         className="w-1/2 my-2"
         onClick={() => {
@@ -57,9 +57,14 @@ const DonutPieChart = ({
                 "--group-color": salahStatusColorsHexCodes.group,
               } as React.CSSProperties
             }
-            className="donut-pie-chart-text pb-1 text-sm before:bg-[var(--group-color)]"
+            className="donut-pie-chart-text pb-1 text-sm before:bg-[var(--group-color)] font-medium flex items-center gap-1.5"
           >
-            {userGender === "male" ? "In Jamaah" : "Prayed"}
+            <span>{userGender === "male" ? "In Jamaah" : "Prayed"}</span>
+            {userGender === "male" && (
+              <span className="text-[8px] font-mono px-1 py-0.2 bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40 uppercase tracking-wider">
+                TOP
+              </span>
+            )}
           </p>
         ) : null}
 
@@ -72,7 +77,7 @@ const DonutPieChart = ({
                   "--male-alone-color": salahStatusColorsHexCodes["male-alone"],
                 } as React.CSSProperties
               }
-              className="donut-pie-chart-text pb-1 text-sm before:bg-[var(--male-alone-color)]"
+              className="donut-pie-chart-text pb-1 text-sm before:bg-[var(--male-alone-color)] text-[#94A3B8]"
             >
               Alone
             </p>

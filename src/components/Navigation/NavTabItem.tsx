@@ -32,25 +32,25 @@ const NavTabItem = ({
         <div
           className={`flex items-center justify-center w-8 h-7 rounded-none transition-all ${
             isActive
-              ? "bg-[#181818] border border-[#2A2A2A] text-white"
-              : "text-[#71717A]"
+              ? "bg-[var(--app-surface)] border border-[var(--app-border)] text-white"
+              : "text-[#64748B]"
           }`}
         >
           {/* 1. Feature: Outline vs Filled Icon Switching */}
           <IonIcon
             icon={isActive ? iconFilled : iconOutline}
-            className={`text-[1.2rem] ${isActive ? "text-white" : "text-[#71717A]"}`}
+            className={`text-[1.2rem] ${isActive ? "text-white" : "text-[#64748B]"}`}
           />
         </div>
 
         {/* 2. Feature: Micro-Status Indicator Dot */}
         {statusDot && (
           <span
-            className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-none border border-[#121212] ${
+            className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-none border border-[var(--app-bg)] ${
               statusDot === "emerald"
                 ? "bg-[#10B981]"
                 : statusDot === "bronze"
-                ? "bg-[#B5876E]"
+                ? "bg-[#F59E0B]"
                 : "bg-[#F59E0B]"
             }`}
           />
@@ -61,7 +61,7 @@ const NavTabItem = ({
       <div className="flex items-center gap-1 mt-0.5">
         <span
           className={`text-[9px] uppercase tracking-wider font-semibold transition-colors ${
-            isActive ? "text-white" : "text-[#71717A]"
+            isActive ? "text-white" : "text-[#94A3B8]"
           }`}
         >
           {label}
