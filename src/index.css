@@ -602,19 +602,6 @@ td {
   opacity: 0.3;
 }
 
-.ReactVirtualized__Grid,
-.ReactVirtualized__Table__Grid,
-.ReactVirtualized__Grid__innerScrollContainerm,
-.ReactVirtualized__Table__row,
-.ReactVirtualized__Table__headerRow {
-  width: 95vw !important;
-  max-width: var(--max-width);
-}
-
-.ReactVirtualized__Grid__innerScrollContainer {
-  max-width: 95vw !important;
-}
-
 .ReactVirtualized__Table__headerRow {
   text-transform: uppercase;
   font-weight: 600;
@@ -652,7 +639,7 @@ td {
 }
 
 .ReactVirtualized__Table__rowColumn:first-child {
-  justify-content: start !important;
+  justify-content: center !important;
 }
 
 .ReactVirtualized__Table__rowColumn:nth-child(2),
@@ -661,10 +648,6 @@ td {
 .ReactVirtualized__Table__rowColumn:nth-child(5),
 .ReactVirtualized__Table__rowColumn:nth-child(6) {
   /* justify-content: start !important; */
-}
-
-.ReactVirtualized__Grid__innerScrollContainer {
-  overflow-x: scroll !important;
 }
 
 .salah-table-wrap {
@@ -878,6 +861,14 @@ td {
   /* --- Hide bottom tab bar on tablet --- */
   ion-tab-bar {
     display: none !important;
+  }
+
+  :root {
+    --max-width: 100%;
+  }
+
+  body {
+    max-width: 100% !important;
   }
 
   /* --- Shift all page content right to clear the side nav --- */
