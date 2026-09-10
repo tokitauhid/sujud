@@ -550,7 +550,7 @@ const AppContent = () => {
       }
 
       // Query SQLite inside withDB so reads are queued behind any in-progress writes
-      const { DBResultPreferences: prefsResult, DBResultAllSalahData, DBResultLocations } =
+      let { DBResultPreferences: prefsResult, DBResultAllSalahData, DBResultLocations } =
         await withDB(dbConnection, async (db) => {
           const p = await db.query(`SELECT * FROM userPreferencesTable`);
           const s = await db.query(`SELECT * FROM salahDataTable WHERE deleted = 0`);
@@ -582,6 +582,59 @@ const AppContent = () => {
         );
       }
 
+      if (window.location.search.includes("demo_data=1")) {
+        const hasLocation = DBResultLocations.values.some((l: any) => l.isSelected === 1);
+        if (!hasLocation) {
+          await dbConnection.current.run(
+            `INSERT OR REPLACE INTO userLocationsTable(id, locationName, latitude, longitude, isSelected) VALUES (1, 'London, UK', 51.5074, -0.1278, 1)`
+          );
+          const today = new Date();
+          const twoWeeksAgo = new Date(today);
+          twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+          const startDateStr = format(twoWeeksAgo, "yyyy-MM-dd");
+
+          await dbConnection.current.run(
+            `INSERT OR REPLACE INTO userPreferencesTable(preferenceName, preferenceValue) VALUES ('userStartDate', ?)`,
+            [startDateStr]
+          );
+          await dbConnection.current.run(
+            `INSERT OR REPLACE INTO userPreferencesTable(preferenceName, preferenceValue) VALUES ('prayerCalculationMethod', 'MuslimWorldLeague')`
+          );
+          await dbConnection.current.run(
+            `INSERT OR REPLACE INTO userPreferencesTable(preferenceName, preferenceValue) VALUES ('country', 'United Kingdom')`
+          );
+          await dbConnection.current.run(
+            `INSERT OR REPLACE INTO userPreferencesTable(preferenceName, preferenceValue) VALUES ('isExistingUser', '1')`
+          );
+
+          for (let i = 0; i <= 14; i++) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            const dateStr = format(d, "yyyy-MM-dd");
+            const isAllJamaah = i === 1 || i === 3 || i === 5 || i === 8;
+            const prayers = ["Fajr", "Dhuhr", "Asar", "Maghrib", "Isha"];
+            for (let pIdx = 0; pIdx < prayers.length; pIdx++) {
+              const p = prayers[pIdx];
+              let status = "group";
+              if (!isAllJamaah) {
+                status = (i + pIdx) % 3 === 0 ? "male-alone" : "group";
+              }
+              await dbConnection.current.run(
+                `INSERT OR REPLACE INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted) VALUES (?, ?, ?, '', '', ?, ?, 0)`,
+                [dateStr, p, status, Date.now(), Date.now()]
+              );
+            }
+          }
+          DBResultLocations = await dbConnection.current.query(`SELECT * FROM userLocationsTable`);
+          DBResultPreferences = await dbConnection.current.query(`SELECT * FROM userPreferencesTable`);
+          DBResultAllSalahData = await dbConnection.current.query(`SELECT * FROM salahDataTable WHERE deleted = 0`);
+        }
+      }
+
+      if (!DBResultPreferences.values || !DBResultAllSalahData.values || !DBResultLocations.values) {
+        throw new Error("Missing DB values");
+      }
+
       setUserLocations(DBResultLocations.values);
 
       const userNotificationPermission = await checkNotificationPermissions();
@@ -595,7 +648,10 @@ const AppContent = () => {
           (row) => row.preferenceName === "isExistingUser",
         ) || "";
 
-      if (isExistingUser === "" || isExistingUser.preferenceValue === "0") {
+      if (
+        (isExistingUser === "" || isExistingUser.preferenceValue === "0") &&
+        !window.location.search.includes("no_onboarding")
+      ) {
         setOnboardingMode("newUser");
       }
 

@@ -15,6 +15,31 @@
 
 Sujud helps you log your daily prayers, analyse your consistency over time, and build a stronger connection with your Salah — one prostration at a time.
 
+## 📱 App Screenshots
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="25%">
+        <img src="./assets/screenshots/01_tracker.png" alt="Daily Tracker" width="100%" /><br />
+        <sub><b>Daily Tracker</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="./assets/screenshots/02_stats.png" alt="Progress Stats" width="100%" /><br />
+        <sub><b>Progress & Streaks</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="./assets/screenshots/03_prayers.png" alt="Prayer Times" width="100%" /><br />
+        <sub><b>Prayer Times</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="./assets/screenshots/04_settings.png" alt="Settings & Config" width="100%" /><br />
+        <sub><b>Configuration</b></sub>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## ✨ Features
 
 - 📿 **Prayer Tracking** — Log each of your five daily prayers with a simple tap.

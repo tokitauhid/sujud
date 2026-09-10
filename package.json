@@ -12,6 +12,7 @@
     "watch": "watch 'npm run build' ./src",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "capture:screenshots": "node scripts/capture-screenshots.mjs",
     "release": "./release.sh"
   },
   "dependencies": {
