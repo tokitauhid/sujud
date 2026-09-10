@@ -895,6 +895,24 @@ td {
   .stats-page-wrap,
   .home-page-wrap {
     max-width: 100%;
+    width: 100%;
+  }
+
+  /* --- Responsive ReactVirtualized table on tablet --- */
+  .ReactVirtualized__Grid,
+  .ReactVirtualized__Table__Grid,
+  .ReactVirtualized__Grid__innerScrollContainer,
+  .ReactVirtualized__Grid__innerScrollContainerm,
+  .ReactVirtualized__Table__row,
+  .ReactVirtualized__Table__headerRow {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .ReactVirtualized__Grid__innerScrollContainer {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .settings-page-wrap {
@@ -915,6 +933,8 @@ td {
     display: flex;
     flex-direction: column;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .home-page-tablet-widgets {
