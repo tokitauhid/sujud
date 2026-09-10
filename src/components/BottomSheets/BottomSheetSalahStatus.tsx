@@ -404,14 +404,11 @@ const BottomSheetSalahStatus = ({
                   }}
                   style={{
                     backgroundColor: salahStatusColorsHexCodes.group,
-                    border: "1.5px solid #F59E0B",
-                    boxShadow: "0 0 10px rgba(245, 158, 11, 0.35)",
                   }}
-                  className={`${statusBoxStyles} relative overflow-hidden`}
+                  className={statusBoxStyles}
                 >
-                  <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#F59E0B]" />
                   <GoPeople className="w-full mb-1 text-3xl" />
-                  <p className="inline mt-1 font-bold"> In Jamaah</p>
+                  <p className="inline mt-1">In Jamaah</p>
                 </div>
               </motion.div>
             ) : (
@@ -466,14 +463,11 @@ const BottomSheetSalahStatus = ({
                   }}
                   style={{
                     backgroundColor: salahStatusColorsHexCodes.group,
-                    border: "1.5px solid #F59E0B",
-                    boxShadow: "0 0 10px rgba(245, 158, 11, 0.35)",
                   }}
-                  className={`${statusBoxStyles} relative overflow-hidden`}
+                  className={statusBoxStyles}
                 >
-                  <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#F59E0B]" />
                   <GoPeople className="w-full mb-1 text-3xl" />
-                  <p className="inline mt-1 font-bold">In Jamaah</p>
+                  <p className="inline mt-1">In Jamaah</p>
                 </div>
               </motion.div>
             )}
