@@ -11,85 +11,91 @@
 :root {
   --max-width: 700px;
 
-  /* Light mode — Warm Alabaster & Bronze */
-  --primary-color: #FAF7F4;
-  --secondary-color: #F0EBE6;
-  --ion-text-color: #1F1D1B;
-  --card-bg-color: #FFFFFF;
-  --sheet-option-bg: #F5F0EB;
-  --card-shadow-color: rgba(181, 135, 110, 0.08);
-  --app-border-color: rgba(181, 135, 110, 0.18);
-  --toast-bg-color: #24201E;
-  --toast-text-color: #F3F3F4;
-  --table-row-border-color: rgba(181, 135, 110, 0.12);
-  --nav-tab-color: #78736E;
-  --nav-active-tab-color: #B5876E;
-  --ios-action-sheet-background: #FAF7F4;
-  --segment-bg-color: #EDE8E3;
-  --segment-active-color: #FFFFFF;
-  --table-dot-icon-color: rgba(120, 115, 110, 0.5);
-  --textarea-bg-color: #F0EBE6;
-  --missed-salah-sheet-btn-color: #EDE8E3;
-  --wreath-color: #725A4C;
-  --reasons-bg-color-status-sheet: #F0EBE6;
-  --reasons-bg-active-color-status-sheet: #B5876E;
-  --calendar-arrow-btn-color: #EDE8E3;
-  --reasons-bar-bg: #C4BBB3;
-  --scrollbar-track: #D4CEC8;
-  --scrollbar-thumb: #A69E96;
+  /* Strict Utilitarian Minimalist Design System */
+  --primary-color: #121212;
+  --secondary-color: #181818;
+  --ion-text-color: #FFFFFF;
+  --text-secondary: #8E8E93;
+  --card-bg-color: #121212;
+  --sheet-option-bg: #181818;
+  --card-shadow-color: transparent;
+  --app-border-color: #242424;
+  --toast-bg-color: #1E1E1E;
+  --toast-text-color: #FFFFFF;
+  --table-row-border-color: #242424;
+  --nav-tab-color: #71717A;
+  --nav-active-tab-color: #FFFFFF;
+  --ios-action-sheet-background: #181818;
+  --segment-bg-color: #1A1A1A;
+  --segment-active-color: #262626;
+  --table-dot-icon-color: #3F3F46;
+  --textarea-bg-color: #181818;
+  --missed-salah-sheet-btn-color: #1E1E1E;
+  --wreath-color: #71717A;
+  --reasons-bg-color-status-sheet: #1A1A1A;
+  --reasons-bg-active-color-status-sheet: #262626;
+  --calendar-arrow-btn-color: #181818;
+  --reasons-bar-bg: #242424;
+  --scrollbar-track: #161616;
+  --scrollbar-thumb: #282828;
 
-  --accent-color: #B5876E;
-  --accent-color-hover: #CC9374;
-  --accent-color-muted: rgba(181, 135, 110, 0.15);
+  --accent-color: #FFFFFF;
+  --accent-color-hover: #E4E4E7;
+  --accent-color-muted: rgba(255, 255, 255, 0.08);
 
-  --missed-status-color: #C84646;
-  --jamaah-status-color: #4A9E76;
-  --late-status-color: #D97241;
-  --alone-male-status-color: #C99B42;
-  --alone-female-status-color: #4A9E76;
-  --excused-status-color: #8C5FB8;
+  --missed-status-color: #EF4444;
+  --jamaah-status-color: #10B981;
+  --late-status-color: #F59E0B;
+  --alone-male-status-color: #10B981;
+  --alone-female-status-color: #10B981;
+  --excused-status-color: #71717A;
 }
 
 body.dark {
-  /* Dark mode — Obsidian & Bronze */
-  --primary-color: #121315;
-  --secondary-color: #191A1E;
-  --ion-text-color: #F3F3F4;
-  --card-bg-color: #191A1E;
-  --sheet-option-bg: #212328;
-  --card-shadow-color: rgba(0, 0, 0, 0.3);
-  --app-border-color: rgba(204, 147, 116, 0.12);
-  --toast-bg-color: #E8E5E1;
-  --toast-text-color: #121315;
-  --table-row-border-color: rgba(204, 147, 116, 0.08);
-  --nav-tab-color: #6B6B73;
-  --ios-action-sheet-background: #1E1F24;
-  --segment-bg-color: #212328;
-  --segment-active-color: #2E3038;
-  --nav-active-tab-color: #CC9374;
-  --table-dot-icon-color: rgba(200, 200, 200, 0.3);
-  --textarea-bg-color: #212328;
-  --missed-salah-sheet-btn-color: #2A2C32;
-  --wreath-color: #CC9374;
-  --reasons-bg-color-status-sheet: #212328;
-  --reasons-bg-active-color-status-sheet: #B5876E;
-  --calendar-arrow-btn-color: #1E1F24;
-  --reasons-bar-bg: #212328;
-  --scrollbar-track: #2A2C32;
-  --scrollbar-thumb: #4A4D55;
-  --ion-color-step-850: #F3F3F4;
-  --ion-text-color-step-150: #F3F3F4;
+  --primary-color: #121212;
+  --secondary-color: #181818;
+  --ion-text-color: #FFFFFF;
+  --text-secondary: #8E8E93;
+  --card-bg-color: #121212;
+  --sheet-option-bg: #181818;
+  --card-shadow-color: transparent;
+  --app-border-color: #242424;
+  --toast-bg-color: #1E1E1E;
+  --toast-text-color: #FFFFFF;
+  --table-row-border-color: #242424;
+  --nav-tab-color: #71717A;
+  --nav-active-tab-color: #FFFFFF;
+  --ios-action-sheet-background: #181818;
+  --segment-bg-color: #1A1A1A;
+  --segment-active-color: #262626;
+  --table-dot-icon-color: #3F3F46;
+  --textarea-bg-color: #181818;
+  --missed-salah-sheet-btn-color: #1E1E1E;
+  --wreath-color: #71717A;
+  --reasons-bg-color-status-sheet: #1A1A1A;
+  --reasons-bg-active-color-status-sheet: #262626;
+  --calendar-arrow-btn-color: #181818;
+  --reasons-bar-bg: #242424;
+  --scrollbar-track: #161616;
+  --scrollbar-thumb: #282828;
+  --ion-color-step-850: #FFFFFF;
+  --ion-text-color-step-150: #FFFFFF;
 
-  --accent-color: #CC9374;
-  --accent-color-hover: #E0AC8C;
-  --accent-color-muted: rgba(204, 147, 116, 0.15);
+  --accent-color: #FFFFFF;
+  --accent-color-hover: #E4E4E7;
+  --accent-color-muted: rgba(255, 255, 255, 0.08);
+
+  --missed-status-color: #EF4444;
+  --jamaah-status-color: #10B981;
+  --late-status-color: #F59E0B;
+  --alone-male-status-color: #10B981;
+  --alone-female-status-color: #10B981;
+  --excused-status-color: #71717A;
 }
 
 * {
-  /* box-sizing: border-box; */
-  /* margin: 0; */
-  /* padding: 0; */
   user-select: none;
+  box-shadow: none !important;
 }
 
 *:focus {
@@ -102,7 +108,7 @@ body {
   --ion-background-color: var(--primary-color);
   background: var(--primary-color);
   color: var(--ion-text-color);
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -269,35 +275,32 @@ ion-toast {
 }
 
 ion-tab-bar {
-  --background: var(--primary-color);
-  --color: var(--nav-tab-color);
-  --color-selected: var(--nav-active-tab-color);
-  border-top: 1px solid var(--app-border-color);
+  --background: #121212 !important;
+  background: #121212 !important;
+  --color: #71717A;
+  --color-selected: #FFFFFF;
+  border-top: 1px solid #242424 !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  height: 52px;
 }
 
-/* Floating glass tab bar for mobile */
-@supports (backdrop-filter: blur(20px)) {
-  ion-tab-bar {
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 20px;
-    margin: 0 16px 12px 16px;
-    padding-bottom: 2px;
-  }
-  
-  /* Light mode glass */
-  :root ion-tab-bar {
-    --background: rgba(255, 255, 255, 0.82);
-    border: 1px solid rgba(181, 135, 110, 0.15);
-    border-top: 1px solid rgba(181, 135, 110, 0.15);
-  }
-  
-  /* Dark mode glass */
-  body.dark ion-tab-bar {
-    --background: rgba(25, 26, 30, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-  }
+ion-tab-button {
+  --background: #121212;
+  --color: #71717A;
+  --color-selected: #FFFFFF;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+ion-tab-button ion-icon {
+  font-size: 1.25rem;
 }
 
 ion-button::part(native) {
@@ -489,9 +492,13 @@ td {
 }
 
 .ReactVirtualized__Table__headerRow {
-  text-transform: none;
-  font-weight: 400;
-  font-size: 0.9rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: #71717A;
+  border-bottom: 1px solid var(--table-row-border-color);
+  background-color: #121212 !important;
 }
 
 .ReactVirtualized__Table__headerColumn:first-of-type {
@@ -500,14 +507,15 @@ td {
 
 .ReactVirtualized__Table__headerColumn {
   margin-right: 0;
-  /* line-height: 1; */
 }
+
 .ReactVirtualized__Table__headerTruncatedText {
-  /* text-overflow: clip; */
+  color: #71717A;
 }
 
 .ReactVirtualized__Table__row {
   border-bottom: 1px solid var(--table-row-border-color);
+  background-color: #121212 !important;
 }
 
 .ReactVirtualized__Table__rowColumn {
@@ -581,49 +589,47 @@ td {
   }
 }
 
-/* CHECKBOX STYLING */
+/* FLAT GEOMETRIC CHECKBOX STYLING */
 
 [type="checkbox"] {
-  width: 0.9rem;
-  height: 0.9rem;
-  color: var(--accent-color) !important;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #10B981 !important;
   vertical-align: middle;
   appearance: none;
   -webkit-appearance: none;
-  background: none;
-  border: 0;
+  background: #161616;
+  border: 1px solid #333333;
   outline: 0;
   flex-grow: 0;
-  border-radius: 50%;
-  background-color: transparent;
-  transition: background 300ms;
+  border-radius: 3px;
+  transition: all 120ms ease-out;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-
-/* Pseudo element for check styling */
 
 [type="checkbox"]::before {
   content: "";
-  color: transparent;
   display: block;
   width: inherit;
   height: inherit;
   border-radius: inherit;
   border: 0;
   background-color: transparent;
-  background-size: contain;
-  box-shadow: inset 0 0 0 1px #676767;
 }
 
-/* Checked */
-
 [type="checkbox"]:checked {
-  background-color: currentcolor;
+  background-color: #10B981;
+  border-color: #10B981;
 }
 
 [type="checkbox"]:checked::before {
-  box-shadow: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath d='M15.88 8.29L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.59 2.59c.39.39 1.02.39 1.41 0L17.3 9.7a.996.996 0 0 0 0-1.41c-.39-.39-1.03-.39-1.42 0z' fill='%23fff'/%3E %3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath d='M15.88 8.29L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.59 2.59c.39.39 1.02.39 1.41 0L17.3 9.7a.996.996 0 0 0 0-1.41c-.39-.39-1.03-.39-1.42 0z' fill='%23ffffff'/%3E %3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 /* ===========================

@@ -19,7 +19,6 @@ import {
 import { Capacitor } from "@capacitor/core";
 import {
   updateUserPrefs,
-  //  pageTransitionStyles,
   showToast,
   showAlert,
 } from "../utils/helpers";
@@ -30,7 +29,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToggle,
   IonToolbar,
 } from "@ionic/react";
@@ -39,7 +37,6 @@ import { toggleDBConnection } from "../utils/dbUtils";
 import BottomSheetSalahTimesSettings from "../components/BottomSheets/SalahTimesSheets/BottomSheetSalahTimesSettings";
 import BottomSheetBatchUpdate from "../components/BottomSheets/BottomSheetBatchUpdate";
 import CloudSyncSettings from "../components/Settings/CloudSyncSettings";
-// import BottomSheetBatchUpdate from "../components/BottomSheets/BottomSheetBatchUpdate";
 
 interface SettingsPageProps {
   sqliteConnection: React.MutableRefObject<SQLiteConnection | undefined>;
@@ -74,7 +71,6 @@ const SettingsPage = ({
   userLocations,
 }: SettingsPageProps) => {
   const importDBRef = useRef<HTMLInputElement | null>(null);
-  // const datePickerRef = useRef<HTMLInputElement | null>(null);
   const diaglogElement = useRef<HTMLDialogElement | null>(null);
   const [dialogElementText, setDialogElementText] = useState<string>("");
   const [
@@ -84,14 +80,6 @@ const SettingsPage = ({
     userPreferences.showMissedSalahCount === "0" ? false : true,
   );
   const [showBatchUpdateModal, setShowBatchUpdateModal] = useState(false);
-
-  // const page = useRef(null);
-  // const [presentingElement, setPresentingElement] =
-  //   useState<HTMLElement | null>(null);
-
-  // useEffect(() => {
-  //   setPresentingElement(page.current);
-  // }, []);
 
   const triggerInput = () => {
     if (importDBRef.current) {
@@ -203,7 +191,6 @@ const SettingsPage = ({
           await fetchDataFromDB(isDBImported);
         } catch (error) {
           console.error("Error importing backup file", error);
-          // Below is in the finally block but had to be duplicated here otherwise wouldn't close on Android
           diaglogElement.current?.close();
           showToast(`Unable to import file - ${error}`, "long");
           throw new Error("Error importing backup file");
@@ -235,8 +222,6 @@ const SettingsPage = ({
     window.location.href = url;
   };
 
-  // Guard: skip the first invocation (mount) so navigating to Settings
-  // doesn't trigger a DB write that interrupts sync listeners.
   const hasMountedMissedSalah = useRef(false);
   useEffect(() => {
     if (!hasMountedMissedSalah.current) {
@@ -266,21 +251,24 @@ const SettingsPage = ({
   }, [isMissedSalahCounterOptionChecked]);
 
   return (
-    <IonPage
-    // ref={page}
-    >
+    <IonPage>
       <IonHeader className="ion-no-border">
-        <IonToolbar className="page-header-toolbar">
-          <IonTitle>Settings</IonTitle>
+        <IonToolbar className="page-header-toolbar border-b border-[#242424]">
+          <div className="flex items-center justify-between px-3 py-1">
+            <span className="text-xs font-bold tracking-widest uppercase text-white font-mono">
+              SETTINGS
+            </span>
+          </div>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <motion.section
-          // {...pageTransitionStyles}
-          className={`settings-page-wrap`}
-        >
-          <div className="settings-page-options-wrap">
-              {/* Cloud Sync — opt-in Google Sign-In */}
+        <motion.section className="settings-page-wrap p-4 max-w-lg mx-auto font-mono">
+          <div className="space-y-5">
+            {/* ACCOUNT & CLOUD SYNC */}
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+                ACCOUNT & SYNC
+              </div>
               <CloudSyncSettings
                 dbConnection={dbConnection}
                 sqliteConnection={sqliteConnection}
@@ -288,17 +276,29 @@ const SettingsPage = ({
                 userLocations={userLocations}
                 fetchDataFromDB={fetchDataFromDB}
               />
-            <div
-              className={`flex items-center justify-between individual-setting-wrap bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mx-auto py-3 px-1 mb-5 rounded-xl`}
-              id="open-notification-options-sheet"
-            >
-              <div className="mx-3">
-                <p className="pt-[0.3rem] pb-[0.1rem] text-[0.95rem] font-medium">Notifications</p>
-                <p className="pt-[0.3rem]  pb-[0.1rem] text-[0.78rem] font-light opacity-60">
-                  Toggle Notifications
-                </p>
+            </div>
+
+            {/* NOTIFICATIONS */}
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+                NOTIFICATIONS
               </div>
-              <MdOutlineChevronRight className="chevron text-[var(--accent-color)] opacity-50 mr-1" />
+              <div className="border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+                <div
+                  className="flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer"
+                  id="open-notification-options-sheet"
+                >
+                  <div className="flex flex-col pr-2">
+                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                      Prayer Notifications
+                    </p>
+                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                      Configure adhan and prayer reminder alerts
+                    </p>
+                  </div>
+                  <MdOutlineChevronRight className="text-[#52525B] text-base" />
+                </div>
+              </div>
               <BottomSheetNotifications
                 dbConnection={dbConnection}
                 triggerId="open-notification-options-sheet"
@@ -307,28 +307,73 @@ const SettingsPage = ({
                 userPreferences={userPreferences}
                 userLocations={userLocations}
               />
-            </div>{" "}
-            <div className="my-5 rounded-md">
-              <SettingIndividual
-                id="open-theme-options-sheet"
-                headingText={"Theme"}
-                subText={`Change theme`}
-              />
             </div>
-            <div className="my-5 rounded-md">
-              <SettingIndividual
-                onClick={() => {
-                  if (userLocations.length === 0) {
-                    showAlert(
-                      "Location / Salah times not set",
-                      "Please add a location or set up Salah times on the Salah times page first.",
-                    );
-                    return;
-                  }
-                  setShowSalahTimesSettingsSheet(true);
-                }}
-                headingText={"Salah Times Settings"}
-                subText={`Adjust how Salah times are calculated for your location`}
+
+            {/* PREFERENCES & DISPLAY */}
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+                PREFERENCES & DISPLAY
+              </div>
+              <div className="border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+                <SettingIndividual
+                  id="open-theme-options-sheet"
+                  headingText="Theme"
+                  subText="Matte Charcoal / System Theme"
+                />
+                <SettingIndividual
+                  onClick={() => {
+                    if (userLocations.length === 0) {
+                      showAlert(
+                        "Location / Salah times not set",
+                        "Please add a location or set up Salah times on the Salah times page first.",
+                      );
+                      return;
+                    }
+                    setShowSalahTimesSettingsSheet(true);
+                  }}
+                  headingText="Salah Times Calculation"
+                  subText="Adjust calculation method and juristic angles"
+                />
+                <div className="flex items-center justify-between py-3 px-3.5 bg-[#121212]">
+                  <div className="flex flex-col pr-2">
+                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                      Missed Salah Counter
+                    </p>
+                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                      Display missed salah counter on tracker
+                    </p>
+                  </div>
+                  <IonToggle
+                    style={{
+                      "--track-background": "#242424",
+                      "--track-background-checked": "#10B981",
+                      "--handle-background": "#FFFFFF",
+                      "--handle-background-checked": "#FFFFFF",
+                    }}
+                    checked={isMissedSalahCounterOptionChecked}
+                    onIonChange={() => {
+                      setIsMissedSalahCounterOptionChecked((prev) => !prev);
+                    }}
+                  />
+                </div>
+                <SettingIndividual
+                  id="open-edit-reasons-sheet"
+                  headingText="Edit Reasons"
+                  subText="Add or modify missed prayer reasons"
+                />
+                <SettingIndividual
+                  id="open-change-start-date-sheet"
+                  headingText="App Start Date"
+                  subText="Change tracking inception date"
+                />
+              </div>
+
+              <BottomSheetThemeOptions
+                dbConnection={dbConnection}
+                triggerId="open-theme-options-sheet"
+                setUserPreferences={setUserPreferences}
+                theme={theme}
+                handleTheme={handleTheme}
               />
               <BottomSheetSalahTimesSettings
                 setShowSalahTimesSettingsSheet={setShowSalahTimesSettingsSheet}
@@ -338,68 +383,19 @@ const SettingsPage = ({
                 userPreferences={userPreferences}
                 userLocations={userLocations}
               />
-            </div>
-            <BottomSheetThemeOptions
-              dbConnection={dbConnection}
-              triggerId={"open-theme-options-sheet"}
-              setUserPreferences={setUserPreferences}
-              theme={theme}
-              handleTheme={handleTheme}
-            />
-            <div
-              className={`flex items-center justify-between individual-setting-wrap bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mx-auto py-3 px-1 mb-5 rounded-xl`}
-            >
-              <div className="mx-3">
-                <p className="pt-[0.3rem] pb-[0.1rem] text-[0.95rem] font-medium">
-                  {"Missed Salah Counter"}
-                </p>
-                <p className=" pt-[0.3rem]  pb-[0.1rem] text-[0.78rem] font-light opacity-60">
-                  {"Display missed salah counter (when applicable) on homepage"}
-                </p>
-              </div>
-              <section className="pl-4 pr-2">
-                <IonToggle
-                  style={{ "--track-background": "#3A3C42", "--track-background-checked": "var(--accent-color)" }}
-                  checked={isMissedSalahCounterOptionChecked}
-                  onIonChange={async () => {
-                    setIsMissedSalahCounterOptionChecked((prev) => !prev);
-                  }}
-                ></IonToggle>
-              </section>
-            </div>{" "}
-            <div>
-              <SettingIndividual
-                id="open-edit-reasons-sheet"
-                headingText={"Edit Reasons"}
-                subText={`Add or remove reasons`}
-              />
               <BottomSheetEditReasons
                 dbConnection={dbConnection}
-                triggerId={"open-edit-reasons-sheet"}
+                triggerId="open-edit-reasons-sheet"
                 setUserPreferences={setUserPreferences}
                 userPreferences={userPreferences}
-                // presentingElement={presentingElement}
-              />
-            </div>
-            <div className="my-5">
-              <SettingIndividual
-                indvidualStyles={"border-b border-[var(--app-border-color)]"}
-                id="open-change-start-date-sheet"
-                headingText={"Change Start Date"}
-                subText={`Change app start date`}
               />
               <BottomSheetStartDate
                 dbConnection={dbConnection}
-                triggerId={"open-change-start-date-sheet"}
+                triggerId="open-change-start-date-sheet"
                 setUserPreferences={setUserPreferences}
                 userPreferences={userPreferences}
                 fetchDataFromDB={fetchDataFromDB}
               />
-              {/* <SettingIndividual
-                onClick={() => setShowBatchUpdateModal(true)}
-                headingText={"Batch update Salah"}
-                subText={`Update Salah over multiple dates`}
-              /> */}
               <BottomSheetBatchUpdate
                 dbConnection={dbConnection}
                 handleSalahTrackingDataFromDB={handleSalahTrackingDataFromDB}
@@ -408,21 +404,55 @@ const SettingsPage = ({
                 userPreferences={userPreferences}
               />
             </div>
-            <div className="my-5">
-              <SettingIndividual
-                indvidualStyles={"border-b border-[var(--app-border-color)]"}
-                headingText={"Import Data"}
-                subText={"Supports backups exported by this app"}
-                onClick={triggerInput}
-              />
-              <SettingIndividual
-                headingText={"Export Data"}
-                subText={"Generates a file that contains all your data"}
-                onClick={async () => {
-                  await handleDBExport();
-                }}
-              />
+
+            {/* DATA & BACKUP */}
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+                DATA & BACKUP
+              </div>
+              <div className="border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+                <SettingIndividual
+                  headingText="Import Data"
+                  subText="Restore SQLite database from JSON backup file"
+                  onClick={triggerInput}
+                />
+                <SettingIndividual
+                  headingText="Export Data"
+                  subText="Generate full SQLite database JSON backup"
+                  onClick={async () => {
+                    await handleDBExport();
+                  }}
+                />
+              </div>
             </div>
+
+            {/* ABOUT & SYSTEM */}
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+                ABOUT & SYSTEM
+              </div>
+              <div className="border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+                <SettingIndividual
+                  headingText="Source Code"
+                  subText="github.com/tokitauhid/sujud"
+                  onClick={() => {
+                    link("https://github.com/tokitauhid/sujud");
+                  }}
+                />
+                <div className="flex items-center justify-between py-3 px-3.5 bg-[#121212]">
+                  <div className="flex flex-col">
+                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                      Build Version
+                    </p>
+                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                      Strict Utilitarian System
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono text-[#8E8E93]">v1.4.0</span>
+                </div>
+              </div>
+            </div>
+
             <input
               ref={importDBRef}
               className="hidden"
@@ -431,27 +461,13 @@ const SettingsPage = ({
               accept=".json"
               id="backupfile"
               name="backupfile"
-            ></input>
+            />
             <dialog
-              className="fixed z-50 w-1/2 p-3 text-white transform -translate-x-1/2 rounded-lg shadow-lg -translate-y-3/4 bg-zinc-950 top-3/4 left-1/2"
+              className="fixed z-50 p-4 text-white transform -translate-x-1/2 rounded-[4px] border border-[#242424] -translate-y-3/4 bg-[#121212] font-mono text-xs top-3/4 left-1/2"
               ref={diaglogElement}
             >
               {dialogElementText}
             </dialog>
-            <SettingIndividual
-              indvidualStyles={"border-b border-[var(--app-border-color)]"}
-              headingText={"Source Code"}
-              subText={"View Source Code"}
-              onClick={() => {
-                link("https://github.com/tokitauhid/sujud");
-              }}
-            />
-            {/* <SettingIndividual
-              id="open-about-us-sheet"
-              headingText={"About"}
-              subText={"About Us"}
-            /> */}
-            {/* <BottomSheetAboutUs triggerId="open-about-us-sheet" /> */}
           </div>
         </motion.section>
       </IonContent>
@@ -460,3 +476,4 @@ const SettingsPage = ({
 };
 
 export default SettingsPage;
+

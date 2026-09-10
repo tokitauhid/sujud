@@ -23,7 +23,7 @@ const DonutPieChart = ({
   );
 
   return (
-    <div className="mt-5 flex w-[100%] justify-around items-center donut-pie-chart-wrapper bg-[var(--card-bg-color)] border border-[var(--app-border-color)] rounded-2xl py-2">
+    <div className="mt-4 flex w-[100%] justify-around items-center donut-pie-chart-wrapper bg-[#121212] border border-[#242424] rounded-[4px] py-3">
       <section
         className="w-1/2 my-2"
         onClick={() => {

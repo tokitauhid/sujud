@@ -41,7 +41,7 @@ export const showToast = async (text: string, duration: "short" | "long") => {
   });
 };
 
-export const salahTableIndividualSquareStyles = `w-[1.6rem] h-[1.6rem] rounded-lg`;
+export const salahTableIndividualSquareStyles = `w-[1.5rem] h-[1.5rem] rounded-[3px] border border-[#2A2A2A] transition-colors`;
 
 export const getMissedSalahCount = (missedSalahList: SalahByDateObjType) => {
   return Object.values(missedSalahList).flat().length;

@@ -93,13 +93,13 @@ export const reasonsStyles =
   "p-2 m-1 text-xs bg-[var(--reasons-bg-color-status-sheet)] rounded-xl";
 
 export const salahStatusColorsHexCodes = {
-  group: "#4A9E76",
-  "male-alone": "#C99B42",
-  "female-alone": "#4A9E76",
-  excused: "#8C5FB8",
-  late: "#D97241",
-  missed: "#C84646",
-  "": "#323338",
+  group: "#10B981",
+  "male-alone": "#10B981",
+  "female-alone": "#10B981",
+  excused: "#71717A",
+  late: "#F59E0B",
+  missed: "#EF4444",
+  "": "#222222",
 };
 
 // export const prayerStatusColorsHexCodes = {

@@ -4,6 +4,7 @@ import { Pagination } from "swiper/modules";
 import { AnimatePresence, motion } from "framer-motion";
 
 import Calendar from "../components/Stats/Calendar";
+import BarChartStats from "../components/Stats/BarChartStats";
 import {
   reasonsToShowType,
   SalahNamesType,
@@ -27,7 +28,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 
@@ -269,8 +269,12 @@ const StatsPage = ({
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
-        <IonToolbar className="page-header-toolbar">
-          <IonTitle>Stats</IonTitle>
+        <IonToolbar className="page-header-toolbar border-b border-[#242424]">
+          <div className="flex items-center justify-between px-3 py-1">
+            <span className="text-xs font-bold tracking-widest uppercase text-white font-mono">
+              PROGRESS STATS
+            </span>
+          </div>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -279,6 +283,13 @@ const StatsPage = ({
           className={`stats-page-wrap`}
         >
           <section className="stats-page-components-wrap">
+            <div className="mb-4">
+              <BarChartStats
+                fetchedSalahData={fetchedSalahData}
+                activeStreakCount={activeStreakCount}
+                statsToShow={statsToShow}
+              />
+            </div>
             <StreakCounter
               streakDatesObjectsArr={streakDatesObjectsArr}
               activeStreakCount={activeStreakCount}

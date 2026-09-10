@@ -216,19 +216,19 @@ const CloudSyncSettings = ({
   // --- SIGNED OUT STATE ---
   if (!user) {
     return (
-      <div className="my-5 rounded-2xl overflow-hidden border border-[var(--app-border-color)]">
+      <div className="mb-4 rounded-[4px] overflow-hidden border border-[#242424] bg-[#121212] font-mono">
         <div
-          className="flex items-center justify-between bg-[var(--card-bg-color)] mx-auto py-4 px-3 cursor-pointer active:opacity-80 transition-opacity"
+          className="flex items-center justify-between py-3 px-3.5 cursor-pointer hover:bg-[#161616] transition-colors"
           onClick={handleSignIn}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[var(--sheet-option-bg)] border border-[var(--app-border-color)] flex items-center justify-center">
-              <FcGoogle className="text-xl" />
+            <div className="w-8 h-8 rounded-[3px] bg-[#181818] border border-[#242424] flex items-center justify-center">
+              <FcGoogle className="text-base" />
             </div>
             <div>
-              <p className="text-lg font-medium">Cloud Sync</p>
-              <p className="text-[0.8rem] font-light opacity-60">
-                Sign in with Google to sync your data across devices
+              <p className="text-xs font-medium text-white tracking-wide">Sync Data (Google)</p>
+              <p className="text-[11px] text-[#71717A] mt-0.5">
+                Sign in to sync across devices
               </p>
             </div>
           </div>
@@ -239,60 +239,60 @@ const CloudSyncSettings = ({
 
   // --- SIGNED IN STATE ---
   return (
-    <div className="my-5 rounded-2xl overflow-hidden border border-[var(--app-border-color)]">
+    <div className="mb-4 rounded-[4px] overflow-hidden border border-[#242424] bg-[#121212] font-mono">
       {/* User info row */}
-      <div className="flex items-center justify-between bg-[var(--card-bg-color)] mx-auto py-3 px-3 border-b border-[var(--app-border-color)]">
+      <div className="flex items-center justify-between py-3 px-3.5 border-b border-[#242424]">
         <div className="flex items-center gap-3">
           {user.photoURL ? (
             <img
               src={user.photoURL}
               alt=""
-              className="w-9 h-9 rounded-full"
+              className="w-7 h-7 rounded-[2px]"
               referrerPolicy="no-referrer"
             />
           ) : (
-            <IoPersonCircleOutline className="text-3xl opacity-60" />
+            <IoPersonCircleOutline className="text-2xl text-[#71717A]" />
           )}
           <div>
-            <p className="text-sm font-medium">{user.displayName || "User"}</p>
-            <p className="text-[0.7rem] font-light opacity-60">{user.email}</p>
+            <p className="text-xs font-medium text-white">{user.displayName || "User"}</p>
+            <p className="text-[10px] text-[#71717A]">{user.email}</p>
           </div>
         </div>
         <button
           onClick={handleSignOut}
-          className="p-2 rounded-lg active:opacity-60 transition-opacity"
+          className="p-1 rounded-[3px] text-red-400 hover:text-red-300 transition-colors"
           aria-label="Sign out"
         >
-          <IoLogOutOutline className="text-xl text-red-400" />
+          <IoLogOutOutline className="text-lg" />
         </button>
       </div>
 
       {/* Sync status row */}
-      <div className="flex items-center justify-between bg-[var(--card-bg-color)] mx-auto py-3 px-3">
-        <div className="flex items-center gap-3 cursor-pointer active:opacity-80 transition-opacity" onClick={handleManualSync}>
-          <div className="w-9 h-9 rounded-full bg-[var(--sheet-option-bg)] border border-[var(--app-border-color)] flex items-center justify-center">
+      <div className="flex items-center justify-between py-3 px-3.5">
+        <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleManualSync}>
+          <div className="w-7 h-7 rounded-[3px] bg-[#181818] border border-[#242424] flex items-center justify-center">
             {syncStatus === "syncing" && (
-              <IoSyncOutline className="text-lg animate-spin" style={{ color: 'var(--accent-color)' }} />
+              <IoSyncOutline className="text-sm animate-spin text-white" />
             )}
             {syncStatus === "synced" && (
-              <IoCloudDoneOutline className="text-lg" style={{ color: 'var(--accent-color)' }} />
+              <IoCloudDoneOutline className="text-sm text-[#10B981]" />
             )}
             {syncStatus === "error" && (
-              <IoWarningOutline className="text-lg text-red-400" />
+              <IoWarningOutline className="text-sm text-red-400" />
             )}
             {syncStatus === "idle" && (
-              <IoCloudUploadOutline className="text-lg opacity-60" />
+              <IoCloudUploadOutline className="text-sm text-[#71717A]" />
             )}
           </div>
           <div>
-            <p className="text-sm">
+            <p className="text-xs text-white">
               {syncStatus === "syncing"
                 ? "Syncing..."
                 : syncStatus === "error"
                   ? "Sync failed"
                   : "Connected & Live"}
             </p>
-            <p className="text-[0.7rem] font-light opacity-60">
+            <p className="text-[10px] text-[#71717A]">
               Last synced: {formatLastSynced(lastSynced)}
             </p>
           </div>
@@ -303,10 +303,10 @@ const CloudSyncSettings = ({
             setShowActionSheet(true);
           }}
           disabled={syncStatus === "syncing"}
-          className="p-2 rounded-lg active:opacity-60 transition-opacity disabled:opacity-30"
+          className="p-1.5 rounded-[3px] text-[#71717A] hover:text-white transition-colors disabled:opacity-30"
           aria-label="Sync options"
         >
-          <IoSettingsOutline className="text-xl" />
+          <IoSettingsOutline className="text-base" />
         </button>
       </div>
       <IonActionSheet

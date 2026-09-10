@@ -16,23 +16,18 @@ import {
 } from "../../types/types";
 import BottomSheetSalahStatus from "../BottomSheets/BottomSheetSalahStatus";
 
-import { LuDot } from "react-icons/lu";
 import { TbEdit } from "react-icons/tb";
 import { SalahRecordsArrayType } from "../../types/types";
 import {
   salahStatusColorsHexCodes,
   salahNamesArr,
 } from "../../utils/constants";
-// import { TbEdit } from "react-icons/tb";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import { useEffect, useRef, useState } from "react";
 import {
   createLocalisedDate,
-  salahTableIndividualSquareStyles,
   showAlert,
-  // updateUserPrefs,
 } from "../../utils/helpers";
-import { IonButton } from "@ionic/react";
 
 interface SalahTableProps {
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
@@ -78,16 +73,9 @@ const SalahTable = ({
   const resetSelectedSalahAndDate = () => {
     setSelectedSalahAndDate({});
   };
-  const [showBoxAnimation, setShowBoxAnimation] = useState(false);
-  const clonedSelectedSalahAndDate = useRef<SalahByDateObjType>({});
-  const [multiEditIconAnimation, setMultiEditIconAnimation] = useState(true);
   const [isScrolling, setIsScrolling] = useState(false);
 
   const tableRef = useRef<Table | null>(null);
-
-  useEffect(() => {
-    clonedSelectedSalahAndDate.current = { ...selectedSalahAndDate };
-  }, [selectedSalahAndDate]);
 
   useEffect(() => {
     return () => {
@@ -156,9 +144,6 @@ const SalahTable = ({
   ];
 
   const handleJoyRide = async (data: CallBackProps) => {
-    if (data.action === "next") {
-      setMultiEditIconAnimation(false);
-    }
 
     // await updateUserPrefs(
     //   dbConnection,
@@ -220,34 +205,33 @@ const SalahTable = ({
       <AnimatePresence>
         {isMultiEditMode && (
           <motion.section
-            initial={{ x: "-50%", y: "100%", scale: 0.5, opacity: 0 }}
-            animate={{ y: "-15vh", scale: 1, opacity: 1 }}
-            exit={{ y: "100%", scale: 0.5, opacity: 0 }}
-            // transition={{ type: "ease-out" }}
-            className="absolute bottom-0 z-10 flex shadow-2xl text-sm text-[#F3F3F4] border border-[rgba(204,147,116,0.25)] transform -translate-x-1/2 rounded-full bg-[#1F2024]/95 left-1/2"
+            initial={{ x: "-50%", y: 40, opacity: 0 }}
+            animate={{ y: "-12vh", opacity: 1 }}
+            exit={{ y: 40, opacity: 0 }}
+            className="absolute bottom-0 z-20 flex items-center text-xs text-white border border-[#2A2A2A] transform -translate-x-1/2 rounded-[4px] bg-[#161616] left-1/2 font-mono"
           >
             <button
-              className="py-4 pl-4 pr-2 mr-1 text-white"
+              className="py-2.5 px-4 text-[#8E8E93] hover:text-white border-r border-[#2A2A2A] transition-colors"
               onClick={() => {
                 setIsMultiEditMode(false);
                 resetSelectedSalahAndDate();
               }}
             >
-              <p className="">Cancel</p>
+              Cancel
             </button>
             <button
-              className="p-2 py-4 pr-4 text-white"
+              className="py-2.5 px-4 text-white font-bold hover:bg-[#222222] transition-colors"
               onClick={() => {
                 const dateArrLength = Object.keys(selectedSalahAndDate).length;
                 dateArrLength > 0
                   ? setShowUpdateStatusModal(true)
                   : showAlert(
                       "No Salah Selected",
-                      "Please select atleast one Salah",
+                      "Please select at least one Salah",
                     );
               }}
             >
-              <p className="">Update</p>
+              Update ({Object.keys(selectedSalahAndDate).reduce((acc, k) => acc + (selectedSalahAndDate[k]?.length || 0), 0)})
             </button>
           </motion.section>
         )}
@@ -299,36 +283,19 @@ const SalahTable = ({
                 style={{ marginLeft: "0" }}
                 // className="items-center text-left"
                 className="text-left"
-                label=""
+                label="DATE"
                 dataKey="date"
                 headerRenderer={() => (
-                  <IonButton
-                    fill="clear"
-                    size="large"
+                  <button
                     onClick={() => {
                       if (isMultiEditMode) return;
                       setIsMultiEditMode(true);
                     }}
-                    // className={`flex items-center justify-center`}
+                    className="p-1.5 rounded-[3px] border border-[#242424] bg-[#161616] hover:border-[#3F3F46] text-[#8E8E93] hover:text-white transition-colors"
+                    title="Toggle multi-select mode"
                   >
-                    {/* <IonIcon
-                      className={`multi-edit-icon text-[var(--ion-text-color)] ${
-                        showJoyRideEditIcon && multiEditIconAnimation
-                          ? "animate-bounce"
-                          : ""
-                      }`}
-                      size="small"
-                      icon={createOutline}
-                    /> */}
-
-                    <TbEdit
-                      className={`multi-edit-icon text-[var(--ion-text-color)] text-lg ${
-                        showJoyRideEditIcon && multiEditIconAnimation
-                          ? "animate-bounce"
-                          : ""
-                      }`}
-                    />
-                  </IonButton>
+                    <TbEdit className="text-sm" />
+                  </button>
                 )}
                 cellRenderer={({ rowData }) => {
                   const [day, formattedParsedDate] = createLocalisedDate(
@@ -336,13 +303,13 @@ const SalahTable = ({
                   );
 
                   return (
-                    <section className="">
-                      <p className="text-sm">{formattedParsedDate}</p>
-                      <p className="text-sm">{day}</p>
+                    <section className="py-0.5 leading-tight">
+                      <p className="text-xs font-semibold text-white font-mono">{formattedParsedDate}</p>
+                      <p className="text-[10px] text-[#71717A] uppercase font-mono tracking-wider">{day}</p>
                     </section>
                   );
                 }}
-                width={180}
+                width={160}
                 flexGrow={1}
               />
               {salahNamesArr.map((salahName) => (
@@ -362,84 +329,52 @@ const SalahTable = ({
                       : false;
                     return (
                       <section
+                        className="cursor-pointer flex items-center justify-center"
                         onClick={() => {
                           if (isMultiEditMode) return;
                           handleTableCellClick(salahName, rowData.date);
                         }}
                       >
                         {rowData.salahs[salahName] === "" ? (
-                          <LuDot
-                            style={{
-                              color: "var(--table-dot-icon-color)",
-                              backgroundColor:
-                                salahName === "Asar" && showJoyRideEditIcon
-                                  ? "white"
-                                  : "",
-                            }}
-                            className={`${salahTableIndividualSquareStyles} ${
+                          <div
+                            className={`w-[1.45rem] h-[1.45rem] rounded-[2px] border border-[#262626] bg-[#161616] flex items-center justify-center hover:border-[#3F3F46] transition-colors ${
                               showJoyRideEditIcon && salahName === "Asar"
-                                ? "single-table-cell animate-bounce"
+                                ? "single-table-cell ring-1 ring-white"
                                 : ""
-                            } 
-                                `}
-                            // ${
-                            //   showJoyRideEditIcon && salahName === "Asar"
-                            //     ? "animate-bounce"
-                            //     : ""
-                            // }
-                          />
+                            }`}
+                          >
+                            <span className="w-1 h-1 rounded-full bg-[#2A2A2A]"></span>
+                          </div>
                         ) : (
-                          <AnimatePresence>
-                            <motion.div
-                              // key={`${i}-${rowData.date}`}
-                              {...(showBoxAnimation &&
-                              clonedSelectedSalahAndDate.current[
-                                rowData.date
-                              ]?.includes(salahName)
-                                ? {
-                                    initial: { scale: 0 },
-                                    // animate: { scale: [1.3, 1] },
-                                    animate: { scale: 1.3 },
-                                    transition: {
-                                      type: "spring",
-                                      stiffness: 300,
-                                      damping: 10,
-                                      mass: 1,
-                                      delay: 0.3,
-                                    },
-                                  }
-                                : {})}
-                              onAnimationComplete={() => {
-                                setShowBoxAnimation(false);
-                                clonedSelectedSalahAndDate.current = {};
-                              }}
-                              style={{
-                                backgroundColor:
-                                  salahStatusColorsHexCodes[
-                                    rowData.salahs[
-                                      salahName
-                                    ] as keyof typeof salahStatusColorsHexCodes
-                                  ],
-                              }}
-                              className={`${salahTableIndividualSquareStyles}`}
-                            ></motion.div>
-                          </AnimatePresence>
+                          <div
+                            style={{
+                              backgroundColor:
+                                salahStatusColorsHexCodes[
+                                  rowData.salahs[
+                                    salahName
+                                  ] as keyof typeof salahStatusColorsHexCodes
+                                ],
+                            }}
+                            className="w-[1.45rem] h-[1.45rem] rounded-[2px] border border-[#242424] flex items-center justify-center transition-all"
+                          >
+                            {["group", "male-alone", "female-alone"].includes(rowData.salahs[salahName]) ? (
+                              <svg className="w-2.5 h-2.5 text-black" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                              </svg>
+                            ) : rowData.salahs[salahName] === "late" ? (
+                              <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
+                            ) : null}
+                          </div>
                         )}
                         <AnimatePresence>
                           {isMultiEditMode && (
                             <motion.div
-                              className={`checkbox-wrap`}
-                              initial={{
-                                opacity: 0,
-                              }}
-                              animate={{
-                                opacity: 1,
-                              }}
-                              exit={{
-                                opacity: 0,
-                              }}
+                              className="checkbox-wrap"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
                             >
-                              <label className="p-5">
+                              <label className="p-4 cursor-pointer">
                                 <input
                                   type="checkbox"
                                   checked={isChecked}
@@ -449,7 +384,7 @@ const SalahTable = ({
                                       rowData.date,
                                     );
                                   }}
-                                ></input>
+                                />
                               </label>
                             </motion.div>
                           )}
@@ -465,10 +400,10 @@ const SalahTable = ({
       </div>
       {isScrolling && (
         <motion.div
-          initial={{ x: "-50%", y: "100%", scale: 0.5, opacity: 0 }}
-          animate={{ y: "-4vh", scale: 1, opacity: 1 }}
-          exit={{ y: "100%", scale: 0.5, opacity: 0 }}
-          className="shadow-md absolute left-1/2 bottom-0 -translate-x-1/2 flex bg-[var(--card-bg-color)] border rounded-2xl border-[var(--app-border-color)] py-2 px-4 gap-6"
+          initial={{ x: "-50%", y: 40, opacity: 0 }}
+          animate={{ y: "-3vh", opacity: 1 }}
+          exit={{ y: 40, opacity: 0 }}
+          className="absolute left-1/2 bottom-0 -translate-x-1/2 flex bg-[#161616] border rounded-[4px] border-[#2A2A2A] py-1 px-3 gap-4 text-white font-mono text-[11px]"
         >
           <div className="">
             <button
@@ -544,7 +479,7 @@ const SalahTable = ({
         setFetchedSalahData={setFetchedSalahData}
         fetchedSalahData={fetchedSalahData}
         userPreferences={userPreferences}
-        setShowBoxAnimation={setShowBoxAnimation}
+        setShowBoxAnimation={() => {}}
         selectedSalahAndDate={selectedSalahAndDate}
         resetSelectedSalahAndDate={resetSelectedSalahAndDate}
         setIsMultiEditMode={setIsMultiEditMode}

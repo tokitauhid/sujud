@@ -19,18 +19,21 @@ export default {
       },
       fontFamily: {
         sans: [
-          "'Plus Jakarta Sans'",
           "-apple-system",
           "BlinkMacSystemFont",
+          "'SF Pro Text'",
+          "'SF Pro Display'",
           "'Segoe UI'",
+          "Roboto",
           "system-ui",
           "sans-serif",
         ],
       },
       boxShadow: {
-        "bronze-sm": "0 1px 3px rgba(181, 135, 110, 0.12)",
-        bronze: "0 4px 14px rgba(181, 135, 110, 0.15)",
-        "bronze-lg": "0 10px 30px rgba(181, 135, 110, 0.2)",
+        none: "none",
+        "bronze-sm": "none",
+        bronze: "none",
+        "bronze-lg": "none",
       },
       padding: {
         "safe-top": "env(safe-area-inset-top)",

@@ -150,17 +150,17 @@ const Calendar = ({
       <section
         // transition={{ layout: { duration: 0.5, ease: "easeInOut" } }}
         style={{ height: "auto" }}
-        className={`bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mt-5 pb-5 calendar-single-month-wrap whitespace-nowrap box-shadow: 0 25px 50px -12px rgb(31, 35, 36) rounded-2xl`}
+        className={`bg-[#121212] border border-[#242424] mt-4 pb-5 calendar-single-month-wrap whitespace-nowrap rounded-[4px]`}
       >
         <div
           ref={calenderSingleMonthHeightRef}
           className={`month-name-days-dates-wrap`}
         >
           <section className="flex items-center justify-between p-4">
-            <p className="font-semibold text-center" style={{ color: 'var(--accent-color)' }}>
+            <p className="font-semibold text-center font-mono text-white text-sm">
               {formattedMonths[currentMonth]}
             </p>
-            <div className="bg-[var(--sheet-option-bg)] rounded-full">
+            <div className="bg-[#181818] border border-[#242424] rounded-[3px] flex items-center">
               <button
                 type="button"
                 aria-label="Previous year"

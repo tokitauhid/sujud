@@ -4,32 +4,40 @@ const SettingIndividual = ({
   id,
   headingText,
   subText,
+  valueText,
   indvidualStyles,
   onClick,
 }: {
   id?: string;
   headingText: string;
-  subText: string;
+  subText?: string;
+  valueText?: string;
   indvidualStyles?: string;
   onClick?: () => void;
 }) => {
   return (
     <div
       id={id}
-      style={{ borderTopRightRadius: indvidualStyles }}
-      className={`flex items-center justify-between py-3 individual-setting-wrap bg-[var(--card-bg-color)] border border-[var(--app-border-color)] mx-auto px-1 rounded-xl ${indvidualStyles}`}
+      className={`flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer ${indvidualStyles || ""}`}
       onClick={onClick}
     >
-      <div className="mx-3">
-        <p className="support-main-text-heading pt-[0.3rem] pb-[0.1rem] text-[0.95rem] font-medium">
+      <div className="flex flex-col pr-2">
+        <p className="text-xs font-mono font-medium text-white tracking-wide">
           {headingText}
         </p>
-        <p className="support-sub-text pt-[0.3rem] pb-[0.1rem] text-[0.78rem] font-light opacity-60">
-          {subText}
-        </p>
+        {subText && (
+          <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+            {subText}
+          </p>
+        )}
       </div>
 
-      <MdOutlineChevronRight className="chevron text-[var(--accent-color)] opacity-50 mr-1" />
+      <div className="flex items-center gap-1.5 flex-shrink-0">
+        {valueText && (
+          <span className="text-xs font-mono text-[#8E8E93]">{valueText}</span>
+        )}
+        <MdOutlineChevronRight className="text-[#52525B] text-base" />
+      </div>
     </div>
   );
 };

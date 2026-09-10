@@ -25,13 +25,13 @@ const NextSalahTimeWidget: React.FC<NextSalahTimeWidgetProps> = ({
   return (
     <>
       {nextSalahNameAndTime.nextSalah !== "dhuhr" && (
-        <section className="p-5 rounded-2xl bg-[var(--card-bg-color)] border border-[var(--app-border-color)]">
+        <section className="p-4 rounded-[4px] bg-[#121212] border border-[#242424] font-mono">
           {nextSalahNameAndTime.currentSalah !== "sunrise" && (
             <div>
-              <p className="mb-1 text-xs font-semibold tracking-widest text-center uppercase opacity-60">
-                Current Prayer
+              <p className="mb-1 text-[11px] font-bold tracking-widest text-center uppercase text-[#71717A]">
+                CURRENT PRAYER
               </p>
-              <p className="text-5xl font-bold text-center text-[var(--accent-color)]">
+              <p className="text-4xl font-bold text-center text-white tracking-wide">
                 {upperCaseFirstLetter(
                   nextSalahNameAndTime.currentSalah === "none"
                     ? "isha"
@@ -65,12 +65,12 @@ const NextSalahTimeWidget: React.FC<NextSalahTimeWidgetProps> = ({
       )}
       {nextSalahNameAndTime.nextSalah === "dhuhr" &&
         nextSalahNameAndTime.currentSalah === "sunrise" && (
-          <section className="p-5 rounded-2xl bg-[var(--card-bg-color)] border border-[var(--app-border-color)]">
+          <section className="p-4 rounded-[4px] bg-[#121212] border border-[#242424] font-mono">
             <div>
-              <p className="mb-1 text-xs font-semibold tracking-widest text-center uppercase opacity-60">
-                Upcoming Prayer
+              <p className="mb-1 text-[11px] font-bold tracking-widest text-center uppercase text-[#71717A]">
+                UPCOMING PRAYER
               </p>
-              <p className="text-5xl font-bold text-center text-[var(--accent-color)]">
+              <p className="text-4xl font-bold text-center text-white tracking-wide">
                 {upperCaseFirstLetter(nextSalahNameAndTime.nextSalah)}
               </p>
             </div>
