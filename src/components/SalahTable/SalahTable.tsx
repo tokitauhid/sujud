@@ -260,7 +260,7 @@ const SalahTable = ({
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="h-[95%] w-full min-w-0">
+      <div className="h-[95%]">
         <AutoSizer>
           {({ height, width }) => (
             <Table
