@@ -13,6 +13,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "capture:screenshots": "node scripts/capture-screenshots.mjs",
+    "verify:all": "node scripts/verify-all-issues.mjs",
     "release": "./release.sh"
   },
   "dependencies": {

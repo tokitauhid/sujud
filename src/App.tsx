@@ -606,6 +606,9 @@ const AppContent = () => {
           await dbConnection.current.run(
             `INSERT OR REPLACE INTO userPreferencesTable(preferenceName, preferenceValue) VALUES ('isExistingUser', '1')`
           );
+          await dbConnection.current.run(
+            `INSERT OR REPLACE INTO userPreferencesTable(preferenceName, preferenceValue) VALUES ('userGender', 'male')`
+          );
 
           for (let i = 0; i <= 14; i++) {
             const d = new Date(today);
