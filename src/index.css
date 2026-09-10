@@ -925,18 +925,37 @@ td {
   @media (orientation: landscape) {
     .home-page-tablet-grid {
       display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: 1.5rem;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 1.25rem;
       align-items: stretch;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     .home-page-tablet-widgets {
       display: flex !important;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .home-page-tablet-widgets ion-segment-button {
+      --padding-start: 4px;
+      --padding-end: 4px;
+      min-width: 0;
+    }
+
+    .home-page-tablet-widgets ion-segment-button ion-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
     }
   }
 
   .home-page-tablet-grid > * {
     min-width: 0;
+    max-width: 100%;
   }
 
   /* --- Stats page: two-column grid --- */
@@ -1029,14 +1048,20 @@ td {
 @media (min-width: 768px) and (orientation: landscape) {
   .settings-page-options-wrap,
   .stats-page-components-wrap,
-  .home-page-components-wrap,
   .salah-times-page-components-wrap {
-    margin: 1.5rem 4rem;
+    margin: 1.5rem 3rem;
+  }
+
+  .home-page-components-wrap {
+    margin: 1rem 1.5rem;
+    height: calc(100% - 2rem) !important;
+    max-width: calc(100% - 3rem);
+    box-sizing: border-box;
   }
 
   .salah-times-tablet-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+    gap: 2.5rem;
   }
 }
 

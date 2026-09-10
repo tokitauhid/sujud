@@ -149,7 +149,7 @@ const HomePage = ({
           className={`home-page-wrap h-full`}
         >
           <section className="h-full home-page-components-wrap home-page-tablet-grid">
-            <div className="flex-1 min-h-0 h-full w-full">
+            <div className="flex-1 min-h-0 min-w-0 h-full w-full overflow-hidden">
               <SalahTable
                 dbConnection={dbConnection}
                 // setUserPreferences={setUserPreferences}
@@ -175,7 +175,7 @@ const HomePage = ({
               />
             </div>
             
-            <div className="home-page-tablet-widgets hidden md:landscape:flex flex-col h-[95%] overflow-hidden shrink-0">
+            <div className="home-page-tablet-widgets hidden md:landscape:flex flex-col h-[95%] overflow-hidden w-full min-w-0">
               {nextSalahNameAndTime && (
                 <div className="mb-4 shrink-0">
                   <NextSalahTimeWidget 
