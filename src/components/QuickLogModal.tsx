@@ -26,12 +26,52 @@ interface QuickLogModalProps {
   isOpen: boolean;
   onClose: () => void;
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
-  nextSalahNameAndTime: nextSalahTimeType;
+  nextSalahNameAndTime?: nextSalahTimeType;
   setFetchedSalahData: React.Dispatch<React.SetStateAction<SalahRecordsArrayType>>;
   userPreferences: userPreferencesType;
 }
 
 const salahNames: SalahNamesType[] = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+
+const mapToSalahName = (name?: string): SalahNamesType | null => {
+  if (!name) return null;
+  const lower = name.toLowerCase();
+  switch (lower) {
+    case "fajr":
+      return "Fajr";
+    case "sunrise":
+      return "Fajr";
+    case "dhuhr":
+      return "Dhuhr";
+    case "asr":
+    case "asar":
+      return "Asr";
+    case "maghrib":
+      return "Maghrib";
+    case "isha":
+      return "Isha";
+    default:
+      return null;
+  }
+};
+
+const resolveCurrentOrNextSalah = (
+  nextSalahObj?: nextSalahTimeType
+): SalahNamesType => {
+  if (nextSalahObj) {
+    const current = mapToSalahName(nextSalahObj.currentSalah);
+    if (current) return current;
+    const next = mapToSalahName(nextSalahObj.nextSalah);
+    if (next) return next;
+  }
+
+  const hour = new Date().getHours();
+  if (hour >= 4 && hour < 12) return "Fajr";
+  if (hour >= 12 && hour < 16) return "Dhuhr";
+  if (hour >= 16 && hour < 18) return "Asr";
+  if (hour >= 18 && hour < 20) return "Maghrib";
+  return "Isha";
+};
 
 const triggerHaptic = () => {
   if (typeof navigator !== "undefined" && navigator.vibrate) {
@@ -47,14 +87,16 @@ const QuickLogModal = ({
   setFetchedSalahData,
   userPreferences,
 }: QuickLogModalProps) => {
-  const [selectedSalah, setSelectedSalah] = useState<SalahNamesType>("Dhuhr");
+  const [selectedSalah, setSelectedSalah] = useState<SalahNamesType>(() =>
+    resolveCurrentOrNextSalah(nextSalahNameAndTime)
+  );
   const [selectedStatus, setSelectedStatus] = useState<SalahStatusType>("");
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const defaultOnTimeStatus: SalahStatusType =
-    userPreferences.userGender === "female" ? "female-alone" : "group";
+    userPreferences?.userGender === "female" ? "female-alone" : "group";
 
   // Parse available reasons
   const reasonsList: string[] = Array.isArray(userPreferences?.reasons)
@@ -66,15 +108,7 @@ const QuickLogModal = ({
   // Automatically default to current or upcoming prayer and reset inputs on open
   useEffect(() => {
     if (isOpen) {
-      const current = nextSalahNameAndTime?.currentSalah as SalahNamesType;
-      const next = nextSalahNameAndTime?.nextSalah as SalahNamesType;
-      if (salahNames.includes(current)) {
-        setSelectedSalah(current);
-      } else if (salahNames.includes(next)) {
-        setSelectedSalah(next);
-      } else {
-        setSelectedSalah("Dhuhr");
-      }
+      setSelectedSalah(resolveCurrentOrNextSalah(nextSalahNameAndTime));
       setSelectedStatus(defaultOnTimeStatus);
       setSelectedReasons([]);
       setNotes("");

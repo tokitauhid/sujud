@@ -4,7 +4,6 @@ import SalahTable from "../components/SalahTable/SalahTable";
 import MissedSalahCounter from "../components/Stats/MissedSalahCounter";
 import { Dialog } from "@capacitor/dialog";
 import { Flame } from "lucide-react";
-import { TbEdit } from "react-icons/tb";
 
 import {
   SalahRecordsArrayType,
@@ -140,26 +139,6 @@ const HomePage = ({
                 </div>
               </button>
 
-              <button
-                onClick={() => {
-                  if (isMultiEditMode) {
-                    setIsMultiEditMode(false);
-                    setSelectedSalahAndDate({});
-                  } else {
-                    setIsMultiEditMode(true);
-                  }
-                }}
-                className={`flex items-center gap-1 px-2 py-1 rounded-none border text-[10px] font-mono tracking-wider uppercase transition-colors ${
-                  isMultiEditMode
-                    ? "bg-white text-black border-white font-bold"
-                    : "border-[#2A2A2A] bg-[#161616] text-[#8E8E93] hover:text-white hover:border-[#3F3F46]"
-                }`}
-                title={isMultiEditMode ? "Exit multi-select mode" : "Enter multi-select mode"}
-                aria-label={isMultiEditMode ? "Exit multi-select mode" : "Enter multi-select mode"}
-              >
-                <TbEdit className="w-3 h-3 shrink-0" />
-                <span>{isMultiEditMode ? "DONE" : "SELECT"}</span>
-              </button>
             </div>
           </div>
         </IonToolbar>

@@ -986,12 +986,6 @@ const AppContent = () => {
     : 0;
 
   const trackerStatusDot = completedTodayPrayers === 5 ? "emerald" : undefined;
-  const statsStatusDot = activeStreakCount > 0 ? "bronze" : undefined;
-  const prayersStatusDot = nextSalahNameAndTime?.currentSalah
-    ? "emerald"
-    : nextSalahNameAndTime?.nextSalah
-    ? "amber"
-    : undefined;
 
   const handleTabClick = () => {
     if (typeof navigator !== "undefined" && navigator.vibrate) {
@@ -1110,7 +1104,6 @@ const AppContent = () => {
                 label="STATS"
                 iconOutline={statsChartOutline}
                 iconFilled={statsChart}
-                statusDot={statsStatusDot}
               />
             </IonTabButton>
 
@@ -1139,7 +1132,6 @@ const AppContent = () => {
                 label="PRAYERS"
                 iconOutline={timeOutline}
                 iconFilled={time}
-                statusDot={prayersStatusDot}
               />
             </IonTabButton>
 

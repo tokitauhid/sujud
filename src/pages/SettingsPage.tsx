@@ -315,11 +315,12 @@ const SettingsPage = ({
                 PREFERENCES & DISPLAY
               </div>
               <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
-                <SettingIndividual
+                {/* Theme selector hidden for now; will use later */}
+                {/* <SettingIndividual
                   id="open-theme-options-sheet"
                   headingText="Theme"
                   subText="Matte Charcoal / System Theme"
-                />
+                /> */}
                 <SettingIndividual
                   onClick={() => {
                     if (userLocations.length === 0) {
@@ -426,10 +427,10 @@ const SettingsPage = ({
               </div>
             </div>
 
-            {/* ABOUT & SYSTEM */}
+            {/* SOURCE CODE */}
             <div>
               <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
-                ABOUT & SYSTEM
+                SOURCE CODE
               </div>
               <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
                 <SettingIndividual
@@ -439,17 +440,6 @@ const SettingsPage = ({
                     link("https://github.com/tokitauhid/sujud");
                   }}
                 />
-                <div className="flex items-center justify-between py-3 px-3.5 bg-[#121212]">
-                  <div className="flex flex-col">
-                    <p className="text-xs font-mono font-medium text-white tracking-wide">
-                      Build Version
-                    </p>
-                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
-                      Strict Utilitarian System
-                    </p>
-                  </div>
-                  <span className="text-xs font-mono text-[#8E8E93]">v1.4.0</span>
-                </div>
               </div>
             </div>
 
