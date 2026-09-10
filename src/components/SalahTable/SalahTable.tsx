@@ -261,9 +261,15 @@ const SalahTable = ({
         )}
       </AnimatePresence>
       <div className="h-[95%]">
-        <AutoSizer>
+        <AutoSizer
+          onResize={() => {
+            (tableRef.current as any)?.recomputeGridSize?.();
+            (tableRef.current as any)?.forceUpdateGrid?.();
+          }}
+        >
           {({ height, width }) => (
             <Table
+              key={width}
               ref={tableRef}
               onScroll={() => {
                 if (!hasMountedRef.current) {
@@ -302,6 +308,7 @@ const SalahTable = ({
               height={height}
               width={width}
               scrollToAlignment="start"
+              scrollToIndex={currentIndexRef.current > 0 ? currentIndexRef.current : undefined}
             >
               <Column
                 style={{ marginLeft: "0" }}
