@@ -8,6 +8,13 @@ interface BarChartStatsProps {
   statsToShow: Exclude<SalahNamesType, "Asar"> | "All";
 }
 
+interface PrayerSection {
+  name: "Fajr" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
+  status: string;
+  colorClass: string;
+  label: string;
+}
+
 interface DayData {
   dateStr: string;
   dayLabel: string;
@@ -16,6 +23,7 @@ interface DayData {
   percentage: number;
   missed: number;
   inJamaah: number;
+  sections: PrayerSection[];
 }
 
 const prayerKeys: ("Fajr" | "Dhuhr" | "Asar" | "Maghrib" | "Isha")[] = [
@@ -52,6 +60,36 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
         let missed = 0;
         let total = 0;
         let inJamaah = 0;
+
+        const sections: PrayerSection[] = prayerKeys.map((pKey) => {
+          const status = record?.salahs?.[pKey] || "";
+          let colorClass = "bg-[#161922] border border-[#232936]/40";
+          let label = "Not logged";
+
+          if (status === "group") {
+            colorClass = "bg-[#F59E0B] shadow-[0_0_6px_rgba(245,158,11,0.35)]";
+            label = "In Jamaah";
+          } else if (status === "male-alone" || status === "female-alone") {
+            colorClass = "bg-[#38BDF8] shadow-[0_0_6px_rgba(56,189,248,0.25)]";
+            label = "Alone";
+          } else if (status === "late") {
+            colorClass = "bg-[#D97706]";
+            label = "Late";
+          } else if (status === "missed") {
+            colorClass = "bg-[#C2414B]";
+            label = "Missed";
+          } else if (status === "excused") {
+            colorClass = "bg-[#64748B]";
+            label = "Excused";
+          }
+
+          return {
+            name: pKey === "Asar" ? "Asr" : pKey,
+            status,
+            colorClass,
+            label,
+          };
+        });
 
         if (statsToShow === "All") {
           total = 5;
@@ -106,6 +144,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
           percentage,
           missed,
           inJamaah,
+          sections,
         });
       }
 
@@ -138,7 +177,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
         </p>
       </div>
 
-      {/* Clean Unstyled Bar Chart */}
+      {/* Clean Segmented Bar Chart */}
       <div className="relative pt-2 pb-4">
         {/* Y Axis Grid Lines & Labels */}
         <div className="flex h-44 w-full">
@@ -171,7 +210,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
                 className="relative z-10 flex flex-col items-center flex-1 h-full justify-end group px-0.5"
               >
                 {/* Value on top of bar */}
-                <div className="flex items-center gap-1 mb-1 leading-none">
+                <div className="flex items-center gap-1 mb-1 leading-none shrink-0">
                   {day.inJamaah > 0 && (
                     <span
                       className="w-1.5 h-1.5 rotate-45 bg-[#F59E0B] shadow-[0_0_4px_#F59E0B] inline-block shrink-0"
@@ -193,23 +232,31 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
                   </span>
                 </div>
 
-                {/* Vertical Bar with Highlight crown if In Jamaah or Blue if Alone */}
-                <div
-                  style={{ height: `${Math.max(day.percentage, 2)}%` }}
-                  className={`w-full max-w-[24px] rounded-none transition-all duration-300 relative ${
-                    day.inJamaah > 0
-                      ? "bg-[#10B981] ring-1 ring-[#F59E0B] shadow-[0_0_10px_rgba(245,158,11,0.3)] group-hover:bg-[#059669]"
-                      : day.completed > 0
-                      ? "bg-[#3B82A0] group-hover:bg-[#2F6B84] shadow-[0_0_8px_rgba(59,130,160,0.25)]"
-                      : day.missed > 0
-                      ? "bg-[#C2414B]/60 group-hover:bg-[#C2414B]"
-                      : "bg-[#1E232F]"
-                  }`}
-                >
-                  {day.inJamaah > 0 && (
-                    <div className="absolute top-0 inset-x-0 h-[2px] bg-[#F59E0B]" />
-                  )}
-                </div>
+                {/* 5-Section Segmented Bar when All, or Single Bar when Specific */}
+                {statsToShow === "All" ? (
+                  <div className="w-full max-w-[22px] flex-1 flex flex-col-reverse gap-[2px] pb-[1px] h-full">
+                    {day.sections.map((sec) => (
+                      <div
+                        key={sec.name}
+                        className={`w-full flex-1 rounded-none transition-all duration-300 ${sec.colorClass} hover:brightness-125 cursor-pointer`}
+                        title={`${sec.name}: ${sec.label}`}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    style={{ height: `${Math.max(day.percentage, 2)}%` }}
+                    className={`w-full max-w-[22px] rounded-none transition-all duration-300 relative ${
+                      day.inJamaah > 0
+                        ? "bg-[#F59E0B] shadow-[0_0_10px_rgba(245,158,11,0.3)] group-hover:bg-[#D97706]"
+                        : day.completed > 0
+                        ? "bg-[#38BDF8] shadow-[0_0_8px_rgba(56,189,248,0.25)] group-hover:bg-[#0284C7]"
+                        : day.missed > 0
+                        ? "bg-[#C2414B]/60 group-hover:bg-[#C2414B]"
+                        : "bg-[#161922] border border-[#232936]/40"
+                    }`}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -226,6 +273,28 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
             </div>
           ))}
         </div>
+
+        {/* Legend for 5-section bar */}
+        {statsToShow === "All" && (
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[10px] text-[#94A3B8] font-mono mt-3 select-none">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-none bg-[#F59E0B] inline-block" />
+              <span>In Jamaah</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-none bg-[#38BDF8] inline-block" />
+              <span>Alone</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-none bg-[#D97706] inline-block" />
+              <span>Late</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-none bg-[#C2414B] inline-block" />
+              <span>Missed</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* High-Density Data Summary Table */}
