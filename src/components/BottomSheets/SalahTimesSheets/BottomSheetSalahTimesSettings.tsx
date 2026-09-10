@@ -185,7 +185,7 @@ BottomSheetSalahTimesSettingsProps) => {
             id="open-salah-calculations-sheet"
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Calculation Method:</p>
               <div className="flex items-center gap-1">
                 <p>
@@ -207,7 +207,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Madhab / Asr Time:</p>
               <div className="flex items-center gap-1">
                 <p>
@@ -218,7 +218,7 @@ BottomSheetSalahTimesSettingsProps) => {
               </div>
             </div>
           </IonButton>
-          <div className="flex items-center justify-between bg-[var(--sheet-option-bg)] rounded-lg text-sm py-3 px-3">
+          <div className="flex items-center justify-between bg-[var(--sheet-option-bg)] rounded-none text-sm py-3 px-3">
             <p className="text-[var(--ion-text-color)] leading-[1.25rem] font-light pl-[0.1rem]">
               24-Hour Time
             </p>
@@ -247,7 +247,7 @@ BottomSheetSalahTimesSettingsProps) => {
           Overrides for experienced users. Changing these values replaces the
           calculation method’s defaults.
         </p>
-        <section className="mx-2 rounded-lg ">
+        <section className="mx-2 rounded-none ">
           <IonButton
             // size="small"
             id="open-salah-latitude-rules-sheet"
@@ -257,7 +257,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3 mt-2"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">High Latitude Rule:</p>
               <div className="flex items-center gap-1">
                 <p>{latitudeRuleValues[userPreferences.highLatitudeRule]}</p>
@@ -279,7 +279,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Fajr Angle:</p>
               <div className="flex items-center gap-1">
                 <p>{userPreferences.fajrAngle}°</p>
@@ -299,7 +299,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Isha Angle:</p>
               <div className="flex items-center gap-1">
                 <p>{userPreferences.ishaAngle}°</p>
@@ -323,7 +323,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Fajr Adjustment:</p>
               <div className="flex items-center gap-1">
                 <p>
@@ -351,7 +351,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Dhuhr Adjustment:</p>
               <div className="flex items-center gap-1">
                 <p>
@@ -382,7 +382,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Asr Adjustment:</p>
               <div className="flex items-center gap-1">
                 <p>
@@ -408,7 +408,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Maghrib Adjustment:</p>
               <div className="flex items-center gap-1">
                 <p>
@@ -438,7 +438,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] font-light mb-3"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none">
               <p className="">Isha Adjustment:</p>
               <div className="flex items-center gap-1">
                 <p>
@@ -473,7 +473,7 @@ BottomSheetSalahTimesSettingsProps) => {
                 }}
                 className=" text-[var(--ion-text-color)] text-sm"
               >
-                <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg font-light">
+                <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none font-light">
                   <p className="">Shafaq Rule:</p>
                   <div className="flex items-center gap-1">
                     <p>{upperCaseFirstLetter(userPreferences.shafaqRule)}</p>
@@ -497,7 +497,7 @@ BottomSheetSalahTimesSettingsProps) => {
             }}
             className=" text-[var(--ion-text-color)] text-sm"
           >
-            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-lg font-light">
+            <div className="flex items-center justify-between w-full py-3 px-3 text-sm bg-[var(--sheet-option-bg)] rounded-none font-light">
               <p className="">Polar Circle Resolution:</p>
               <div className="flex items-center gap-1">
                 <p>

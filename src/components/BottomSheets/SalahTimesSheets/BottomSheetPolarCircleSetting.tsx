@@ -103,7 +103,7 @@ const BottomSheetPolarCircleSetting = ({
               setUserPreferences,
             );
           }}
-          className={`p-2 mb-5 border rounded-lg bg-[var(--sheet-option-bg)] flex ${
+          className={`p-2 mb-5 border rounded-none bg-[var(--sheet-option-bg)] flex ${
             userPreferences.polarCircleResolution === "AqrabBalad"
               ? "border-bronze-500"
               : "border-transparent"

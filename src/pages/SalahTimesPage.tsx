@@ -137,7 +137,7 @@ const SalahTimesPage = ({
               <button
                 aria-label="show all locations"
                 onClick={() => setShowLocationsListSheet(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-[3px] border border-[#2A2A2A] bg-[#161616] text-[#8E8E93] hover:text-white text-xs font-mono transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-none border border-[#2A2A2A] bg-[#161616] text-[#8E8E93] hover:text-white text-xs font-mono transition-colors cursor-pointer"
               >
                 <IonIcon icon={navigate} className="text-xs" />
                 <span>
@@ -279,7 +279,7 @@ const SalahTimesPage = ({
                 } flex items-center justify-between w-full mx-auto mb-3 border-b border-[#242424] pb-2`}
               >
                 <button
-                  className="p-1 rounded-[3px] border border-[#242424] bg-[#161616] hover:border-[#3F3F46] text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
+                  className="p-1 rounded-none border border-[#242424] bg-[#161616] hover:border-[#3F3F46] text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
                   onClick={async () => {
                     if (!userLocations || userLocations.length === 0) {
                       return;
@@ -312,7 +312,7 @@ const SalahTimesPage = ({
                         : format(dateToShow, "EEE, MMM d")}
                 </p>
                 <button
-                  className="p-1 rounded-[3px] border border-[#242424] bg-[#161616] hover:border-[#3F3F46] text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
+                  className="p-1 rounded-none border border-[#242424] bg-[#161616] hover:border-[#3F3F46] text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
                   onClick={async () => {
                     if (!userLocations || userLocations.length === 0) {
                       return;
@@ -338,7 +338,7 @@ const SalahTimesPage = ({
               </section>
 
               <section
-                className={`border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden ${
+                className={`border border-[#242424] rounded-none bg-[#121212] overflow-hidden ${
                   userLocations?.length === 0 ||
                   userPreferences.prayerCalculationMethod === ""
                     ? "opacity-50"
@@ -370,16 +370,24 @@ const SalahTimesPage = ({
                       key={name + time}
                     >
                       <div className="flex items-center gap-2">
-                        {isCurrentPrayer || isNextPrayer ? (
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+                        {isCurrentPrayer ? (
+                          <span className="w-1.5 h-1.5 rounded-none bg-[#10B981]" />
+                        ) : isNextPrayer ? (
+                          <span className="w-1.5 h-1.5 rounded-none bg-[#F59E0B]" />
                         ) : null}
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-medium text-white text-xs">
+                            <p
+                              className={`text-xs ${
+                                isCurrentPrayer
+                                  ? "text-[#10B981] font-bold"
+                                  : "text-white font-medium"
+                              }`}
+                            >
                               {upperCaseFirstLetter(name)}
                             </p>
                             {isCurrentPrayer ? (
-                              <span className="text-[10px] text-[#F59E0B] uppercase tracking-wider">
+                              <span className="text-[10px] text-[#10B981] uppercase tracking-wider font-semibold">
                                 Current
                               </span>
                             ) : isNextPrayer ? (
@@ -426,7 +434,7 @@ const SalahTimesPage = ({
                           <IonIcon
                             className={`text-sm ${
                               isCurrentPrayer
-                                ? "text-[#F59E0B]"
+                                ? "text-[#10B981]"
                                 : userPreferences[`${name}Notification`] !== "off"
                                   ? "text-white"
                                   : "text-[#52525B]"

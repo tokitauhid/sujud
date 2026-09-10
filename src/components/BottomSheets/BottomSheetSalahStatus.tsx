@@ -166,8 +166,7 @@ const BottomSheetSalahStatus = ({
       const reasonsToInsert =
         selectedReasons.length > 0 &&
         salahStatus !== "group" &&
-        salahStatus !== "female-alone" &&
-        salahStatus !== "excused"
+        salahStatus !== "female-alone"
           ? selectedReasons.join(", ")
           : "";
 
@@ -336,7 +335,7 @@ const BottomSheetSalahStatus = ({
   // const statusBoxStyles =
   //   "h-full px-5 py-3 rounded-xl mx-auto text-center flex flex-col items-center justify-around w-full";
   const statusBoxStyles =
-    "aspect-square rounded-2xl flex flex-col items-center justify-center";
+    "aspect-square rounded-none flex flex-col items-center justify-center";
 
   useEffect(() => {
     if (
@@ -346,7 +345,8 @@ const BottomSheetSalahStatus = ({
       if (
         salahStatus === "male-alone" ||
         salahStatus === "late" ||
-        salahStatus === "missed"
+        salahStatus === "missed" ||
+        salahStatus === "excused"
       ) {
         // setReasonsHeight(modalSheetHiddenSalahReasonsWrap.current.offsetHeight);
         const rawHeight = modalSheetHiddenSalahReasonsWrap.current.offsetHeight;
@@ -377,7 +377,7 @@ const BottomSheetSalahStatus = ({
         {" "}
         <section
           ref={sheetWrapper}
-          className="w-[90%] mx-auto mb-5 rounded-lg text-white pb-env-safe-area-inset-bottom transition-all duration-300 ease-in-out"
+          className="w-[90%] mx-auto mb-5 rounded-none text-white pb-env-safe-area-inset-bottom transition-all duration-300 ease-in-out"
         >
           <h1 className="text-[var(--ion-text-color)] mb-10 text-3xl font-light text-center leading-10" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             How did you pray{" "}
@@ -407,7 +407,6 @@ const BottomSheetSalahStatus = ({
                   }}
                   className={statusBoxStyles}
                 >
-                  {" "}
                   <GoPeople className="w-full mb-1 text-3xl" />
                   <p className="inline mt-1"> In Jamaah</p>
                 </div>
@@ -427,54 +426,50 @@ const BottomSheetSalahStatus = ({
                   }}
                   className={statusBoxStyles}
                 >
-                  {" "}
                   <GoPerson className="w-full mb-1 text-3xl" />
                   <p className="inline mt-1">Prayed</p>
                 </div>
               </motion.div>
             )}
+
             {userPreferences.userGender === "male" ? (
-              <>
-                <motion.div
-                  variants={salahStatusVariants}
-                  initial="default"
-                  animate={salahStatus === "male-alone" ? "animate" : "default"}
+              <motion.div
+                variants={salahStatusVariants}
+                initial="default"
+                animate={salahStatus === "male-alone" ? "animate" : "default"}
+              >
+                <div
+                  onClick={() => {
+                    setSalahStatus("male-alone");
+                  }}
+                  style={{
+                    backgroundColor: salahStatusColorsHexCodes["male-alone"],
+                  }}
+                  className={statusBoxStyles}
                 >
-                  <div
-                    onClick={() => {
-                      setSalahStatus("male-alone");
-                    }}
-                    style={{
-                      backgroundColor: salahStatusColorsHexCodes["male-alone"],
-                    }}
-                    className={statusBoxStyles}
-                  >
-                    <GoPerson className="w-full mb-1 text-3xl" />
-                    <p className="inline mt-1">On Time</p>
-                  </div>
-                </motion.div>
-              </>
+                  <GoPerson className="w-full mb-1 text-3xl" />
+                  <p className="inline mt-1">On Time</p>
+                </div>
+              </motion.div>
             ) : (
-              <>
-                <motion.div
-                  variants={salahStatusVariants}
-                  initial="default"
-                  animate={salahStatus === "excused" ? "animate" : "default"}
+              <motion.div
+                variants={salahStatusVariants}
+                initial="default"
+                animate={salahStatus === "group" ? "animate" : "default"}
+              >
+                <div
+                  onClick={() => {
+                    setSalahStatus("group");
+                  }}
+                  style={{
+                    backgroundColor: salahStatusColorsHexCodes.group,
+                  }}
+                  className={statusBoxStyles}
                 >
-                  <div
-                    onClick={() => {
-                      setSalahStatus("excused");
-                    }}
-                    style={{
-                      backgroundColor: salahStatusColorsHexCodes.excused,
-                    }}
-                    className={statusBoxStyles}
-                  >
-                    <PiFlower className="w-full mb-1 text-3xl" />
-                    <p className="inline mt-1">Excused</p>
-                  </div>{" "}
-                </motion.div>
-              </>
+                  <GoPeople className="w-full mb-1 text-3xl" />
+                  <p className="inline mt-1">In Jamaah</p>
+                </div>
+              </motion.div>
             )}
 
             <motion.div
@@ -509,6 +504,43 @@ const BottomSheetSalahStatus = ({
               <p className="inline mt-1">Missed</p>
             </motion.div>
           </div>
+
+          {/* Excused / Exempt Button */}
+          <motion.div
+            variants={salahStatusVariants}
+            initial="default"
+            animate={salahStatus === "excused" ? "animate" : "default"}
+            className="mt-2.5"
+          >
+            <div
+              onClick={() => {
+                setSalahStatus("excused");
+              }}
+              style={{
+                backgroundColor:
+                  salahStatus === "excused"
+                    ? salahStatusColorsHexCodes.excused
+                    : "var(--sheet-option-bg)",
+                border:
+                  salahStatus === "excused"
+                    ? "1px solid rgba(255, 255, 255, 0.4)"
+                    : "1px solid var(--app-border-color)",
+              }}
+              className="flex items-center justify-between p-3 rounded-none cursor-pointer transition-all"
+            >
+              <div className="flex items-center gap-2.5">
+                <PiFlower className="text-2xl text-[#A1A1AA]" />
+                <span className="text-sm font-medium tracking-wide text-white">
+                  Excused / Exempt
+                </span>
+              </div>
+              {salahStatus === "excused" && (
+                <span className="text-xs font-mono text-[#10B981] font-bold">
+                  ✓ Selected
+                </span>
+              )}
+            </div>
+          </motion.div>
           <section
             style={{ maxHeight: reasonsHeight + "px" }}
             ref={modalSheetSalahReasonsWrap}
@@ -577,7 +609,7 @@ const BottomSheetSalahStatus = ({
               aria-label="notes"
               autoGrow={true}
               rows={1}
-              className="pl-2 rounded-lg text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)]"
+              className="pl-2 rounded-none text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)]"
               placeholder="Notes"
               value={notes}
               onIonInput={(e) => {
@@ -599,10 +631,15 @@ const BottomSheetSalahStatus = ({
                 onSheetCloseCleanup();
               }
             }}
-            className={`w-full p-4 mt-5 rounded-2xl text-white font-medium ${
-              salahStatus ? "opacity-100" : "opacity-20"
+            className={`w-full p-4 mt-5 rounded-none font-bold transition-all ${
+              salahStatus ? "text-black opacity-100" : "text-white opacity-20"
             }`}
-            style={{ background: salahStatus ? 'linear-gradient(135deg, var(--accent-color), var(--accent-color-hover))' : 'var(--sheet-option-bg)' }}
+            style={{
+              background: salahStatus
+                ? "#FFFFFF"
+                : "var(--sheet-option-bg)",
+              color: salahStatus ? "#000000" : "#FFFFFF",
+            }}
           >
             Save
           </motion.button>

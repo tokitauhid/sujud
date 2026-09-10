@@ -278,13 +278,13 @@ const Onboarding = ({
             <SwiperSlide>
               <section className="flex flex-col justify-center h-full onboarding-slide-content">
                 <section className="m-4 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--card-bg-color)] border border-[var(--app-border-color)] flex items-center justify-center shadow-bronze-sm">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-none bg-[var(--card-bg-color)] border border-[var(--app-border-color)] flex items-center justify-center shadow-bronze-sm">
                     <FcGoogle className="text-3xl" />
                   </div>
                   <h1 className="mb-3 text-2xl font-bold">
                     Sign in with Google
                   </h1>
-                  <p className="text-sm leading-5 opacity-80">
+                  <p className="text-sm leading-5 opac\ity-80">
                     Sync your data across devices. If you've used Sujud before, your data will be restored automatically.
                   </p>
                 </section>
@@ -311,7 +311,7 @@ const Onboarding = ({
                     onClick={() => {
                       switchToNextPage();
                     }}
-                    className="text-center text-[var(--ion-text-color)] rounded-2xl"
+                    className="text-center text-[var(--ion-text-color)] rounded-none"
                     disabled={isSigningIn}
                   >
                     Skip for now
@@ -401,7 +401,7 @@ const Onboarding = ({
                       swiperRef.current?.slideTo(9, 0);
                       // setIsSalahTimesOnboarding(false);
                     }}
-                    className="text-center text-[var(--ion-text-color)] mb- rounded-2xl opacity-70"
+                    className="text-center text-[var(--ion-text-color)] mb- rounded-none opacity-70"
                   >
                     No
                   </IonButton>
@@ -628,7 +628,7 @@ const Onboarding = ({
                     onClick={() => {
                       dismissOnboardingSlides();
                     }}
-                    className="mb-2 text-center rounded-2xl text-[var(--ion-text-color)]"
+                    className="mb-2 text-center rounded-none text-[var(--ion-text-color)]"
                   >
                     Skip for now
                   </IonButton>
@@ -682,7 +682,7 @@ const Onboarding = ({
                         // switchToNextPage();
                         dismissOnboardingSlides();
                       }}
-                      className="mb-2 text-center text-[var(--ion-text-color)] rounded-2xl"
+                      className="mb-2 text-center text-[var(--ion-text-color)] rounded-none"
                     >
                       Skip for now
                     </IonButton>
@@ -738,7 +738,7 @@ const Onboarding = ({
                     onClick={() => {
                       dismissOnboardingSlides();
                     }}
-                    className="text-[var(--ion-text-color)] mb-2text-center rounded-2xl"
+                    className="text-[var(--ion-text-color)] mb-2 text-center rounded-none"
                   >
                     Skip for now
                   </IonButton>

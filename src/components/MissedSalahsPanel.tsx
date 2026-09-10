@@ -125,7 +125,7 @@ const MissedSalahsPanel: React.FC<MissedSalahsPanelProps> = ({
           height: (style.height as number) - 12,
           top: (style.top as number) + 6,
         }}
-        className="bg-[var(--card-bg-color)] px-4 rounded-2xl"
+        className="bg-[var(--card-bg-color)] px-4 rounded-none"
       >
         <div className="flex items-center justify-between text-[var(--ion-text-color)] py-3 border-b border-[var(--app-border-color)]">
           <p>{salah === "Asar" ? "Asr" : salah}</p>
@@ -137,13 +137,13 @@ const MissedSalahsPanel: React.FC<MissedSalahsPanelProps> = ({
                   : salahStatusColorsHexCodes["missed"],
               transition: "background-color 250ms ease",
             }}
-            className="w-[1.3rem] h-[1.3rem] rounded-md"
+            className="w-[1.3rem] h-[1.3rem] rounded-none"
           />
         </div>
         <div className="flex items-center justify-between text-[var(--ion-text-color)] py-3">
           <p className="text-sm opacity-80">{createLocalisedDate(date)[1]}</p>
           <button
-            className="rounded-full bg-[var(--accent-color-muted)]"
+            className="rounded-none bg-[var(--accent-color-muted)]"
             onClick={async () => {
               setIsClickedItem(key);
               // Open DB connection before modifying just in case
@@ -200,7 +200,7 @@ const MissedSalahsPanel: React.FC<MissedSalahsPanelProps> = ({
         </IonSegment>
       </section>
 
-      <section className="mx-4 border border-[var(--app-border-color)] rounded-lg mb-4 shrink-0">
+      <section className="mx-4 border border-[var(--app-border-color)] rounded-none mb-4 shrink-0">
         <IonSelect
           className="w-full px-2 pl-2 text-sm sort-select"
           value={sortOrder}

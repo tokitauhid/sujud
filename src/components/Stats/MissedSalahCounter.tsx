@@ -65,13 +65,13 @@ const MissedSalahCounter = ({
           buttonNext: {
             backgroundColor: "#B5876E",
             color: "#fff",
-            borderRadius: "8px",
+            borderRadius: "0px",
             padding: "8px 12px",
           },
           buttonBack: {
             backgroundColor: "#C84646",
             color: "#fff",
-            borderRadius: "8px",
+            borderRadius: "0px",
             padding: "8px 12px",
           },
         }}
@@ -88,11 +88,11 @@ const MissedSalahCounter = ({
         style={{ position: "relative", display: "inline-block" }}
       >
         <div
-          className="missed-salah-counter numberCircle flex items-center justify-center min-w-[16px] h-[30px] aspect-square rounded-full border-[1.5px] border-[#c11414]"
+          className="missed-salah-counter flex items-center justify-center min-w-[20px] h-[24px] px-1 rounded-none border border-[#c11414] font-mono"
           style={{ borderColor: salahStatusColorsHexCodes["missed"] }}
         >
           {/* <p className="text-xs text-white">99</p> */}
-          <p className="text-xs" style={{ color: 'var(--ion-text-color)' }}>
+          <p className="text-xs font-semibold" style={{ color: 'var(--ion-text-color)' }}>
             {getMissedSalahCount(missedSalahList) < 100
               ? getMissedSalahCount(missedSalahList)
               : "99+"}

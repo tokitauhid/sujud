@@ -18,7 +18,7 @@ const BottomSheetAboutUs = ({ triggerId }: BottomSheetAboutUsProps) => {
       initialBreakpoint={INITIAL_MODAL_BREAKPOINT}
       breakpoints={MODAL_BREAKPOINTS}
     >
-      <div className="pb-6 mt-10 rounded-lg">
+      <div className="pb-6 mt-10 rounded-none">
         <div className="text-center">
           {/* <img
             className="block mx-auto mb-2"

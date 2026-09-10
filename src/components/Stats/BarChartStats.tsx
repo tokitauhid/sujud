@@ -118,7 +118,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
     }, [fetchedSalahData, statsToShow]);
 
   return (
-    <div className="w-full bg-[#121212] border border-[#242424] rounded-[4px] p-4 text-white font-mono">
+    <div className="w-full bg-[#121212] border border-[#242424] rounded-none p-4 text-white font-mono">
       {/* Header */}
       <div className="mb-4">
         <h2 className="text-xs font-bold tracking-wider uppercase text-white">
@@ -169,7 +169,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
                 {/* Vertical Bar */}
                 <div
                   style={{ height: `${Math.max(day.percentage, 2)}%` }}
-                  className="w-full max-w-[24px] bg-white rounded-t-[1px] transition-all duration-300 group-hover:bg-[#E4E4E7]"
+                  className="w-full max-w-[24px] bg-white rounded-none transition-all duration-300 group-hover:bg-[#E4E4E7]"
                 />
               </div>
             ))}
@@ -211,7 +211,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
         </div>
         <div className="flex justify-between py-2">
           <span className="text-[#8E8E93]">Active Streak:</span>
-          <span className="text-white font-bold tabular-nums">
+          <span className="text-[#CC9374] font-bold tabular-nums">
             {activeStreakCount} {activeStreakCount === 1 ? "day" : "days"}
           </span>
         </div>

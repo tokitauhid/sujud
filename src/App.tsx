@@ -5,7 +5,6 @@ import { App as capacitorApp } from "@capacitor/app";
 import {
   IonApp,
   IonIcon,
-  IonLabel,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
@@ -13,11 +12,19 @@ import {
 } from "@ionic/react";
 
 import {
+  add,
+  home,
   homeOutline,
+  settings,
   settingsOutline,
+  statsChart,
   statsChartOutline,
+  time,
   timeOutline,
 } from "ionicons/icons";
+
+import NavTabItem from "./components/Navigation/NavTabItem";
+import QuickLogModal from "./components/QuickLogModal";
 
 import { Redirect } from "react-router-dom";
 
@@ -144,6 +151,7 @@ const AppContent = () => {
     });
 
   const [isAppActive, setIsAppActive] = useState(true);
+  const [showQuickLogModal, setShowQuickLogModal] = useState(false);
 
   // -----------------------------------------------------------------------
   // Real-time cloud sync: replaces the old AutomaticSync component
@@ -965,6 +973,32 @@ const AppContent = () => {
     }
   };
 
+  const todayDateStr = format(new Date(), "yyyy-MM-dd");
+  const todaySalahRecord = fetchedSalahData.find((r) => r.date === todayDateStr);
+  const completedTodayPrayers = todaySalahRecord
+    ? [
+        todaySalahRecord.salahs.Fajr,
+        todaySalahRecord.salahs.Dhuhr,
+        todaySalahRecord.salahs.Asar || todaySalahRecord.salahs.Asr,
+        todaySalahRecord.salahs.Maghrib,
+        todaySalahRecord.salahs.Isha,
+      ].filter((s) => Boolean(s) && s !== "missed").length
+    : 0;
+
+  const trackerStatusDot = completedTodayPrayers === 5 ? "emerald" : undefined;
+  const statsStatusDot = activeStreakCount > 0 ? "bronze" : undefined;
+  const prayersStatusDot = nextSalahNameAndTime?.currentSalah
+    ? "emerald"
+    : nextSalahNameAndTime?.nextSalah
+    ? "amber"
+    : undefined;
+
+  const handleTabClick = () => {
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(8);
+    }
+  };
+
   return (
     <IonApp>
       <IonReactRouter>
@@ -1060,25 +1094,74 @@ const AppContent = () => {
           </IonRouterOutlet>
 
           <IonTabBar id="nav-bar" slot="bottom">
-            <IonTabButton tab="HomePage" href="/HomePage">
-              <IonIcon icon={homeOutline} />
-              <IonLabel>Home</IonLabel>
+            <IonTabButton tab="HomePage" href="/HomePage" onClick={handleTabClick}>
+              <NavTabItem
+                href="/HomePage"
+                label="TRACKER"
+                iconOutline={homeOutline}
+                iconFilled={home}
+                statusDot={trackerStatusDot}
+              />
             </IonTabButton>
-            <IonTabButton tab="StatsPage" href="/StatsPage">
-              <IonIcon icon={statsChartOutline} />
-              <IonLabel>Stats</IonLabel>
+
+            <IonTabButton tab="StatsPage" href="/StatsPage" onClick={handleTabClick}>
+              <NavTabItem
+                href="/StatsPage"
+                label="STATS"
+                iconOutline={statsChartOutline}
+                iconFilled={statsChart}
+                statusDot={statsStatusDot}
+              />
             </IonTabButton>
-            <IonTabButton tab="SalahTimesPage" href="/SalahTimesPage">
-              <IonIcon icon={timeOutline} />
-              <IonLabel>Salah Times</IonLabel>
+
+            {/* Feature 5: Center Quick-Log Action */}
+            <IonTabButton
+              tab="QuickLog"
+              onClick={(e) => {
+                e.preventDefault();
+                handleTabClick();
+                setShowQuickLogModal(true);
+              }}
+            >
+              <div className="flex flex-col items-center justify-center w-full h-full py-1 font-mono">
+                <div className="w-8 h-7 rounded-none border border-[#2A2A2A] bg-[#181818] hover:bg-[#202020] flex items-center justify-center text-white transition-all">
+                  <IonIcon icon={add} className="text-base text-white" />
+                </div>
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-[#A1A1AA] mt-0.5">
+                  LOG
+                </span>
+              </div>
             </IonTabButton>
-            <IonTabButton tab="SettingsPage" href="/SettingsPage">
-              <IonIcon icon={settingsOutline} />
-              <IonLabel>Settings</IonLabel>
+
+            <IonTabButton tab="SalahTimesPage" href="/SalahTimesPage" onClick={handleTabClick}>
+              <NavTabItem
+                href="/SalahTimesPage"
+                label="PRAYERS"
+                iconOutline={timeOutline}
+                iconFilled={time}
+                statusDot={prayersStatusDot}
+              />
+            </IonTabButton>
+
+            <IonTabButton tab="SettingsPage" href="/SettingsPage" onClick={handleTabClick}>
+              <NavTabItem
+                href="/SettingsPage"
+                label="CONFIG"
+                iconOutline={settingsOutline}
+                iconFilled={settings}
+              />
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
         <TabletSideNav />
+        <QuickLogModal
+          isOpen={showQuickLogModal}
+          onClose={() => setShowQuickLogModal(false)}
+          dbConnection={dbConnection}
+          nextSalahNameAndTime={nextSalahNameAndTime}
+          setFetchedSalahData={setFetchedSalahData}
+          userPreferences={userPreferences}
+        />
         <Route exact path="/" render={() => <Redirect to="/HomePage" />} />
       </IonReactRouter>
       {/* {onboardingMode && ( */}

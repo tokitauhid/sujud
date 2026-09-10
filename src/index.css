@@ -8,6 +8,66 @@
   }
 }
 
+/* ==========================================================================
+   STRICT ZERO-ROUNDNESS RULE: 100% Flat Rectangular Wireframe System
+   ========================================================================== */
+*, *::before, *::after {
+  border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+  -moz-border-radius: 0 !important;
+}
+
+ion-modal,
+ion-modal::part(content),
+ion-modal::part(handle),
+ion-card,
+ion-button,
+ion-button::part(native),
+ion-toggle,
+ion-toggle::part(track),
+ion-toggle::part(handle),
+ion-tab-bar,
+ion-tab-button,
+ion-segment,
+ion-segment-button,
+ion-segment-button::part(indicator),
+ion-content,
+ion-toolbar,
+ion-header,
+ion-footer,
+ion-item,
+ion-list,
+ion-action-sheet,
+ion-action-sheet::part(button),
+ion-alert,
+ion-toast,
+ion-badge,
+ion-chip,
+ion-checkbox,
+ion-checkbox::part(container),
+ion-checkbox::part(mark),
+ion-datetime,
+ion-picker,
+ion-select,
+ion-radio,
+ion-radio::part(container),
+ion-radio::part(mark),
+ion-searchbar,
+ion-input,
+ion-textarea,
+dialog {
+  --border-radius: 0 !important;
+  --handle-border-radius: 0 !important;
+  --track-border-radius: 0 !important;
+  --checkbox-border-radius: 0 !important;
+  --indicator-border-radius: 0 !important;
+  --highlight-border-radius: 0 !important;
+  --ripple-border-radius: 0 !important;
+  --knob-border-radius: 0 !important;
+  --border-radius-inner: 0 !important;
+  border-radius: 0 !important;
+}
+
 :root {
   --max-width: 700px;
 
@@ -131,14 +191,13 @@ body:-webkit-scrollbar {
 }
 
 .scrollable-container::-webkit-scrollbar-track {
-  /* background: #f1f1f1; */
   background: var(--scrollbar-track);
-  border-radius: 5px;
+  border-radius: 0 !important;
 }
 
 .scrollable-container::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-  border-radius: 5px;
+  border-radius: 0 !important;
 }
 
 /* .scrollable-container::-webkit-scrollbar-thumb:hover {
@@ -182,7 +241,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   background-color: var(--sheet-option-bg);
   border-width: 1px;
   border-style: solid;
-  border-radius: 0.5rem;
+  border-radius: 0 !important;
 }
 
 ion-title {
@@ -195,7 +254,7 @@ ion-toolbar p {
 
 ion-segment {
   --background: var(--segment-bg-color);
-  border-radius: 12px;
+  border-radius: 0 !important;
 }
 
 ion-segment-button {
@@ -210,7 +269,7 @@ ion-segment-button {
 ion-modal {
   --background: var(--card-bg-color) !important;
   color: var(--text-color);
-  --border-radius: 20px;
+  --border-radius: 0 !important;
 }
 
 ion-modal::part(handle) {
@@ -288,19 +347,22 @@ ion-tab-bar {
   box-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  height: 52px;
+  height: calc(54px + max(env(safe-area-inset-bottom, 0px), 6px));
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 6px);
 }
 
 ion-tab-button {
   --background: #121212;
   --color: #71717A;
   --color-selected: #FFFFFF;
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
+  --padding-top: 2px;
+  --padding-bottom: 2px;
+  position: relative;
+  overflow: visible;
 }
 
-ion-tab-button ion-icon {
-  font-size: 1.25rem;
+ion-tab-button::part(native) {
+  padding: 0;
 }
 
 ion-button::part(native) {
@@ -417,12 +479,6 @@ ion-select.sort-select::part(inner) {
   height: calc(100% - 2rem) !important;
 }
 
-.checkbox-wrap {
-  position: absolute;
-  width: 100%;
-  left: 50%;
-  transform: translate(-50%, 50%);
-}
 
 textarea {
   resize: none !important;
@@ -438,7 +494,7 @@ td {
 
 .swiper {
   width: 100%;
-  border-radius: 1rem;
+  border-radius: 0 !important;
 }
 
 .swiper .swiper-slide {
@@ -448,8 +504,9 @@ td {
 .swiper-pagination-bullet {
   background-color: rgb(138, 138, 138);
   opacity: 0.7;
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 0 !important;
   margin: 0 5px;
   transition:
     background-color 0.3s ease,
@@ -555,7 +612,7 @@ td {
   content: "";
   display: inline-block;
   margin-right: 0.3rem;
-  border-radius: 0.15rem;
+  border-radius: 0 !important;
   width: 10px;
   height: 10px;
 }
@@ -602,7 +659,7 @@ td {
   border: 1px solid #333333;
   outline: 0;
   flex-grow: 0;
-  border-radius: 3px;
+  border-radius: 0 !important;
   transition: all 120ms ease-out;
   cursor: pointer;
   display: inline-flex;
@@ -615,7 +672,7 @@ td {
   display: block;
   width: inherit;
   height: inherit;
-  border-radius: inherit;
+  border-radius: 0 !important;
   border: 0;
   background-color: transparent;
 }
@@ -659,8 +716,8 @@ td {
   .onboarding-modal {
     --width: 500px;
     --height: 85vh;
-    --border-radius: 16px;
-    --box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    --border-radius: 0 !important;
+    --box-shadow: none !important;
   }
 
   .onboarding-content-wrap {
@@ -684,8 +741,8 @@ td {
     top: 0;
     bottom: 0;
     width: 72px;
-    background: var(--primary-color);
-    border-right: 1px solid var(--app-border-color);
+    background: #121212;
+    border-right: 1px solid #242424;
     z-index: 1000;
     padding-top: env(safe-area-inset-top, 20px);
   }
@@ -694,43 +751,59 @@ td {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
     padding-top: 1.5rem;
     width: 100%;
   }
 
   .tablet-side-nav-btn {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.15rem;
-    width: 56px;
-    padding: 0.55rem 0;
-    border: none;
+    gap: 0.2rem;
+    width: 58px;
+    padding: 0.6rem 0;
+    border: 1px solid transparent;
     background: transparent;
-    color: var(--nav-tab-color);
+    color: #71717A;
     cursor: pointer;
-    border-radius: 14px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    border-radius: 0 !important;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     -webkit-tap-highlight-color: transparent;
+    font-family: monospace;
   }
 
   .tablet-side-nav-btn:hover {
-    background: var(--accent-color-muted);
+    background: #181818;
+    color: #FFFFFF;
   }
 
   .tablet-side-nav-btn.active {
-    color: var(--nav-active-tab-color);
-    background: var(--accent-color-muted);
+    color: #FFFFFF;
+    background: #161616;
+    border-color: #2A2A2A;
+  }
+
+  .tablet-side-nav-active-bar {
+    position: absolute;
+    left: -7px;
+    top: 6px;
+    bottom: 6px;
+    width: 2.5px;
+    background: #10B981;
+    border-radius: 0 !important;
   }
 
   .tablet-side-nav-icon {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
 
   .tablet-side-nav-label {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     line-height: 1;
     white-space: nowrap;
   }
@@ -882,4 +955,62 @@ td {
     gap: 3rem;
   }
 }
+
+/* ==========================================================================
+   FINAL OVERRIDE: Absolute Zero Border Radius Everywhere
+   ========================================================================== */
+*,
+*::before,
+*::after,
+[class*="rounded"],
+[style*="border-radius"],
+button,
+input,
+textarea,
+select,
+img,
+svg,
+svg path,
+svg rect,
+svg circle,
+ion-modal,
+ion-card,
+ion-button,
+ion-toggle,
+ion-tab-bar,
+ion-tab-button,
+ion-segment,
+ion-segment-button,
+ion-content,
+ion-toolbar,
+ion-header,
+ion-footer,
+ion-item,
+ion-list,
+ion-action-sheet,
+ion-alert,
+ion-toast,
+ion-badge,
+ion-chip,
+ion-checkbox,
+ion-datetime,
+ion-picker,
+ion-select,
+ion-radio,
+ion-searchbar,
+dialog {
+  border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+  -moz-border-radius: 0 !important;
+  --border-radius: 0 !important;
+  --handle-border-radius: 0 !important;
+  --track-border-radius: 0 !important;
+  --checkbox-border-radius: 0 !important;
+  --indicator-border-radius: 0 !important;
+  --highlight-border-radius: 0 !important;
+  --ripple-border-radius: 0 !important;
+  --knob-border-radius: 0 !important;
+  --border-radius-inner: 0 !important;
+}
+
 

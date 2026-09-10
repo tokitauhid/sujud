@@ -37,13 +37,13 @@ const ReasonsList = ({
               </section>
             </section>
             <section className="relative">
-              <p className="h-2 bg-[var(--reasons-bar-bg)] rounded-md"></p>
+              <p className="h-2 bg-[var(--reasons-bar-bg)] rounded-none"></p>
               <p
                 style={{
                   width: Math.round((value / reasonsSum) * 100) + "%",
                   backgroundColor: salahStatusColorsHexCodes[status],
                 }}
-                className="absolute top-0 left-0 h-2 rounded-md"
+                className="absolute top-0 left-0 h-2 rounded-none"
               ></p>
               <p className="pt-2 pb-4 text-sm text-end">
                 {value} {value > 1 ? "times" : "time"}

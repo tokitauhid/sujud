@@ -142,7 +142,7 @@ const BottomSheetShafaqRules = ({
               setUserPreferences,
             );
           }}
-          className={`p-2 mb-5 border rounded-lg flex bg-[var(--sheet-option-bg)] ${
+          className={`p-2 mb-5 border rounded-none flex bg-[var(--sheet-option-bg)] ${
             userPreferences.shafaqRule === "abyad"
               ? "border-bronze-500"
               : "border-transparent"

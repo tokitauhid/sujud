@@ -283,13 +283,6 @@ const StatsPage = ({
           className={`stats-page-wrap`}
         >
           <section className="stats-page-components-wrap">
-            <div className="mb-4">
-              <BarChartStats
-                fetchedSalahData={fetchedSalahData}
-                activeStreakCount={activeStreakCount}
-                statsToShow={statsToShow}
-              />
-            </div>
             <StreakCounter
               streakDatesObjectsArr={streakDatesObjectsArr}
               activeStreakCount={activeStreakCount}
@@ -324,6 +317,13 @@ const StatsPage = ({
                   statsToShow={statsToShow}
                 />
                 </div>{" "}
+                <div className="mt-5">
+                  <BarChartStats
+                    fetchedSalahData={fetchedSalahData}
+                    activeStreakCount={activeStreakCount}
+                    statsToShow={statsToShow}
+                  />
+                </div>
                 <Swiper
                   className="mt-5"
                   spaceBetween={50}

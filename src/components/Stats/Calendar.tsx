@@ -150,7 +150,7 @@ const Calendar = ({
       <section
         // transition={{ layout: { duration: 0.5, ease: "easeInOut" } }}
         style={{ height: "auto" }}
-        className={`bg-[#121212] border border-[#242424] mt-4 pb-5 calendar-single-month-wrap whitespace-nowrap rounded-[4px]`}
+        className={`bg-[#121212] border border-[#242424] mt-4 pb-5 calendar-single-month-wrap whitespace-nowrap rounded-none`}
       >
         <div
           ref={calenderSingleMonthHeightRef}
@@ -160,7 +160,7 @@ const Calendar = ({
             <p className="font-semibold text-center font-mono text-white text-sm">
               {formattedMonths[currentMonth]}
             </p>
-            <div className="bg-[#181818] border border-[#242424] rounded-[3px] flex items-center">
+            <div className="bg-[#181818] border border-[#242424] rounded-none flex items-center">
               <button
                 type="button"
                 aria-label="Previous year"
@@ -279,7 +279,7 @@ const Calendar = ({
                         d="M 86.1150408904588 8.928403485284022 A 67 67 0 0 1 134.40308587902058 44.011721763710284"
                         style={{
                           strokeWidth: "11px",
-                          strokeLinecap: "round",
+                          strokeLinecap: "butt",
                         }}
                         fill="none"
                         stroke={dhuhrColor}
@@ -288,7 +288,7 @@ const Calendar = ({
                         d="M 141.272558935669 65.15378589922615 A 67 67 0 0 1 122.82816700032245 121.91978731185029"
                         style={{
                           strokeWidth: "11px",
-                          strokeLinecap: "round",
+                          strokeLinecap: "butt",
                         }}
                         fill="none"
                         stroke={asarColor}
@@ -297,7 +297,7 @@ const Calendar = ({
                         d="M 104.84365305321519 134.98630153992926 A 67 67 0 0 1 45.15634694678482 134.98630153992926"
                         style={{
                           strokeWidth: "11px",
-                          strokeLinecap: "round",
+                          strokeLinecap: "butt",
                         }}
                         fill="none"
                         stroke={maghribColor}
@@ -306,7 +306,7 @@ const Calendar = ({
                         d="M 27.171832999677548 121.91978731185029 A 67 67 0 0 1 8.72744106433099 65.15378589922618"
                         style={{
                           strokeWidth: "11px",
-                          strokeLinecap: "round",
+                          strokeLinecap: "butt",
                         }}
                         fill="none"
                         stroke={ishaColor}
@@ -315,7 +315,7 @@ const Calendar = ({
                         d="M 15.596914120979442 44.01172176371027 A 67 67 0 0 1 63.884959109541164 8.928403485284022"
                         style={{
                           strokeWidth: "11px",
-                          strokeLinecap: "round",
+                          strokeLinecap: "butt",
                         }}
                         fill="none"
                         stroke={fajrColor}
@@ -335,7 +335,7 @@ const Calendar = ({
                         fill="none"
                         stroke={individualRadialColor}
                         strokeWidth="11px"
-                        strokeLinecap="round"
+                        strokeLinecap="butt"
                       />
                     </svg>
                   )}

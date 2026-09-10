@@ -82,7 +82,7 @@ const BottomSheetStartDate = ({
         <section className="text-center">
           <p className="mb-2">Select New Start Date</p>
           <input
-            className="text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] rounded-[0.3rem] border-none [color-scheme:dark] p-[0.3rem]"
+            className="text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] rounded-none border-none [color-scheme:dark] p-[0.3rem]"
             placeholder="&#x1F5D3;"
             onKeyDown={(e) => {
               e.preventDefault();
@@ -100,10 +100,15 @@ const BottomSheetStartDate = ({
         </section>
       </div>
       <button
-        className={`text-base border-none rounded-2xl text-white font-medium w-[90%] p-3 mx-auto mb-[7%] ${
-          selectedStartDate ? "opacity-100" : "opacity-20"
+        className={`text-base border-none rounded-none font-bold w-[90%] p-3 mx-auto mb-[7%] transition-all ${
+          selectedStartDate ? "text-black opacity-100" : "text-white opacity-20"
         }`}
-        style={{ background: 'linear-gradient(135deg, var(--accent-color), var(--accent-color-hover))' }}
+        style={{
+          background: selectedStartDate
+            ? "#FFFFFF"
+            : "var(--sheet-option-bg)",
+          color: selectedStartDate ? "#000000" : "#FFFFFF",
+        }}
         onClick={async () => {
           if (selectedStartDate) {
             const todaysDate = startOfDay(new Date());

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import SalahTable from "../components/SalahTable/SalahTable";
 import MissedSalahCounter from "../components/Stats/MissedSalahCounter";
 import { Dialog } from "@capacitor/dialog";
+import { Flame } from "lucide-react";
+import { TbEdit } from "react-icons/tb";
 
 import {
   SalahRecordsArrayType,
@@ -110,13 +112,53 @@ const HomePage = ({
 
               <button
                 onClick={showStreakInfoHomePage}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-[3px] border border-[#2A2A2A] bg-[#161616] active:bg-[#222222] transition-colors"
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all ${
+                  activeStreakCount > 0
+                    ? "border-[#B5876E]/60 bg-[#1A1410] hover:border-[#CC9374] shadow-[0_0_12px_rgba(181,135,110,0.15)]"
+                    : "border-[#2A2A2A] bg-[#161616] hover:border-[#3F3F46]"
+                }`}
                 aria-label="View streak info"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
-                <span className="text-[11px] font-mono font-medium text-white tracking-wider tabular-nums">
-                  {activeStreakCount} {activeStreakCount === 1 ? "DAY" : "DAYS"}
-                </span>
+                <Flame
+                  className={`w-3.5 h-3.5 shrink-0 ${
+                    activeStreakCount > 0
+                      ? "text-[#CC9374] fill-[#B5876E]/30"
+                      : "text-[#725A4C]"
+                  }`}
+                />
+                <div className="flex items-baseline gap-1 font-mono">
+                  <span className="text-xs font-bold text-white tabular-nums">
+                    {activeStreakCount}
+                  </span>
+                  <span
+                    className={`text-[9px] font-semibold tracking-wider uppercase ${
+                      activeStreakCount > 0 ? "text-[#CC9374]" : "text-[#71717A]"
+                    }`}
+                  >
+                    {activeStreakCount === 1 ? "DAY" : "DAYS"}
+                  </span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  if (isMultiEditMode) {
+                    setIsMultiEditMode(false);
+                    setSelectedSalahAndDate({});
+                  } else {
+                    setIsMultiEditMode(true);
+                  }
+                }}
+                className={`flex items-center gap-1 px-2 py-1 rounded-none border text-[10px] font-mono tracking-wider uppercase transition-colors ${
+                  isMultiEditMode
+                    ? "bg-white text-black border-white font-bold"
+                    : "border-[#2A2A2A] bg-[#161616] text-[#8E8E93] hover:text-white hover:border-[#3F3F46]"
+                }`}
+                title={isMultiEditMode ? "Exit multi-select mode" : "Enter multi-select mode"}
+                aria-label={isMultiEditMode ? "Exit multi-select mode" : "Enter multi-select mode"}
+              >
+                <TbEdit className="w-3 h-3 shrink-0" />
+                <span>{isMultiEditMode ? "DONE" : "SELECT"}</span>
               </button>
             </div>
           </div>
@@ -165,7 +207,7 @@ const HomePage = ({
                 </div>
               )}
               {Object.keys(missedSalahList).length > 0 && (
-                <div className="flex-1 min-h-0 flex flex-col bg-[var(--card-bg-color)] border border-[var(--app-border-color)] rounded-2xl overflow-hidden">
+                <div className="flex-1 min-h-0 flex flex-col bg-[var(--card-bg-color)] border border-[var(--app-border-color)] rounded-none overflow-hidden">
                   <MissedSalahsPanel 
                     dbConnection={dbConnection}
                     setFetchedSalahData={setFetchedSalahData}

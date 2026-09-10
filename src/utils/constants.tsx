@@ -90,10 +90,10 @@ export const calculationMethods = [
 ] as const;
 
 export const reasonsStyles =
-  "p-2 m-1 text-xs bg-[var(--reasons-bg-color-status-sheet)] rounded-xl";
+  "p-2 m-1 text-xs bg-[var(--reasons-bg-color-status-sheet)] rounded-none border border-[#242424]";
 
 export const salahStatusColorsHexCodes = {
-  group: "#10B981",
+  group: "#B5876E",
   "male-alone": "#10B981",
   "female-alone": "#10B981",
   excused: "#71717A",

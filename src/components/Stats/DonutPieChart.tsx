@@ -23,7 +23,7 @@ const DonutPieChart = ({
   );
 
   return (
-    <div className="mt-4 flex w-[100%] justify-around items-center donut-pie-chart-wrapper bg-[#121212] border border-[#242424] rounded-[4px] py-3">
+    <div className="mt-4 flex w-[100%] justify-around items-center donut-pie-chart-wrapper bg-[#121212] border border-[#242424] rounded-none py-3">
       <section
         className="w-1/2 my-2"
         onClick={() => {
@@ -32,7 +32,7 @@ const DonutPieChart = ({
       >
         <PieChart
           // animate={true}
-          rounded={true}
+          rounded={false}
           lineWidth={30}
           label={({ dataEntry }) => {
             if (dataEntry.value === 0) return;

@@ -93,7 +93,7 @@ BottomSheetStartDateProps) => {
             <section className="flex">
               <input
                 aria-label="reason"
-                className="p-1 rounded-lg text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] border border-[var(--app-border-color)]"
+                className="p-1 rounded-none text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] border border-[var(--app-border-color)]"
                 onChange={(e) => {
                   if (e.target.value.length > CHAR_LIMIT) return;
                   setNewReasonInput(e.target.value);
@@ -106,7 +106,11 @@ BottomSheetStartDateProps) => {
               ></input>
               <button
                 aria-label="Add reason"
-                className="px-2 ml-2 text-white rounded-lg font-medium" style={{ background: 'linear-gradient(135deg, var(--accent-color), var(--accent-color-hover))' }}
+                className="px-3 ml-2 text-black rounded-none font-bold transition-all"
+                style={{
+                  background: "#FFFFFF",
+                  color: "#000000",
+                }}
                 onClick={async () => {
                   if (newReasonInput.length === 0) return;
                   if (
@@ -180,7 +184,7 @@ BottomSheetStartDateProps) => {
               .sort((a, b) => a.localeCompare(b))
               .map((reason) => (
                 <motion.li
-                  className={`flex justify-between items-center bg-[var(--card-bg-color)] border border-[var(--app-border-color)] px-2 py-4 my-3 rounded-xl`}
+                  className={`flex justify-between items-center bg-[var(--card-bg-color)] border border-[var(--app-border-color)] px-2 py-4 my-3 rounded-none`}
                   layout
                   initial={{ x: 0 }}
                   animate={{ x: 0 }}

@@ -283,7 +283,7 @@ const SettingsPage = ({
               <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
                 NOTIFICATIONS
               </div>
-              <div className="border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+              <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
                 <div
                   className="flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer"
                   id="open-notification-options-sheet"
@@ -314,7 +314,7 @@ const SettingsPage = ({
               <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
                 PREFERENCES & DISPLAY
               </div>
-              <div className="border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+              <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
                 <SettingIndividual
                   id="open-theme-options-sheet"
                   headingText="Theme"
@@ -410,7 +410,7 @@ const SettingsPage = ({
               <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
                 DATA & BACKUP
               </div>
-              <div className="border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+              <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
                 <SettingIndividual
                   headingText="Import Data"
                   subText="Restore SQLite database from JSON backup file"
@@ -431,7 +431,7 @@ const SettingsPage = ({
               <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
                 ABOUT & SYSTEM
               </div>
-              <div className="border border-[#242424] rounded-[4px] bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+              <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
                 <SettingIndividual
                   headingText="Source Code"
                   subText="github.com/tokitauhid/sujud"
@@ -463,7 +463,7 @@ const SettingsPage = ({
               name="backupfile"
             />
             <dialog
-              className="fixed z-50 p-4 text-white transform -translate-x-1/2 rounded-[4px] border border-[#242424] -translate-y-3/4 bg-[#121212] font-mono text-xs top-3/4 left-1/2"
+              className="fixed z-50 p-4 text-white transform -translate-x-1/2 rounded-none border border-[#242424] -translate-y-3/4 bg-[#121212] font-mono text-xs top-3/4 left-1/2"
               ref={diaglogElement}
             >
               {dialogElementText}

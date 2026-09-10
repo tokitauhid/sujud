@@ -270,7 +270,7 @@ const BottomSheetBatchUpdate = ({
               </div> */}
 
               <IonInput
-                className="text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] rounded-[0.3rem] border-none [color-scheme:dark] p-[0.3rem]"
+                className="text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] rounded-none border-none [color-scheme:dark] p-[0.3rem]"
                 placeholder="&#x1F5D3;"
                 onKeyDown={(e) => {
                   e.preventDefault();
@@ -291,7 +291,7 @@ const BottomSheetBatchUpdate = ({
             <div className="text-center">
               <p className="mt-5">To</p>
               <IonInput
-                className="text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] rounded-[0.3rem] border-none [color-scheme:dark] p-[0.3rem]"
+                className="text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)] rounded-none border-none [color-scheme:dark] p-[0.3rem]"
                 placeholder="&#x1F5D3;"
                 onKeyDown={(e) => {
                   e.preventDefault();
@@ -312,7 +312,7 @@ const BottomSheetBatchUpdate = ({
             </div>
           </div>
           <section className="mx-4 text-center">
-            <div className="my-5 border rounded-lg border-[var(--app-border-color)] py-2 text-center">
+            <div className="my-5 border rounded-none border-[var(--app-border-color)] py-2 text-center">
               <p className="mb-2">Which Salahs?</p>
               <div className="px-1">
                 {salahNamesArr.map((salahName) => (
@@ -340,7 +340,7 @@ const BottomSheetBatchUpdate = ({
               </div>
             </div>
             <section>
-              <div className="my-5 border rounded-lg border-[var(--app-border-color)] py-2 text-center">
+              <div className="my-5 border rounded-none border-[var(--app-border-color)] py-2 text-center">
                 <p className="mb-2">Status</p>
                 <div className="">
                   {statusArr.map((status) => (
@@ -377,7 +377,7 @@ const BottomSheetBatchUpdate = ({
             batchUpdateObj.status !== "excused" &&
             batchUpdateObj.status !== "female-alone" &&
             batchUpdateObj.status !== "" && (
-              <section className="border rounded-lg border-[var(--app-border-color)] mx-4 py-2 text-center">
+              <section className="border rounded-none border-[var(--app-border-color)] mx-4 py-2 text-center">
                 <p className="w-full mb-5 text-center">Reasons</p>
                 <div className="flex flex-wrap justify-around">
                   {reasonsList.map((reason) => (
@@ -410,7 +410,7 @@ const BottomSheetBatchUpdate = ({
               aria-label="notes"
               autoGrow={true}
               rows={1}
-              className="pl-2 rounded-lg text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)]"
+              className="pl-2 rounded-none text-[var(--ion-text-color)] bg-[var(--textarea-bg-color)]"
               placeholder="Notes"
               value={batchUpdateObj.notes}
               onIonInput={(e) => {

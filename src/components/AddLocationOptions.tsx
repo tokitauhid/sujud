@@ -231,14 +231,14 @@ const AddLocationOptions = ({
             animate={{ x: "-50%", opacity: 1 }}
             exit={onboardingMode ? "" : { x: "50%", opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="absolute top-[15%] left-1/2 w-4/5 max-w-[300px] z-10 rounded-lg
+            className="absolute top-[15%] left-1/2 w-4/5 max-w-[300px] z-10 rounded-none
              flex flex-col items-center justify-center -translate-y-[15%] bg-[var(--card-bg-color)]"
           >
             <div className="pt-3 text-center">
               {mode === "gps" && <p className="text-xs">Name this location</p>}
               <div className="flex items-center">
                 <IonInput
-                  className="w-full min-w-0 px-2 py-2 rounded-lg"
+                  className="w-full min-w-0 px-2 py-2 rounded-none"
                   aria-label="Location name"
                   type="text"
                   // disabled={isCityNameClicked ? true : false}
@@ -324,7 +324,7 @@ const AddLocationOptions = ({
               {mode === "manualCoords" && (
                 <>
                   <IonInput
-                    className="w-full min-w-0 px-2 py-2 mt-2 rounded-lg"
+                    className="w-full min-w-0 px-2 py-2 mt-2 rounded-none"
                     aria-label="Latitude"
                     type="text"
                     placeholder="Latitude"
@@ -344,7 +344,7 @@ const AddLocationOptions = ({
                     {"Please enter latitude"}
                   </p>
                   <IonInput
-                    className="w-full min-w-0 px-2 py-2 mt-2 rounded-lg"
+                    className="w-full min-w-0 px-2 py-2 mt-2 rounded-none"
                     aria-label="Longitude"
                     type="text"
                     placeholder="Longitude"
@@ -547,7 +547,7 @@ const AddLocationOptions = ({
         </div>
         <section className="mx-4">
           <div
-            className=" text-center border-transparent p-2 mb-5 rounded-lg bg-[var(--sheet-option-bg)]"
+            className=" text-center border-transparent p-2 mb-5 rounded-none bg-[var(--sheet-option-bg)]"
             onClick={async () => {
               setMode("gps");
               // presentLocationSpinner({
@@ -576,7 +576,7 @@ const AddLocationOptions = ({
           </div>
 
           <div
-            className=" text-center border-transparent p-2 mb-5 rounded-lg  bg-[var(--sheet-option-bg)]"
+            className=" text-center border-transparent p-2 mb-5 rounded-none bg-[var(--sheet-option-bg)]"
             onClick={() => {
               setMode("manualCoords");
               setShowAddLocationForm(true);
@@ -595,7 +595,7 @@ const AddLocationOptions = ({
             </div>
           </div>
           <div
-            className="text-center border-transparent p-2 mb-5 rounded-lg bg-[var(--sheet-option-bg)]"
+            className="text-center border-transparent p-2 mb-5 rounded-none bg-[var(--sheet-option-bg)]"
             onClick={() => {
               setShowAddLocationForm(true);
               setMode("manualCitySearch");

@@ -14,29 +14,35 @@ import {
 const tabs = [
   {
     path: "/HomePage",
-    label: "Home",
+    label: "TRACKER",
     iconOutline: homeOutline,
     iconFilled: home,
   },
   {
     path: "/StatsPage",
-    label: "Stats",
+    label: "STATS",
     iconOutline: statsChartOutline,
     iconFilled: statsChart,
   },
   {
     path: "/SalahTimesPage",
-    label: "Salah Times",
+    label: "PRAYERS",
     iconOutline: timeOutline,
     iconFilled: time,
   },
   {
     path: "/SettingsPage",
-    label: "Settings",
+    label: "CONFIG",
     iconOutline: settingsOutline,
     iconFilled: settings,
   },
 ];
+
+const triggerHaptic = () => {
+  if (typeof navigator !== "undefined" && navigator.vibrate) {
+    navigator.vibrate(10);
+  }
+};
 
 const TabletSideNav = () => {
   const location = useLocation();
@@ -46,14 +52,22 @@ const TabletSideNav = () => {
     <nav className="tablet-side-nav">
       <div className="tablet-side-nav-inner">
         {tabs.map((tab) => {
-          const isActive = location.pathname === tab.path;
+          const isActive =
+            location.pathname === tab.path ||
+            (tab.path === "/HomePage" && location.pathname === "/");
           return (
             <button
               key={tab.path}
               className={`tablet-side-nav-btn ${isActive ? "active" : ""}`}
-              onClick={() => history.push(tab.path)}
+              onClick={() => {
+                triggerHaptic();
+                history.push(tab.path);
+              }}
               aria-label={tab.label}
             >
+              {isActive && (
+                <div className="tablet-side-nav-active-bar" />
+              )}
               <IonIcon
                 icon={isActive ? tab.iconFilled : tab.iconOutline}
                 className="tablet-side-nav-icon"
@@ -68,3 +82,4 @@ const TabletSideNav = () => {
 };
 
 export default TabletSideNav;
+
