@@ -20,7 +20,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/pages/ResourcesPage.tsx"],
-   "exclude": ["**/*.test.*", "**/*.spec.*"],
+  "include": ["src"],
+  "exclude": ["**/*.test.*", "**/*.spec.*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
+

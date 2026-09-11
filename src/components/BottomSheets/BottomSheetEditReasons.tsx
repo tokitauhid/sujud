@@ -14,7 +14,6 @@ import {
   IonHeader,
   IonModal,
   IonToolbar,
-  isPlatform,
 } from "@ionic/react";
 import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { Capacitor } from "@capacitor/core";
@@ -67,11 +66,7 @@ BottomSheetStartDateProps) => {
   return (
     <IonModal
       mode="ios"
-      className={`${isPlatform("ios") ? "" : "modal-height"}`}
-      // presentingElement={presentingElement!}
-      // style={{ "--height": "95vh" }}
-      // expandToScroll={false}
-      // className="modal-fit-content"
+      className="modal-height"
       onWillDismiss={() => {
         setNewReasonInput("");
       }}

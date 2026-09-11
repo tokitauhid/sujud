@@ -8,7 +8,6 @@ import {
   IonFab,
   IonFabButton,
   IonIcon,
-  isPlatform,
 } from "@ionic/react";
 
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
@@ -170,7 +169,7 @@ const BottomSheetLocationsList = ({
     <IonModal
       isOpen={showLocationsListSheet}
       mode="ios"
-      className={`${isPlatform("ios") ? "" : "modal-height"}`}
+      className="modal-height"
       onDidDismiss={() => {
         setShowLocationsListSheet(false);
       }}

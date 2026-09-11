@@ -47,7 +47,7 @@ const MissedSalahsPanel: React.FC<MissedSalahsPanelProps> = ({
       ),
     );
 
-    for (let date in sortedArr) {
+    for (const date in sortedArr) {
       sortedArr[date].forEach((item) => {
         if (
           salahToShow === "All" ||
@@ -92,7 +92,7 @@ const MissedSalahsPanel: React.FC<MissedSalahsPanelProps> = ({
         const copy = [...prev];
         for (let i = 0; i < prev.length; i++) {
           if (copy[i].date === date) {
-            for (let salah in copy[i].salahs) {
+            for (const salah in copy[i].salahs) {
               if (salah === salahName) {
                 copy[i].salahs[salah] = "late";
               }

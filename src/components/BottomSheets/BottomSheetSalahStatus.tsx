@@ -8,7 +8,6 @@ import { PiFlower } from "react-icons/pi";
 import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { InAppReview } from "@capacitor-community/in-app-review";
-import { Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import {
   SalahNamesType,
   SalahRecordsArrayType,
@@ -67,7 +66,6 @@ const BottomSheetSalahStatus = ({
   setShowUpdateStatusModal,
   generateStreaks,
 }: SalahStatusBottomSheetProps) => {
-  const sheetRef = useRef<HTMLDivElement>(null);
   const modalSheetSalahReasonsWrap = useRef<HTMLDivElement>(null);
   const modalSheetHiddenSalahReasonsWrap = useRef<HTMLDivElement>(null);
   const [salahStatus, setSalahStatus] = useState<SalahStatusType>("");
@@ -86,22 +84,6 @@ const BottomSheetSalahStatus = ({
     : [];
 
   const sheetWrapper = useRef<HTMLDivElement | null>(null);
-
-  if (Capacitor.getPlatform() === "ios") {
-    window.addEventListener("keyboardWillShow", (e) => {
-      const app: HTMLElement | null = document.querySelector("ion-app");
-      if (app) {
-        app.style.marginBottom = (e as any).keyboardHeight + "px";
-      }
-    });
-    window.addEventListener("keyboardWillHide", () => {
-      const app: HTMLElement | null = document.querySelector("ion-app");
-
-      if (app) {
-        app.style.marginBottom = "0px";
-      }
-    });
-  }
 
   const onSheetCloseCleanup = async () => {
     setShowUpdateStatusModal(false);
@@ -170,7 +152,7 @@ const BottomSheetSalahStatus = ({
           ? selectedReasons.join(", ")
           : "";
 
-      for (let [date, salahArr] of Object.entries(selectedSalahAndDate)) {
+      for (const [date, salahArr] of Object.entries(selectedSalahAndDate)) {
         if (!isValidDate(date)) {
           console.error(
             `Date is not valid: ${date},  skipping this iteration...`,
@@ -287,33 +269,6 @@ const BottomSheetSalahStatus = ({
       await toggleDBConnection(dbConnection, "close");
     }
   };
-
-  if (Capacitor.getPlatform() === "ios") {
-    Keyboard.setResizeMode({
-      mode: KeyboardResize.None,
-    });
-
-    window.addEventListener("keyboardWillShow", (e) => {
-      if (sheetRef.current) {
-        let height = (e as any).keyboardHeight;
-        sheetRef.current.style.setProperty(
-          "margin-bottom",
-          height + "px",
-          "important",
-        );
-      }
-    });
-    window.addEventListener("keyboardWillHide", () => {
-      if (sheetRef.current) {
-        sheetRef.current.style.setProperty(
-          "margin-bottom",
-          "env(safe-area-inset-bottom)",
-          // 0 + "px",
-          "important",
-        );
-      }
-    });
-  }
 
   const determineDateRecency = (date: string) => {
     const parsedDate = parse(date, "yyyy-MM-dd", new Date());
@@ -615,7 +570,7 @@ const BottomSheetSalahStatus = ({
               placeholder="Notes"
               value={notes}
               onIonInput={(e) => {
-                // @ts-ignore
+                // @ts-expect-error Ionic CustomEvent type mismatch with textarea change handler
                 handleNotes(e);
               }}
             ></IonTextarea>

@@ -11,7 +11,7 @@ This skill provides essential context and instructions for developing in the "My
 
 ## Architecture & Tech Stack
 - **Frameworks:** React 18, TypeScript, Vite.
-- **Mobile runtime:** CapacitorJS (iOS & Android).
+- **Mobile runtime:** CapacitorJS (Android).
 - **Styling:** Tailwind CSS, Radix UI components, Framer Motion for animations.
 - **Testing:** Vitest and Testing Library.
 - **Database/Storage:** `@capacitor-community/sqlite` and `sql.js` for local data.
@@ -45,6 +45,6 @@ This skill provides essential context and instructions for developing in the "My
 
 ## Project Structure
 - `src/` - Main source code (React components, pages, utils).
-- `android/` & `ios/` - Capacitor generated native projects.
+- `android/` - Capacitor generated Android native project.
 - `capacitor.config.ts` - Capacitor configuration for mobile builds.
 

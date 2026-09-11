@@ -26,11 +26,6 @@ const config: CapacitorConfig = {
       launchAutoHide: false,
     },
     CapacitorSQLite: {
-      iosIsEncryption: false,
-      iosKeychainPrefix: "sujud-data",
-      iosBiometric: {
-        biometricAuth: false,
-      },
       androidIsEncryption: false,
       androidBiometric: {
         biometricAuth: false,

@@ -1,3 +1,35 @@
+# ==============================================================================
+# Sujud — Gitignore for Public Repository
+# ==============================================================================
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+*.local
+/Secret
+
+# Android signing & credentials
+*.jks
+*.keystore
+release.keystore
+google-services.json
+
+# Builds & Outputs
+dist
+dist-ssr
+build/
+release/
+*.apk
+*.aab
+*.dm
+output-metadata.json
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
 # Logs
 logs
 *.log
@@ -7,27 +39,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-*.env
-
-# Editor directories and files
+# Editor & System files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swo
 
-/Secret
-.env
+# AI & Agent Workspace Directories
+.agents
 
-# Firebase / Google Services
-google-services.json
-GoogleService-Info.plist
+# Local Development / Scratch Tools
 public/firebase-viewer.html

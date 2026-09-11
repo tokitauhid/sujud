@@ -44,10 +44,6 @@ const BottomSheetShafaqRules = ({
       onDidDismiss={() => {
         setShowShafaqRulesSheet(false);
       }}
-      // className={`${isPlatform("ios") ? "" : "modal-height"}`}
-      // presentingElement={presentingElement!}
-      // style={{ "--height": "95vh" }}
-      // expandToScroll={false}
     >
       <IonHeader className="ion-no-border">
         <IonToolbar

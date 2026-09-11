@@ -271,9 +271,6 @@ const SettingsPage = ({
               </div>
               <CloudSyncSettings
                 dbConnection={dbConnection}
-                sqliteConnection={sqliteConnection}
-                userPreferences={userPreferences}
-                userLocations={userLocations}
                 fetchDataFromDB={fetchDataFromDB}
               />
             </div>

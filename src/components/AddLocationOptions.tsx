@@ -171,10 +171,7 @@ const AddLocationOptions = ({
         coarseLocation === "prompt-with-rationale"
       ) {
         try {
-          if (
-            Capacitor.getPlatform() === "ios" ||
-            Capacitor.getPlatform() === "android"
-          ) {
+          if (Capacitor.getPlatform() === "android") {
             const permissionRequest = await Geolocation.requestPermissions();
 
             if (

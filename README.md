@@ -1,9 +1,10 @@
 <div align="center">
   <img src="./assets/logo.png" alt="Sujud Logo" width="150" height="150" style="border-radius: 24px;" />
   <h1>Sujud — سجود</h1>
-  <p><em>A personal Salah tracker & habit companion for Android, iOS, and the Web.</em></p>
+  <p><em>A personal Salah tracker & habit companion for Android and the Web.</em></p>
 
   <p>
+    <img src="https://img.shields.io/badge/Platform-Android%20%7C%20Web-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android" />
     <img src="https://img.shields.io/badge/Capacitor-119EFF?style=for-the-badge&logo=capacitor&logoColor=white" alt="Capacitor" />
     <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
     <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
@@ -59,11 +60,11 @@ Sujud helps you log your daily prayers, analyse your consistency over time, and 
 | Layer | Technology |
 |---|---|
 | **Frontend** | React 18 + TypeScript + Vite |
-| **Mobile Runtime** | CapacitorJS (Android & iOS) |
+| **Mobile Runtime** | CapacitorJS (Android) |
 | **Styling** | Tailwind CSS, Framer Motion |
 | **UI Components** | Radix UI, Ionic React, Swiper |
 | **Prayer Times** | [Adhan](https://github.com/batoulapps/adhan-js) |
-| **Storage** | `@capacitor-community/sqlite` |
+| **Local Storage** | `@capacitor-community/sqlite` |
 | **Cloud Sync** | Firebase (Firestore + Google Auth) |
 
 ---
@@ -73,12 +74,11 @@ Sujud helps you log your daily prayers, analyse your consistency over time, and 
 ### Prerequisites
 - **Node.js** ≥ 18
 - **Android Studio** (for Android builds)
-- **Xcode** (for iOS builds, macOS only)
 
 ### Install
 
 ```bash
-git clone https://github.com/your-username/sujud.git
+git clone https://github.com/tokitauhid/sujud.git
 cd sujud
 npm install
 ```
@@ -118,11 +118,11 @@ npm run lint      # Run ESLint
 
 ## 📱 Building for Mobile
 
-To generate your mobile bundles and run the native IDEs:
+To generate web bundles and sync with the Android native project:
 ```bash
 npm run build
-npx cap sync
-npx cap open android   # or ios
+npx cap sync android
+npx cap open android
 ```
 
 ---

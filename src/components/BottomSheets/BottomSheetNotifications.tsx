@@ -33,7 +33,6 @@ import {
   IonSelect,
   IonSelectOption,
   IonToggle,
-  isPlatform,
 } from "@ionic/react";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import {
@@ -239,7 +238,7 @@ const BottomSheetNotifications = ({
         <div className="flex items-center justify-between p-3 mt-10 notification-text-and-toggle-wrap">
           <p>Turn on Daily Notification</p>{" "}
           <IonToggle
-            mode={isPlatform("android") ? "md" : "ios"}
+            mode="md"
             style={{ "--track-background": "#555" }}
             checked={dailyNotificationToggle}
             onIonChange={async (e) => {
@@ -406,7 +405,7 @@ const BottomSheetNotifications = ({
               <div className="flex items-center justify-between notification-text-and-toggle-wrap">
                 <p>Turn on Salah Notifications</p>{" "}
                 <IonToggle
-                  mode={isPlatform("android") ? "md" : "ios"}
+                  mode="md"
                   style={{ "--track-background": "#555" }}
                   checked={notificationToggle}
                   onIonChange={async () => {

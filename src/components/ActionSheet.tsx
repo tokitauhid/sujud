@@ -1,4 +1,3 @@
-import { Capacitor } from "@capacitor/core";
 import { ActionSheetButton, IonActionSheet } from "@ionic/react";
 
 interface ActionSheetProps {
@@ -18,7 +17,7 @@ const ActionSheet = ({
 }: ActionSheetProps) => {
   return (
     <IonActionSheet
-      mode={Capacitor.getPlatform() === "ios" ? "ios" : "md"}
+      mode="md"
       cssClass={"action-sheet-custom"}
       header={header || "Actions"}
       {...(isOpen !== undefined ? { isOpen } : {})}

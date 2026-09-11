@@ -37,9 +37,6 @@ const BottomSheetLatitudeRules = ({
       trigger={triggerId}
       initialBreakpoint={INITIAL_MODAL_BREAKPOINT}
       breakpoints={MODAL_BREAKPOINTS}
-      // className={`${isPlatform("ios") ? "" : "modal-height"}`}
-      // presentingElement={presentingElement!}
-      // expandToScroll={false}
     >
       <IonHeader className="ion-no-border">
         <IonToolbar

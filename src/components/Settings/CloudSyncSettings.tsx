@@ -8,14 +8,7 @@ import {
   SyncStatus,
 } from "../../firebase/syncService";
 import { showToast } from "../../utils/helpers";
-import {
-  SQLiteDBConnection,
-  SQLiteConnection,
-} from "@capacitor-community/sqlite";
-import {
-  userPreferencesType,
-  LocationsDataObjTypeArr,
-} from "../../types/types";
+import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import { FcGoogle } from "react-icons/fc";
 import {
   IoCloudDoneOutline,
@@ -30,17 +23,11 @@ import { IonActionSheet, useIonAlert } from "@ionic/react";
 
 interface CloudSyncSettingsProps {
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
-  sqliteConnection: React.MutableRefObject<SQLiteConnection | undefined>;
-  userPreferences: userPreferencesType;
-  userLocations: LocationsDataObjTypeArr;
   fetchDataFromDB: (isDBImported?: boolean) => Promise<void>;
 }
 
 const CloudSyncSettings = ({
   dbConnection,
-  sqliteConnection: _sqliteConnection,
-  userPreferences: _userPreferences,
-  userLocations: _userLocations,
   fetchDataFromDB,
 }: CloudSyncSettingsProps) => {
   const { user, isAuthLoading, signInWithGoogle, signOut } = useFirebaseAuth();
@@ -94,7 +81,7 @@ const CloudSyncSettings = ({
     };
 
     refreshStatus();
-  }, [user?.uid]);
+  }, [user]);
 
   // seedSQLiteFromCloud is now imported from syncService
 

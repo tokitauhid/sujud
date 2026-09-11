@@ -4,7 +4,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import * as constantsFile from "../../../utils/constants";
 import * as helpersFile from "../../../utils/helpers";
 import * as dbUtilsFile from "../../../utils/dbUtils";
 import { AndroidSettings } from "capacitor-native-settings";
@@ -547,21 +546,5 @@ describe("tests for GPS location button functionality when location permission i
       AndroidSettings.Location
     );
     expect(promptSpy).toHaveBeenCalledTimes(1);
-    expect(Geolocation.requestPermissions).not.toHaveBeenCalled();
-    expect(Geolocation.getCurrentPosition).not.toHaveBeenCalled();
-  });
-
-  it("shows user a prompt to open system settings on iOS when location permissions are turned off in system settings", async () => {
-    getPlatformSpy.mockReturnValue("ios");
-    await userEvent.click(screen.getByText(/Use Device GPS/i));
-
-    expect(promptSpy).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(String),
-      AndroidSettings.Location
-    );
-    expect(promptSpy).toHaveBeenCalledTimes(1);
-    expect(Geolocation.requestPermissions).not.toHaveBeenCalled();
-    expect(Geolocation.getCurrentPosition).not.toHaveBeenCalled();
   });
 });

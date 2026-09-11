@@ -29,7 +29,6 @@ import {
   INITIAL_MODAL_BREAKPOINT,
   MODAL_BREAKPOINTS,
 } from "../../../utils/constants";
-import { Capacitor } from "@capacitor/core";
 
 interface BottomSheetPerSalahNotificationsProps {
   setShowSalahNotificationsSheet: React.Dispatch<React.SetStateAction<boolean>>;
@@ -223,12 +222,6 @@ const BottomSheetPerSalahNotifications = ({
               <IonIcon icon={megaphone} />
             </div>
           </div>
-        )}
-        {Capacitor.getPlatform() === "ios" && (
-          <p className="mb-10 text-xs text-center opacity-50">
-            Please note: Due to iOS limitations, adhan will only play for 30
-            seconds
-          </p>
         )}
       </section>
 

@@ -27,7 +27,6 @@ import { EdgeToEdge } from "@capawesome/capacitor-android-edge-to-edge-support";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import {
   AndroidSettings,
-  IOSSettings,
   NativeSettings,
 } from "capacitor-native-settings";
 
@@ -95,11 +94,7 @@ export const promptToOpenDeviceSettings = async (
   });
 
   if (value) {
-    if (Capacitor.getPlatform() === "ios") {
-      NativeSettings.openIOS({
-        option: IOSSettings.App,
-      });
-    } else if (Capacitor.getPlatform() === "android") {
+    if (Capacitor.getPlatform() === "android") {
       NativeSettings.openAndroid({
         option: androidOption,
       });

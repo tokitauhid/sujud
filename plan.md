@@ -7,7 +7,7 @@
 6. better push notification system for chinese phone like xiaomi, oppo etc.
     i. present problem notification dont come thorugh at all if the app is not open or locked to recent apps
     ii. adan sound dont come through either when the app is open or not.
-7. weekly,monthly,yearly reports system that will be automatically shown on the notification for the user to be able to track their progress and encouragement. ex: ios screen time summary.
+7. weekly,monthly,yearly reports system that will be automatically shown on the notification for the user to be able to track their progress and encouragement. ex: screen time summary.
 
 ## Steps to Improve:
 1. analyze the full source code to build and skill.md

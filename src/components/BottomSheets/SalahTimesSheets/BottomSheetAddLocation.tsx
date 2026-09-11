@@ -40,8 +40,6 @@ const BottomSheetAddLocation = ({
       // trigger={triggerId}
       initialBreakpoint={INITIAL_MODAL_BREAKPOINT}
       breakpoints={MODAL_BREAKPOINTS}
-      // className={`${isPlatform("ios") ? "" : "modal-height"}`}
-      // expandToScroll={false}
       onDidDismiss={() => {
         setShowAddLocationSheet(false);
         // setShowAddLocationForm(false);

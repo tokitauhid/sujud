@@ -102,7 +102,7 @@ const SalahTable = ({
     rowDataDate: string,
   ) => {
     setSelectedSalahAndDate((prev) => {
-      let newArr = { ...prev };
+      const newArr = { ...prev };
 
       if (prev[rowDataDate]?.includes(salahName)) {
         newArr[rowDataDate] = prev[rowDataDate].filter(
@@ -429,7 +429,7 @@ const SalahTable = ({
                   width={54}
                   flexGrow={1}
                   cellRenderer={({ rowData }) => {
-                    let isChecked = selectedSalahAndDate[
+                    const isChecked = selectedSalahAndDate[
                       rowData.date
                     ]?.includes(salahName)
                       ? true
