@@ -60,11 +60,6 @@ const DonutPieChart = ({
             className="donut-pie-chart-text pb-1 text-sm before:bg-[var(--group-color)] font-medium flex items-center gap-1.5"
           >
             <span>{userGender === "male" ? "In Jamaah" : "Prayed"}</span>
-            {userGender === "male" && (
-              <span className="text-[8px] font-mono px-1 py-0.2 bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40 uppercase tracking-wider">
-                TOP
-              </span>
-            )}
           </p>
         ) : null}
 

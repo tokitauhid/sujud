@@ -260,7 +260,7 @@ const SalahTable = ({
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="h-[95%]">
+      <div className="w-full h-full">
         <AutoSizer
           onResize={() => {
             (tableRef.current as any)?.recomputeGridSize?.();

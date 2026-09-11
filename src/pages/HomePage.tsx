@@ -175,7 +175,7 @@ const HomePage = ({
               />
             </div>
             
-            <div className="home-page-tablet-widgets hidden md:landscape:flex flex-col h-[95%] overflow-hidden w-full min-w-0">
+            <div className="home-page-tablet-widgets hidden md:landscape:flex flex-col h-full overflow-hidden w-full min-w-0">
               {nextSalahNameAndTime && (
                 <div className="mb-4 shrink-0">
                   <NextSalahTimeWidget 

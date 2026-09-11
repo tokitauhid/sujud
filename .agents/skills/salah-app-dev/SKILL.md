@@ -26,12 +26,25 @@ This skill provides essential context and instructions for developing in the "My
 
 ## Development Guidelines
 1. **Component Styling:** Use Tailwind CSS for styling. Ensure responsive design and consider mobile-first approaches given the Capacitor target.
-2. **Capacitor Plugins:** When adding device-specific features (e.g., Notifications, Geolocation, Filesystem), prefer official `@capacitor/...` or `@capacitor-community/...` plugins as seen in `package.json`.
-3. **State & Database:** Local database interactions often rely on SQLite. Be aware of both the web environment and the native environment handling of SQLite.
-4. **Vite Configuration:** `vite.config.ts` includes a custom plugin to patch `react-virtualized` for Vite compatibility.
-5. **Testing:** Unit tests use Vitest (`setupTests.ts` is configured).
+2. **Status Color Conventions:**
+   - **In Jamaah (`group`):** Always emerald green (`#10B981`, CSS var `--status-jamaah`, `salahStatusColorsHexCodes.group`). Do NOT use amber/gold for In Jamaah.
+   - **Streaks:** Amber (`#F59E0B`, CSS var `--streak-color`, `streakFlameHex`) is reserved strictly for streaks, streak counters, and fire badges.
+   - **Alone (`male-alone`):** Blue (`#3B82A0` or `#38BDF8`).
+   - **Missed (`missed`):** Red (`#C2414B`).
+   - **Late (`late`):** Dark amber/orange (`#D97706`).
+   - **Excused (`excused`):** Slate (`#64748B`).
+3. **UI Text & Badge Consistency:**
+   - Never add ad-hoc badges like "TOP" beside "In Jamaah" in legends, stats tables, or charts. Keep labels clean and uniform.
+4. **Virtualized Table Layout Guidelines:**
+   - In `SalahTable.tsx`, always ensure the container wrapping `AutoSizer` uses full height (`w-full h-full`). Never use fractional percentages like `h-[95%]`, which cause uneven top/bottom dead space.
+   - Maintain symmetrical top and bottom spacing between the header toolbar and the bottom navigation tab bar.
+5. **Capacitor Plugins:** When adding device-specific features (e.g., Notifications, Geolocation, Filesystem), prefer official `@capacitor/...` or `@capacitor-community/...` plugins as seen in `package.json`.
+6. **State & Database:** Local database interactions often rely on SQLite. Be aware of both the web environment and the native environment handling of SQLite.
+7. **Vite Configuration:** `vite.config.ts` includes a custom plugin to patch `react-virtualized` for Vite compatibility.
+8. **Testing:** Unit tests use Vitest (`setupTests.ts` is configured), and automated verification uses Chrome CDP in `scripts/verify-all-issues.mjs`.
 
 ## Project Structure
 - `src/` - Main source code (React components, pages, utils).
 - `android/` & `ios/` - Capacitor generated native projects.
 - `capacitor.config.ts` - Capacitor configuration for mobile builds.
+

@@ -67,7 +67,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
           let label = "Not logged";
 
           if (status === "group") {
-            colorClass = "bg-[#F59E0B] shadow-[0_0_6px_rgba(245,158,11,0.35)]";
+            colorClass = "bg-[#10B981] shadow-[0_0_6px_rgba(16,185,129,0.35)]";
             label = "In Jamaah";
           } else if (status === "male-alone" || status === "female-alone") {
             colorClass = "bg-[#38BDF8] shadow-[0_0_6px_rgba(56,189,248,0.25)]";
@@ -213,14 +213,14 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
                 <div className="flex items-center gap-1 mb-1 leading-none shrink-0">
                   {day.inJamaah > 0 && (
                     <span
-                      className="w-1.5 h-1.5 rotate-45 bg-[#F59E0B] shadow-[0_0_4px_#F59E0B] inline-block shrink-0"
+                      className="w-1.5 h-1.5 rotate-45 bg-[#10B981] shadow-[0_0_4px_#10B981] inline-block shrink-0"
                       title={`${day.inJamaah} in Jamaah`}
                     />
                   )}
                   <span
                     className={`text-[9px] font-mono tabular-nums font-semibold ${
                       day.inJamaah > 0
-                        ? "text-[#F59E0B]"
+                        ? "text-[#10B981]"
                         : day.completed > 0
                         ? "text-[#38BDF8]"
                         : day.missed > 0
@@ -248,7 +248,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
                     style={{ height: `${Math.max(day.percentage, 2)}%` }}
                     className={`w-full max-w-[22px] rounded-none transition-all duration-300 relative ${
                       day.inJamaah > 0
-                        ? "bg-[#F59E0B] shadow-[0_0_10px_rgba(245,158,11,0.3)] group-hover:bg-[#D97706]"
+                        ? "bg-[#10B981] shadow-[0_0_10px_rgba(16,185,129,0.3)] group-hover:bg-[#059669]"
                         : day.completed > 0
                         ? "bg-[#38BDF8] shadow-[0_0_8px_rgba(56,189,248,0.25)] group-hover:bg-[#0284C7]"
                         : day.missed > 0
@@ -278,7 +278,7 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
         {statsToShow === "All" && (
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[10px] text-[#94A3B8] font-mono mt-3 select-none">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-none bg-[#F59E0B] inline-block" />
+              <span className="w-2 h-2 rounded-none bg-[#10B981] inline-block" />
               <span>In Jamaah</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -299,13 +299,10 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
 
       {/* High-Density Data Summary Table */}
       <div className="mt-4 border-t border-[var(--app-border)] pt-1 text-xs">
-        {/* In Jamaah - Highest Achievement Row */}
+        {/* In Jamaah Row */}
         <div className="flex justify-between py-2 border-b border-[var(--app-border)] bg-[#10B981]/5 px-2 -mx-2">
           <span className="text-white font-medium flex items-center gap-1.5">
-            <span className="text-[#F59E0B]">✦</span> In Jamaah
-            <span className="text-[9px] px-1 py-0.2 bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40 tracking-wider font-mono">
-              TOP
-            </span>
+            In Jamaah
           </span>
           <span className="text-[#10B981] font-bold tabular-nums">
             {totalInJamaah} {totalInJamaah === 1 ? "prayer" : "prayers"}
