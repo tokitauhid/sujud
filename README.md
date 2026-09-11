@@ -152,7 +152,7 @@ This script will automatically:
 
 ## 🙏 Credits & Attribution
 
-Sujud is a fork of **[My Salah App](https://github.com/My-Ummah-Apps/My-Salah-App)** — originally created and maintained by [My Ummah Apps](https://github.com/mpmua)). The core prayer tracking engine, architecture, and design foundations were built by the original author. Full credit and deep gratitude go to them for creating such an incredible open-source tool for the Muslim community.
+Sujud is a fork of **[My Salah App](https://github.com/My-Ummah-Apps/My-Salah-App)** — originally created and maintained by [My Ummah Apps](https://github.com/mpmua). The core prayer tracking engine, architecture, and design foundations were built by the original author. Full credit and deep gratitude go to them for creating such an incredible open-source tool for the Muslim community.
 
 If you find this app useful, please also ⭐ the [original project](https://github.com/My-Ummah-Apps/My-Salah-App).
 
