@@ -9,6 +9,7 @@ A standalone Cloudflare Worker review site for community feedback on hadith cand
 - Lets reviewers mark a candidate relevant or not relevant.
 - Lets reviewers choose controlled tags.
 - Lets reviewers add editorial notes.
+- Requires an explicit Save review action so relevance, tags, and notes are submitted together.
 - Stores one review per browser reviewer and candidate.
 - Shows aggregate review counts without publishing content automatically.
 
@@ -45,6 +46,15 @@ status = community-review
 
 Do not expose a public endpoint that can insert arbitrary candidate text.
 
+To generate a seed file from a reviewed JSON export:
+
+```bash
+node scripts/generate-seed-sql.mjs ./path/to/reviewed-candidates.json seed-candidates.sql
+npx wrangler d1 execute sujud-hadith-content-review --local --file=./seed-candidates.sql
+```
+
+Use `--remote` instead of `--local` when you are ready to seed the production database. Review the generated SQL before running it.
+
 ## Deploy From GitHub
 
 1. Create a separate GitHub repository and push this folder's contents to it.
@@ -75,6 +85,27 @@ candidate import
 ```
 
 The current API accepts community reviews but does not promote candidates to `approved`. Add an authenticated moderator dashboard before using this in production.
+
+## Moderator Dashboard
+
+The moderator dashboard is available at `/moderator.html`. It uses server-side Worker authentication and D1 data. It can:
+
+- Inspect every candidate and all community reviews.
+- Search and filter candidates by status.
+- Review aggregate relevance counts, tags, notes, and reports.
+- Move candidates through `community-review`, `needs-moderation`, `approved`, and `rejected` states.
+- Export approved candidates as JSON for editorial review and later Sujud import.
+
+Configure the moderator token as a Cloudflare secret. Do not put it in `wrangler.toml`, frontend code, or GitHub:
+
+```bash
+npx wrangler secret put MODERATOR_TOKEN
+npx wrangler deploy
+```
+
+Open `https://YOUR_WORKER_DOMAIN/moderator.html` and enter the same token. The local setup stores the generated token at `~/.config/sujud/hadith-content-review-moderator-token`; read it from your terminal when needed with `cat ~/.config/sujud/hadith-content-review-moderator-token`. The token is kept only in the current browser session after entry.
+
+Community review remains separate from scholarly and licensing approval. An approved dashboard status means a moderator selected it for export; it does not by itself prove authenticity or grant translation redistribution rights.
 
 ## Fixed Tags
 

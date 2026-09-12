@@ -23,9 +23,13 @@ h1 { font-size: clamp(2.1rem, 5vw, 4.8rem); letter-spacing: -.055em; line-height
 .lede { color: var(--muted); max-width: 670px; font-size: 1.05rem; margin: 18px 0 0; }
 .status-panel { border-left: 1px solid var(--border); padding-left: 20px; min-width: 175px; color: var(--muted); }
 .status-panel strong { color: var(--text); display: block; font-size: 1.3rem; margin-top: 5px; }
+.status-panel small { color: var(--muted); display: block; margin-top: 3px; white-space: nowrap; }
 .notice, .toolbar, .card { border: 1px solid var(--border); background: color-mix(in srgb, var(--panel) 95%, transparent); border-radius: 8px; }
 .notice { display: flex; gap: 12px; align-items: baseline; color: var(--muted); padding: 15px 17px; margin-bottom: 16px; }
 .notice strong { color: var(--warning); white-space: nowrap; }
+.review-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+.review-tab { color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 9px 13px; font-weight: 750; }
+.review-tab.active { color: #0e1712; background: var(--accent); border-color: var(--accent); }
 .toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 13px; margin-bottom: 20px; position: sticky; top: 12px; z-index: 5; box-shadow: 0 16px 35px #0005; }
 label { display: grid; gap: 5px; color: var(--muted); font-size: .82rem; }
 .search-field { flex: 1 1 280px; }

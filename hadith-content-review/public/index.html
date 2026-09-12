@@ -18,7 +18,10 @@
         <div class="status-panel" aria-live="polite">
           <span id="reviewerStatus">Preparing your review session...</span>
           <strong id="reviewCount">0 reviewed</strong>
+          <small id="reviewSummary">0 total · 0 reviewed · 0 left</small>
+          <small id="communitySummary">0 community reviewed</small>
         </div>
+        <a class="button secondary" href="/moderator.html">Moderator</a>
       </header>
 
       <section class="notice">
@@ -26,9 +29,17 @@
         <span>Source, grading, translation, licensing, and context are verified separately before anything reaches the app.</span>
       </section>
 
+      <nav class="review-tabs" aria-label="Review sections">
+        <button class="review-tab active" type="button" data-review-tab="unreviewed">To review</button>
+        <button class="review-tab" type="button" data-review-tab="reviewed">Reviewed by me</button>
+        <button class="review-tab" type="button" data-review-tab="community-reviewed">Community reviewed</button>
+        <button class="review-tab" type="button" data-review-tab="all">All candidates</button>
+      </nav>
+
       <section class="toolbar" aria-label="Candidate filters">
         <label class="search-field">Search <input id="search" type="search" placeholder="Text, collection, or reference" /></label>
         <label>Show <select id="filter"><option value="all">All candidates</option><option value="unreviewed">Not reviewed</option><option value="relevant">Marked relevant</option><option value="not-relevant">Marked not relevant</option></select></label>
+        <label>Length <select id="lengthFilter"><option value="all">All lengths</option><option value="short">Short · up to 300</option><option value="medium">Medium · 301–800</option><option value="long">Long · over 800</option></select></label>
         <button id="refresh" class="button secondary" type="button">Refresh</button>
       </section>
 
