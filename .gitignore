@@ -54,6 +54,7 @@ Thumbs.db
 
 # AI & Agent Workspace Directories
 .agents
+prompt.md
 
 # Local Development / Scratch Tools
 public/firebase-viewer.html
