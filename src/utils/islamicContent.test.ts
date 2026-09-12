@@ -11,6 +11,7 @@ import {
   formatSelectedHadithReflection,
 } from "./islamicContent";
 import { IslamicContentRecord } from "../types/islamicContent";
+import bundledIslamicContent from "../assets/islamicContent.json";
 
 // Test fixture with verified-structure sample records
 const createMockHadith = (
@@ -500,4 +501,74 @@ describe("Islamic Content Utilities", () => {
       });
     });
   });
+
+  describe("Bundled Content Dataset Integrity", () => {
+    it("validates that all records in bundledIslamicContent have valid schema", () => {
+      expect(bundledIslamicContent.length).toBeGreaterThanOrEqual(35);
+
+      for (const record of bundledIslamicContent) {
+        const validation = validateIslamicContentRecordDetailed(record);
+        expect(validation.isValid).toBe(true);
+        expect(validation.errors).toHaveLength(0);
+      }
+    });
+
+    it("ensures all core trend analysis topics have reviewed hadiths in the bundled dataset", () => {
+      const coreTopics = [
+        "consistency",
+        "patience",
+        "returning-after-difficulty",
+        "good-deeds",
+        "jamaah",
+        "time-and-prayer",
+        "general",
+      ];
+
+      const eligible = getEligibleHadith(
+        bundledIslamicContent as IslamicContentRecord[],
+      );
+
+      for (const topic of coreTopics) {
+        const matching = getHadithForTopic(
+          topic,
+          eligible,
+          false,
+        );
+        expect(
+          matching.length,
+          `Expected topic "${topic}" to have at least 1 reviewed hadith in bundled content`,
+        ).toBeGreaterThanOrEqual(1);
+      }
+    });
+
+    it("deterministically selects hadith for every topic across consecutive periods", () => {
+      const coreTopics = [
+        "consistency",
+        "patience",
+        "returning-after-difficulty",
+        "good-deeds",
+        "jamaah",
+        "time-and-prayer",
+      ];
+
+      for (const topic of coreTopics) {
+        const h1 = selectStableHadith(
+          topic,
+          "2026-W36",
+          bundledIslamicContent as IslamicContentRecord[],
+        );
+        const h2 = selectStableHadith(
+          topic,
+          "2026-W37",
+          bundledIslamicContent as IslamicContentRecord[],
+        );
+
+        expect(h1).not.toBeNull();
+        expect(h2).not.toBeNull();
+        expect(h1?.reviewed).toBe(true);
+        expect(h2?.reviewed).toBe(true);
+      }
+    });
+  });
 });
+

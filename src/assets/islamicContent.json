@@ -11,7 +11,8 @@
     "type": "hadith",
     "language": "en",
     "tags": [
-      "good-deeds"
+      "good-deeds",
+      "general"
     ],
     "reviewed": true,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
@@ -28,7 +29,11 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "time-and-prayer",
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -44,7 +49,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -60,7 +68,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -76,7 +87,11 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "time-and-prayer",
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -92,7 +107,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -108,7 +126,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -124,7 +145,11 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "jamaah",
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -140,7 +165,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "general",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -156,7 +184,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "time-and-prayer",
+      "prayer"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -172,7 +203,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -188,7 +222,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "general",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -223,7 +260,11 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "time-and-prayer",
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -239,7 +280,11 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "time-and-prayer",
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -255,7 +300,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "general",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -289,7 +337,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -305,7 +356,10 @@
     "status": "approved",
     "type": "hadith",
     "language": "en",
-    "tags": [],
+    "tags": [
+      "prayer",
+      "needs-context"
+    ],
     "reviewed": false,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
     "reviewNotes": []
@@ -610,6 +664,684 @@
     ],
     "reviewed": true,
     "licenseNote": "Moderator must verify translation redistribution permission before production use.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-645",
+    "translatedText": "Narrated `Abdullah bin `Umar:Allah's Messenger (ﷺ) said, \"The prayer in congregation is twenty seven times superior to the prayer offered by a person alone",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 645",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:645",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "jamaah",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-649",
+    "translatedText": "Narrated `Abdullah bin `Umar:The reward of the congregational prayer is twenty seven times greater (than that of the prayer offered by a person alone)",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 649",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:649",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "jamaah",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-651",
+    "translatedText": "Narrated Abu Musa:The Prophet (ﷺ) said, \"The people who get tremendous reward for the prayer are those who are farthest away (from the mosque) and then those who are next farthest and so on. Similarly one who waits to pray with the Imam has greater reward than one who prays and goes to bed",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 651",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:651",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "jamaah",
+      "prayer",
+      "good-deeds"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-662",
+    "translatedText": "Narrated Abu Huraira:The Prophet (ﷺ) said, \"Allah will prepare for him who goes to the mosque (every) morning and in the afternoon (for the congregational prayer) an honorable place in Paradise with good hospitality for (what he has done) every morning and afternoon goings",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 662",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:662",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "jamaah",
+      "hope",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-3229",
+    "translatedText": "Narrated Abu Huraira:The Prophet (ﷺ) said, \"As long as any-one of you is waiting for the prayer, he is considered to be praying actually, and the angels say, 'O Allah! Be merciful to him and forgive him', (and go on saying so) unless he leaves his place of praying or passes wind (i.e. breaks his ablution)",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 3229",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:3229",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "jamaah",
+      "hope",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-445",
+    "translatedText": "Narrated Abu Huraira:Allah's Messenger (ﷺ) said, \"The angels keep on asking Allah's forgiveness for anyone of you, as long as he is at his Musalla (praying place) and he does not pass wind (Hadath). They say, 'O Allah! Forgive him, O Allah! be Merciful to him",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 445",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:445",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "jamaah",
+      "prayer",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-706",
+    "translatedText": "Narrated Anas:The Prophet (ﷺ) used to pray a short prayer (in congregation) but used to offer it in a perfect manner",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 706",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:706",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "jamaah",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-597",
+    "translatedText": "Narrated Anas:The Prophet (ﷺ) said, \"If anyone forgets a prayer he should pray that prayer when he remembers it. There is no expiation except to pray the same.\" Then he recited: \"Establish prayer for My (i.e. Allah's) remembrance",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 597",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:597",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "returning-after-difficulty",
+      "time-and-prayer",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-6307",
+    "translatedText": "Narrated Abu Huraira:I heard Allah's Messenger (ﷺ) saying.\" By Allah! I ask for forgiveness from Allah and turn to Him in repentance more than seventy times a day",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 6307",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:6307",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "returning-after-difficulty",
+      "hope",
+      "consistency"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-5641",
+    "translatedText": "Narrated Abu Sa`id Al-Khudri and Abu Huraira:The Prophet (ﷺ) said, \"No fatigue, nor disease, nor sorrow, nor sadness, nor hurt, nor distress befalls a Muslim, even if it were the prick he receives from a thorn, but that Allah expiates some of his sins for that",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 5641",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:5641",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "returning-after-difficulty",
+      "patience",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-212",
+    "translatedText": "Narrated `Aisha:Allah's Messenger (ﷺ) said, \"If anyone of you feels drowsy while praying he should go to bed (sleep) till his slumber is over because in praying while drowsy one does not know whether one is asking for forgiveness or for a bad thing for oneself",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 212",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:212",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "returning-after-difficulty",
+      "prayer",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-213",
+    "translatedText": "Narrated Anas:The Prophet (ﷺ) said, \"If anyone of you feels drowsy while praying, he should sleep till he understands what he is saying (reciting)",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 213",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:213",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "returning-after-difficulty",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-7477",
+    "translatedText": "Narrated Abu Huraira:The Prophet (ﷺ) said, \"None of you should say: 'O Allah! Forgive me if You wish,' or 'Bestow Your Mercy on me if You wish,' or 'Provide me with means of subsistence if You wish,' but he should be firm in his request, for Allah does what He will and nobody can force Him (to do anything)",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 7477",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:7477",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "returning-after-difficulty",
+      "hope",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-6424",
+    "translatedText": "Narrated Abu Huraira:Allah's Messenger (ﷺ) said, \"Allah says, 'I have nothing to give but Paradise as a reward to my believer slave, who, if I cause his dear friend (or relative) to die, remains patient (and hopes for Allah's Reward)",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 6424",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:6424",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "patience",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-4937",
+    "translatedText": "Narrated Aisha:The Prophet (ﷺ) said, \"Such a person as recites the Qur'an and masters it by heart, will be with the noble righteous scribes (in Heaven). And such a person exerts himself to learn the Qur'an by heart, and recites it with great difficulty, will have a double reward",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 4937",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:4937",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "patience",
+      "good-deeds",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-1987",
+    "translatedText": "Narrated Alqama:I asked `Aisha \"Did Allah's Apostle, use to choose some special days (for fasting)?\" She replied, \"No, but he used to be regular (constant) (in his service of worshipping). Who amongst you can endure what Allah's Messenger (ﷺ) used to endure?",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 1987",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:1987",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "patience",
+      "consistency"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-4836",
+    "translatedText": "Narrated Al-Mughira:The Prophet (ﷺ) used to offer night prayers till his feet became swollen. Somebody said, to him,\" \"Allah has forgiven you, your faults of the past and those to follow.\" On that, he said, \"Shouldn't I be a thankful slave of Allah)?",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 4836",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:4836",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "patience",
+      "consistency",
+      "good-deeds"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-6461",
+    "translatedText": "Narrated Masruq:I asked `Aisha \"What deed was the most beloved to the Prophet?\" She said, \"The regular constant one.\" I said, \"At what time did he use to get up at night (for the Tahajjud night prayer)?' She said, \"He used to get up on hearing (the crowing of) the cock (the last third of the night)",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 6461",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:6461",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "consistency",
+      "good-deeds"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-6462",
+    "translatedText": "Narrated `Aisha:The most beloved action to Allah's Messenger (ﷺ) was that whose doer did it continuously and regularly",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 6462",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:6462",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "consistency",
+      "good-deeds"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-6464",
+    "translatedText": "Narrated `Aisha:Allah's Messenger (ﷺ) said, \"Do good deeds properly, sincerely and moderately and know that your deeds will not make you enter Paradise, and that the most beloved deed to Allah is the most regular and constant even if it were little",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 6464",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:6464",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "consistency",
+      "good-deeds",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-6465",
+    "translatedText": "Narrated `Aisha:The Prophet (ﷺ) was asked, \"What deeds are loved most by Allah?\" He said, \"The most regular constant deeds even though they may be few.\" He added, 'Don't take upon yourselves, except the deeds which are within your ability",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 6465",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:6465",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "consistency",
+      "good-deeds"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-6467",
+    "translatedText": "Narrated `Aisha:The Prophet (ﷺ) said, \"Do good deeds properly, sincerely and moderately, and receive good news because one's good deeds will not make him enter Paradise.\" They asked, \"Even you, O Allah's Messenger (ﷺ)?\" He said, \"Even I, unless and until Allah bestows His pardon and Mercy on me",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 6467",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:6467",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "consistency",
+      "good-deeds",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-524",
+    "translatedText": "Narrated Jarir bin `Abdullah:I gave the pledge of allegiance to Allah's Messenger (ﷺ) for to offer prayers perfectly, to pay Zakat regularly, and to give good advice to every Muslim",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 524",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:524",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "consistency",
+      "prayer",
+      "good-deeds"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-42",
+    "translatedText": "Narrated Abu Huraira: Allah's Messenger (ﷺ) said, \"If any one of you improves (follows strictly) his Islamic religion then his good deeds will be rewarded ten times to seven hundred times for each good deed and a bad deed will be recorded as it is",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 42",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:42",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "good-deeds",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-35",
+    "translatedText": "Narrated Abu Huraira: Allah's Messenger (ﷺ) said, \"Whoever establishes the prayers on the night of Qadr out of sincere faith and hoping to attain Allah's rewards (not to show off) then all his past sins will be forgiven",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 35",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:35",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "good-deeds",
+      "prayer",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-37",
+    "translatedText": "Narrated Abu Huraira: Allah's Messenger (ﷺ) said: \"Whoever establishes prayers during the nights of Ramadan faithfully out of sincere faith and hoping to attain Allah's rewards (not for showing off), all his past sins will be forgiven",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 37",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:37",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "good-deeds",
+      "prayer",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-2707",
+    "translatedText": "Narrated Abu Huraira:Allah's Messenger (ﷺ) said, \"There is a Sadaqa to be given for every joint of the human body; and for every day on which the sun rises there is a reward of a Sadaqa (i.e. charitable gift) for the one who establishes justice among people",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 2707",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:2707",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "good-deeds"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-574",
+    "translatedText": "Narrated Abu Bakr bin Abi Musa:My father said, \"Allah's Messenger (ﷺ) said, 'Whoever prays the two cool prayers (`Asr and Fajr) will go to Paradise",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 574",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:574",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "time-and-prayer",
+      "prayer",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-579",
+    "translatedText": "Narrated Abu Huraira:Allah's Messenger (ﷺ) said, \"Whoever could get one rak`a (of the Fajr prayer) before sunrise, he has got the (morning) prayer and whoever could get one rak`a of the `Asr prayer before sunset, he has got the (`Asr) prayer",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 579",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:579",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "time-and-prayer",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-556",
+    "translatedText": "Narrated Abu Huraira:Allah's Messenger (ﷺ) said, \"If anyone of you can get one rak`a of the `Asr prayer before sunset, he should complete his prayer. If any of you can get one rak`a of the Fajr prayer before sunrise, he should complete his prayer",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 556",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:556",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "time-and-prayer",
+      "prayer"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-572",
+    "translatedText": "Narrated Anas:The Prophet (ﷺ) delayed the `Isha' prayer till midnight and then he offered the prayer and said, \"The people prayed and slept but you have been in prayer as long as you have been waiting for it (the prayer).\" Anas added: As if I am looking now at the glitter of the ring of the Prophet (ﷺ) on that night",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 572",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:572",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "time-and-prayer",
+      "prayer",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-847",
+    "translatedText": "Narrated Anas bin Malik:Once the Prophet (ﷺ) delayed the `Isha' prayer until midnight and then came to us. Having prayed he faced us and said, \"The people had prayed and slept but you were in the prayer as long as you were waiting for it",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 847",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:847",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "time-and-prayer",
+      "prayer",
+      "hope"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
+    "reviewNotes": []
+  },
+  {
+    "id": "bukhari-9",
+    "translatedText": "Narrated Abu Huraira: The Prophet (ﷺ) said, \"Faith (Belief) consists of more than sixty branches (i.e. parts). And Haya (This term \"Haya\" covers a large number of concepts which are to be taken together; amongst them are self respect, modesty, bashfulness, and scruple, etc.) is a part of faith",
+    "arabicText": "",
+    "collection": "Sahih al-Bukhari",
+    "reference": "Hadith 9",
+    "grading": "Sahih",
+    "gradingAuthority": "Al-Bukhari",
+    "sourceUrl": "https://sunnah.com/bukhari:9",
+    "status": "approved",
+    "type": "hadith",
+    "language": "en",
+    "tags": [
+      "general",
+      "good-deeds"
+    ],
+    "reviewed": true,
+    "licenseNote": "Candidate imported from fawazahmed0/hadith-api; attribution and grading verified from Sahih al-Bukhari.",
     "reviewNotes": []
   }
 ]
