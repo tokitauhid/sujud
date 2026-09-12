@@ -9,13 +9,7 @@
     ii. adan sound dont come through either when the app is open or not.
 7. weekly,monthly,yearly reports system that will be automatically shown on the notification for the user to be able to track their progress and encouragement. ex: screen time summary.
 
-## Steps to Improve:
-1. analyze the full source code to build and skill.md
-2. setup the best cloud sync option. this should ideally be using google play games
-    i. the sync should sync the data across device flawlessly and in realtime if possible
-    ii. the sync should save the data in the cloud and if the user logs in with the same account on a new device, it should sync the data to the new device.
-    iii. after initial setup the settings should be independent of the device.
-3. fix the app to run on tablet
+
 
 ## Bonus Ideas:
 1. overhaul the interface
