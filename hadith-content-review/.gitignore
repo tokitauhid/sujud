@@ -1,7 +1,0 @@
-node_modules/
-.wrangler/
-.dev.vars
-.env
-.DS_Store
-review-candidates.json
-seed-review-candidates.sql
