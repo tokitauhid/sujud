@@ -8,7 +8,7 @@
     i. present problem notification dont come thorugh at all if the app is not open or locked to recent apps
     ii. adan sound dont come through either when the app is open or not.
 7. weekly,monthly,yearly reports system that will be automatically shown on the notification for the user to be able to track their progress and encouragement. ex: screen time summary.
-
+8. motivational quoates. depending on how the user is duing if they late if they missed a particular payers often (get the data from trend analisys) to give them a little push to do better.
 
 
 ## Bonus Ideas:
