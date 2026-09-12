@@ -4,8 +4,17 @@ import { format, isSameDay } from "date-fns";
 import { GoInfo } from "react-icons/go";
 import { Dialog } from "@capacitor/dialog";
 import BottomSheetStreaksHistory from "../BottomSheets/BottomSheetStreaksHistory";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Flame } from "lucide-react";
+import {
+  selectStableHadith,
+  formatSelectedHadithReflection,
+} from "../../utils/islamicContent";
+import bundledIslamicContent from "../../assets/islamicContent.json";
+import {
+  IslamicContentRecord,
+  SelectedHadithReflection,
+} from "../../types/islamicContent";
 
 interface StreakCounterProps {
   streakDatesObjectsArr: streakDatesObjType[];
@@ -27,6 +36,21 @@ const StreakCounter = ({
     (max, obj) => Math.max(max, obj.days),
     activeStreakCount,
   );
+
+  const hadithReflection: SelectedHadithReflection | null = useMemo(() => {
+    if (activeStreakCount <= 0) return null;
+    const periodKey = activeStreakObj
+      ? `streak_${format(activeStreakObj.startDate, "yyyy-MM-dd")}_${activeStreakCount}`
+      : `streak_${activeStreakCount}`;
+    const selected = selectStableHadith(
+      "consistency",
+      periodKey,
+      bundledIslamicContent as IslamicContentRecord[],
+    );
+    return selected
+      ? formatSelectedHadithReflection(selected, "consistency")
+      : null;
+  }, [activeStreakCount, activeStreakObj]);
 
   const getMotivationalMessage = (count: number) => {
     if (count === 0) {
@@ -133,9 +157,37 @@ const StreakCounter = ({
             </span>
           )}
 
-          <p className="text-[11px] text-[#94A3B8] max-w-[290px] mt-3 italic leading-relaxed">
-            "{getMotivationalMessage(activeStreakCount)}"
-          </p>
+          {hadithReflection && activeStreakCount > 0 ? (
+            <div className="mt-3 max-w-[310px] mx-auto">
+              <p className="text-[11px] text-[#E2E8F0] italic leading-relaxed">
+                "{hadithReflection.translatedText}"
+              </p>
+              <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] text-[#F59E0B] font-mono">
+                {hadithReflection.sourceUrl ? (
+                  <a
+                    href={hadithReflection.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline flex items-center gap-1 font-medium"
+                  >
+                    <span>{hadithReflection.collection}</span>
+                    <span>•</span>
+                    <span>{hadithReflection.reference}</span>
+                  </a>
+                ) : (
+                  <>
+                    <span className="font-medium">{hadithReflection.collection}</span>
+                    <span>•</span>
+                    <span>{hadithReflection.reference}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-[11px] text-[#94A3B8] max-w-[290px] mt-3 italic leading-relaxed">
+              "{getMotivationalMessage(activeStreakCount)}"
+            </p>
+          )}
         </div>
 
         {/* Comparison Strip: Current vs Best */}
