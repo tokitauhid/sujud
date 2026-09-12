@@ -50,15 +50,10 @@ Thumbs.db
 *.sln
 *.sw?
 *.swo
-hadith-content-review/
+# Internal, private, & review workspaces
+internal/
+temp/
 
 # AI & Agent Workspace Directories
 .agents
 prompt.md
-plan.md
-ongoing_project.md
-src/assets/islamicContent.candidates.json
-temp/
-
-# Local Development / Scratch Tools
-public/firebase-viewer.html
