@@ -88,6 +88,7 @@ import {
 import TabletSideNav from "./components/TabletSideNav";
 import { FirebaseAuthProvider, useFirebaseAuth } from "./firebase/useFirebaseAuth";
 import { initRealtimeSync, initialSyncOnSignIn } from "./firebase/syncService";
+import { checkAndGenerateTrendNotifications } from "./utils/trendAnalysis";
 
 
 const AppContent = () => {
@@ -230,6 +231,12 @@ const AppContent = () => {
                 if (isAfter(todaysDate, lastLaunchDate)) {
                   await scheduleAllSalahNotifications();
                   await fetchDataFromDB();
+                  await checkAndGenerateTrendNotifications(
+                    dbConnection,
+                    userPreferences,
+                    fetchedSalahData,
+                    setUserPreferences,
+                  );
                   // await generateSalahTimes(
                   //   userLocations,
                   //   userPreferences,
@@ -418,10 +425,62 @@ const AppContent = () => {
         visibility: 1,
         vibration: true,
       });
+
+      await LocalNotifications.createChannel({
+        id: "trend-summary",
+        name: "Weekly & Periodic Trend Summary",
+        importance: 4,
+        description: "Periodic summaries of your prayer habits and progress",
+        sound: "default",
+        visibility: 1,
+        vibration: true,
+      });
     };
 
     createAndroidNotificationChannels();
   }, []);
+
+  useEffect(() => {
+    // Listen for notification tap / action performance for deep-linking
+    let listenerHandle: any = null;
+
+    const setupNotificationListener = async () => {
+      try {
+        listenerHandle = await LocalNotifications.addListener(
+          "localNotificationActionPerformed",
+          (notificationAction) => {
+            const extra = notificationAction?.notification?.extra;
+            if (extra?.type === "trend_analysis" && extra?.snapshotId) {
+              window.location.href = `/StatsPage?tab=trends&snapshotId=${encodeURIComponent(
+                extra.snapshotId,
+              )}`;
+            }
+          },
+        );
+      } catch (err) {
+        console.error("Error setting up notification action listener:", err);
+      }
+    };
+
+    setupNotificationListener();
+
+    return () => {
+      if (listenerHandle && listenerHandle.remove) {
+        listenerHandle.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isDatabaseInitialised && fetchedSalahData.length > 0) {
+      checkAndGenerateTrendNotifications(
+        dbConnection,
+        userPreferences,
+        fetchedSalahData,
+        setUserPreferences,
+      );
+    }
+  }, [isDatabaseInitialised, fetchedSalahData.length]);
 
   useEffect(() => {
     handleTheme(userPreferences.theme);

@@ -72,6 +72,14 @@ export const dictPreferencesDefaultValues: userPreferencesType = {
   dailyNotificationOption: "fixedTime",
   dailyNotificationAfterIshaDelay: "60",
   lastLaunchDate: new Date().toISOString(),
+  trendNotificationEnabled: "1",
+  trendWeeklyNotification: "1",
+  trendMonthlyNotification: "0",
+  trendYearlyNotification: "0",
+  trendNotificationDeliveryTime: "18:00",
+  lastTrendWeeklyDelivered: "",
+  lastTrendMonthlyDelivered: "",
+  lastTrendYearlyDelivered: "",
 };
 
 export const calculationMethods = [

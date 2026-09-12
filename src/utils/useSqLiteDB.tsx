@@ -67,6 +67,29 @@ const useSQLiteDB = () => {
             `CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_syncId ON userLocationsTable (syncId) WHERE syncId != '';`,
           ],
         },
+        {
+          toVersion: 5,
+          statements: [
+            `CREATE TABLE IF NOT EXISTS trendAnalysisSnapshotsTable(
+              id TEXT PRIMARY KEY NOT NULL,
+              periodType TEXT NOT NULL,
+              periodStart TEXT NOT NULL,
+              periodEnd TEXT NOT NULL,
+              generatedAt INTEGER NOT NULL,
+              schemaVersion INTEGER NOT NULL,
+              dataVersion TEXT NOT NULL,
+              metricsJson TEXT NOT NULL,
+              summaryJson TEXT NOT NULL,
+              isMaleMode INTEGER NOT NULL DEFAULT 1,
+              isNotificationSent INTEGER NOT NULL DEFAULT 0,
+              createdAt INTEGER NOT NULL
+            ) STRICT;`,
+            `CREATE INDEX IF NOT EXISTS idx_trend_periodType ON trendAnalysisSnapshotsTable (periodType);`,
+            `CREATE INDEX IF NOT EXISTS idx_trend_periodStart ON trendAnalysisSnapshotsTable (periodStart);`,
+            `CREATE INDEX IF NOT EXISTS idx_trend_generatedAt ON trendAnalysisSnapshotsTable (generatedAt);`,
+            `CREATE INDEX IF NOT EXISTS idx_trend_lookup ON trendAnalysisSnapshotsTable (periodType, periodStart, periodEnd, dataVersion);`,
+          ],
+        },
       ];
 
       try {
@@ -105,7 +128,7 @@ const useSQLiteDB = () => {
               "sujuddatabase",
               false,
               "no-encryption",
-              4,
+              5,
               false,
             );
         }
@@ -172,6 +195,26 @@ const useSQLiteDB = () => {
           updatedAt INTEGER DEFAULT 0,
           deleted INTEGER DEFAULT 0
         ) STRICT`,
+
+        `CREATE TABLE IF NOT EXISTS trendAnalysisSnapshotsTable(
+          id TEXT PRIMARY KEY NOT NULL,
+          periodType TEXT NOT NULL,
+          periodStart TEXT NOT NULL,
+          periodEnd TEXT NOT NULL,
+          generatedAt INTEGER NOT NULL,
+          schemaVersion INTEGER NOT NULL,
+          dataVersion TEXT NOT NULL,
+          metricsJson TEXT NOT NULL,
+          summaryJson TEXT NOT NULL,
+          isMaleMode INTEGER NOT NULL DEFAULT 1,
+          isNotificationSent INTEGER NOT NULL DEFAULT 0,
+          createdAt INTEGER NOT NULL
+        ) STRICT;`,
+
+        `CREATE INDEX IF NOT EXISTS idx_trend_periodType ON trendAnalysisSnapshotsTable (periodType);`,
+        `CREATE INDEX IF NOT EXISTS idx_trend_periodStart ON trendAnalysisSnapshotsTable (periodStart);`,
+        `CREATE INDEX IF NOT EXISTS idx_trend_generatedAt ON trendAnalysisSnapshotsTable (generatedAt);`,
+        `CREATE INDEX IF NOT EXISTS idx_trend_lookup ON trendAnalysisSnapshotsTable (periodType, periodStart, periodEnd, dataVersion);`
       ];
 
       for (const sql of createTablesSql) {
@@ -194,7 +237,26 @@ const useSQLiteDB = () => {
         `ALTER TABLE userPreferencesTable ADD COLUMN updatedAt INTEGER DEFAULT 0;`,
 
         `CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_syncId ON userLocationsTable (syncId) WHERE syncId != '';`,
-        `CREATE INDEX IF NOT EXISTS idx_userLocations_syncId ON userLocationsTable (syncId);`
+        `CREATE INDEX IF NOT EXISTS idx_userLocations_syncId ON userLocationsTable (syncId);`,
+
+        `CREATE TABLE IF NOT EXISTS trendAnalysisSnapshotsTable(
+          id TEXT PRIMARY KEY NOT NULL,
+          periodType TEXT NOT NULL,
+          periodStart TEXT NOT NULL,
+          periodEnd TEXT NOT NULL,
+          generatedAt INTEGER NOT NULL,
+          schemaVersion INTEGER NOT NULL,
+          dataVersion TEXT NOT NULL,
+          metricsJson TEXT NOT NULL,
+          summaryJson TEXT NOT NULL,
+          isMaleMode INTEGER NOT NULL DEFAULT 1,
+          isNotificationSent INTEGER NOT NULL DEFAULT 0,
+          createdAt INTEGER NOT NULL
+        ) STRICT;`,
+        `CREATE INDEX IF NOT EXISTS idx_trend_periodType ON trendAnalysisSnapshotsTable (periodType);`,
+        `CREATE INDEX IF NOT EXISTS idx_trend_periodStart ON trendAnalysisSnapshotsTable (periodStart);`,
+        `CREATE INDEX IF NOT EXISTS idx_trend_generatedAt ON trendAnalysisSnapshotsTable (generatedAt);`,
+        `CREATE INDEX IF NOT EXISTS idx_trend_lookup ON trendAnalysisSnapshotsTable (periodType, periodStart, periodEnd, dataVersion);`
       ];
 
       for (const sql of migrationSql) {

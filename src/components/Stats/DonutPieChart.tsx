@@ -23,17 +23,18 @@ const DonutPieChart = ({
   );
 
   return (
-    <div className="mt-4 flex w-[100%] justify-around items-center donut-pie-chart-wrapper bg-[var(--app-card-bg)] border border-[var(--app-border)] rounded-none py-3 font-mono text-white">
+    <div className="flex w-full h-full min-h-[320px] justify-around items-center donut-pie-chart-wrapper bg-[var(--app-card-bg)] border border-[var(--app-border)] rounded-none p-4 font-mono text-white">
       <section
-        className="w-1/2 my-2"
+        className="w-1/2 max-w-[210px] max-h-[210px] my-auto flex items-center justify-center cursor-pointer"
         onClick={() => {
           setToggleValues(toggleValues === "amount" ? "percentage" : "amount");
         }}
       >
-        <PieChart
-          // animate={true}
-          rounded={false}
-          lineWidth={30}
+        <div className="w-full max-w-[200px] aspect-square">
+          <PieChart
+            // animate={true}
+            rounded={false}
+            lineWidth={30}
           label={({ dataEntry }) => {
             if (dataEntry.value === 0) return;
             return toggleValues === "percentage"
@@ -47,6 +48,7 @@ const DonutPieChart = ({
           labelPosition={55}
           data={donutPieChartData}
         />
+        </div>
       </section>
       <div className="justify-center">
         {salahStatusStatistics.salahFemaleAloneDatesOverall > 0 ||

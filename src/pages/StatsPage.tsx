@@ -34,6 +34,7 @@ import {
 import { useLocation } from "react-router-dom";
 import SalahSegmentTabs from "../components/Stats/SalahSegmentTabs";
 import { toggleDBConnection } from "../utils/dbUtils";
+import TrendAnalysisView from "../components/Stats/TrendAnalysis/TrendAnalysisView";
 
 // import StreakCount from "../components/Stats/StreakCount";
 
@@ -54,6 +55,21 @@ const StatsPage = ({
 }: StatsPageProps) => {
   const location = useLocation();
   const isStatsPage = location.pathname === "/StatsPage";
+  const searchParams = new URLSearchParams(location.search);
+  const snapshotIdFromUrl =
+    searchParams.get("snapshotId") || searchParams.get("trendId");
+
+  const [statsMode, setStatsMode] = useState<"overview" | "trends">(
+    searchParams.get("tab") === "trends" || snapshotIdFromUrl
+      ? "trends"
+      : "overview",
+  );
+
+  useEffect(() => {
+    if (searchParams.get("tab") === "trends" || snapshotIdFromUrl) {
+      setStatsMode("trends");
+    }
+  }, [location.search, snapshotIdFromUrl]);
 
   const [salahReasonsOverallNumbers, setSalahReasonsOverallNumbers] =
     useState<salahReasonsOverallNumbersType>({
@@ -283,110 +299,145 @@ const StatsPage = ({
           className={`stats-page-wrap`}
         >
           <section className="stats-page-components-wrap">
-            <StreakCounter
-              streakDatesObjectsArr={streakDatesObjectsArr}
-              activeStreakCount={activeStreakCount}
-              userGender={userPreferences.userGender}
-            />
-            {/* <div className="sticky z-10 top-[56px] bg-white dark:bg-[#121212]"> */}
-            <SalahSegmentTabs
-              setStatsToShow={setStatsToShow}
-              statsToShow={statsToShow}
-            />
-            {/* </div> */}
-            <AnimatePresence mode="wait">
-              <motion.section
-                key={statsToShow}
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -10, opacity: 0 }}
-                transition={{ duration: 0.2 }}
+            {/* Top-Level Mode Selector: Overview vs Trend Analysis */}
+            <div className="flex border border-[#242424] bg-[#121212] mb-3">
+              <button
+                onClick={() => setStatsMode("overview")}
+                className={`flex-1 py-1.5 text-xs font-mono font-bold uppercase tracking-wider transition-colors ${
+                  statsMode === "overview"
+                    ? "bg-[#242424] text-white border-b-2 border-[#10B981]"
+                    : "text-[#71717A] hover:text-white"
+                }`}
               >
-                <div className="stats-page-tablet-grid">
-                {Object.values(donutPieChartData).some((obj) => obj.value) && (
-                  <DonutPieChart
-                    donutPieChartData={donutPieChartData}
-                    userGender={userPreferences.userGender}
-                    salahStatusStatistics={salahStatusStatistics}
-                  />
-                )}
-                <Calendar
-                  dbConnection={dbConnection}
-                  userStartDate={userPreferences.userStartDate}
-                  fetchedSalahData={fetchedSalahData}
+                Overview
+              </button>
+              <button
+                onClick={() => setStatsMode("trends")}
+                className={`flex-1 py-1.5 text-xs font-mono font-bold uppercase tracking-wider transition-colors ${
+                  statsMode === "trends"
+                    ? "bg-[#242424] text-white border-b-2 border-[#10B981]"
+                    : "text-[#71717A] hover:text-white"
+                }`}
+              >
+                Trend Analysis
+              </button>
+            </div>
+
+            {statsMode === "trends" ? (
+              <TrendAnalysisView
+                dbConnection={dbConnection}
+                userPreferences={userPreferences}
+                fetchedSalahData={fetchedSalahData}
+                initialSnapshotId={snapshotIdFromUrl}
+              />
+            ) : (
+              <>
+                <StreakCounter
+                  streakDatesObjectsArr={streakDatesObjectsArr}
+                  activeStreakCount={activeStreakCount}
+                  userGender={userPreferences.userGender}
+                />
+                {/* <div className="sticky z-10 top-[56px] bg-white dark:bg-[#121212]"> */}
+                <SalahSegmentTabs
+                  setStatsToShow={setStatsToShow}
                   statsToShow={statsToShow}
                 />
-                </div>{" "}
-                <div className="mt-5">
-                  <BarChartStats
-                    fetchedSalahData={fetchedSalahData}
-                    activeStreakCount={activeStreakCount}
-                    statsToShow={statsToShow}
-                  />
-                </div>
-                <Swiper
-                  className="mt-5"
-                  spaceBetween={50}
-                  slidesPerView={1}
-                  breakpoints={{
-                    768: {
-                      slidesPerView: 2,
-                      spaceBetween: 20,
-                    },
-                    1024: {
-                      slidesPerView: 3,
-                      spaceBetween: 24,
-                    },
-                  }}
-                  modules={[Pagination]}
-                  pagination={{ clickable: true }}
-                >
-                  {userPreferences.userGender === "male" &&
-                    salahStatusStatistics.salahMaleAloneDatesOverall > 0 && (
-                      <SwiperSlide>
-                        <ReasonsCard
-                          setReasonsToShow={setReasonsToShow}
-                          setShowReasonsSheet={setShowReasonsSheet}
-                          salahReasonsOverallNumbers={
-                            salahReasonsOverallNumbers
-                          }
-                          status={"male-alone"}
-                          statsToShow={statsToShow}
-                        />
-                      </SwiperSlide>
+                {/* </div> */}
+                <AnimatePresence mode="wait">
+                  <motion.section
+                    key={statsToShow}
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="stats-page-tablet-grid mt-4 space-y-4 md:space-y-0">
+                    {Object.values(donutPieChartData).some((obj) => obj.value) && (
+                      <DonutPieChart
+                        donutPieChartData={donutPieChartData}
+                        userGender={userPreferences.userGender}
+                        salahStatusStatistics={salahStatusStatistics}
+                      />
                     )}
-                  {salahStatusStatistics.salahLateDatesOverall > 0 && (
-                    <SwiperSlide>
-                      <ReasonsCard
-                        setReasonsToShow={setReasonsToShow}
-                        setShowReasonsSheet={setShowReasonsSheet}
-                        salahReasonsOverallNumbers={salahReasonsOverallNumbers}
-                        status={"late"}
+                    <Calendar
+                      dbConnection={dbConnection}
+                      userStartDate={userPreferences.userStartDate}
+                      fetchedSalahData={fetchedSalahData}
+                      statsToShow={statsToShow}
+                    />
+                    </div>{" "}
+                    <div className="mt-5">
+                      <BarChartStats
+                        fetchedSalahData={fetchedSalahData}
+                        activeStreakCount={activeStreakCount}
                         statsToShow={statsToShow}
                       />
-                    </SwiperSlide>
-                  )}
-                  {salahStatusStatistics.salahMissedDatesOverall > 0 && (
-                    <SwiperSlide>
-                      <ReasonsCard
-                        setReasonsToShow={setReasonsToShow}
-                        setShowReasonsSheet={setShowReasonsSheet}
-                        salahReasonsOverallNumbers={salahReasonsOverallNumbers}
-                        status={"missed"}
-                        statsToShow={statsToShow}
-                      />
-                    </SwiperSlide>
-                  )}
-                </Swiper>
-              </motion.section>
-            </AnimatePresence>
-            <BottomSheetReasons
-              // triggerId="open-reasons-sheet"
-              setShowReasonsSheet={setShowReasonsSheet}
-              showReasonsSheet={showReasonsSheet}
-              salahReasonsOverallNumbers={salahReasonsOverallNumbers}
-              status={reasonsToShow}
-            />
+                    </div>
+                    <Swiper
+                      className="mt-5"
+                      spaceBetween={50}
+                      slidesPerView={1}
+                      breakpoints={{
+                        768: {
+                          slidesPerView: 2,
+                          spaceBetween: 20,
+                        },
+                        1024: {
+                          slidesPerView: 3,
+                          spaceBetween: 24,
+                        },
+                      }}
+                      modules={[Pagination]}
+                      pagination={{ clickable: true }}
+                    >
+                      {userPreferences.userGender === "male" &&
+                        salahStatusStatistics.salahMaleAloneDatesOverall > 0 && (
+                          <SwiperSlide>
+                            <ReasonsCard
+                              setReasonsToShow={setReasonsToShow}
+                              setShowReasonsSheet={setShowReasonsSheet}
+                              salahReasonsOverallNumbers={
+                                salahReasonsOverallNumbers
+                              }
+                              status={"male-alone"}
+                              statsToShow={statsToShow}
+                            />
+                          </SwiperSlide>
+                        )}
+                      {salahStatusStatistics.salahLateDatesOverall > 0 && (
+                        <SwiperSlide>
+                          <ReasonsCard
+                            setReasonsToShow={setReasonsToShow}
+                            setShowReasonsSheet={setShowReasonsSheet}
+                            salahReasonsOverallNumbers={salahReasonsOverallNumbers}
+                            status={"late"}
+                            statsToShow={statsToShow}
+                          />
+                        </SwiperSlide>
+                      )}
+                      {salahStatusStatistics.salahMissedDatesOverall > 0 && (
+                        <SwiperSlide>
+                          <ReasonsCard
+                            setReasonsToShow={setReasonsToShow}
+                            setShowReasonsSheet={setShowReasonsSheet}
+                            salahReasonsOverallNumbers={salahReasonsOverallNumbers}
+                            status={"missed"}
+                            statsToShow={statsToShow}
+                          />
+                        </SwiperSlide>
+                      )}
+                    </Swiper>
+                  </motion.section>
+                </AnimatePresence>
+                <BottomSheetReasons
+                  // triggerId="open-reasons-sheet"
+                  setShowReasonsSheet={setShowReasonsSheet}
+                  showReasonsSheet={showReasonsSheet}
+                  salahReasonsOverallNumbers={salahReasonsOverallNumbers}
+                  status={reasonsToShow}
+                />
+              </>
+            )}
           </section>
         </motion.section>
       </IonContent>

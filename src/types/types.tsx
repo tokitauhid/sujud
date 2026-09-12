@@ -79,6 +79,14 @@ export interface userPreferencesType {
   dailyNotificationOption: dailyNotificationOption;
   dailyNotificationAfterIshaDelay: string;
   lastLaunchDate: string;
+  trendNotificationEnabled: binaryValue;
+  trendWeeklyNotification: binaryValue;
+  trendMonthlyNotification: binaryValue;
+  trendYearlyNotification: binaryValue;
+  trendNotificationDeliveryTime: string;
+  lastTrendWeeklyDelivered: string;
+  lastTrendMonthlyDelivered: string;
+  lastTrendYearlyDelivered: string;
 }
 
 export type calculationMethod = (typeof calculationMethods)[number];
@@ -239,3 +247,96 @@ export type streakDatesObjType = {
   isActive: boolean;
   excusedDays: number;
 };
+
+export type TrendPeriodType = "weekly" | "monthly" | "yearly";
+
+export interface DayTrendItem {
+  date: string;
+  dayLabel: string;
+  totalExpected: number;
+  completed: number;
+  inJamaah: number;
+  alone: number;
+  late: number;
+  missed: number;
+  excused: number;
+  percentage: number;
+  isAllCompleted: boolean;
+}
+
+export interface PrayerTrendBreakdownItem {
+  name: "Fajr" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
+  completed: number;
+  expected: number;
+  inJamaah: number;
+  alone: number;
+  late: number;
+  missed: number;
+  excused: number;
+  completionRate: number;
+  changeVsPreviousRate: number | null;
+}
+
+export interface DayMetricSummary {
+  date: string;
+  dayLabel: string;
+  completed: number;
+  total: number;
+  percentage: number;
+}
+
+export interface TrendMetrics {
+  periodType: TrendPeriodType;
+  periodStart: string;
+  periodEnd: string;
+  totalExpected: number;
+  completed: number;
+  missed: number;
+  late: number;
+  alone: number;
+  inJamaah: number;
+  completionPercentage: number;
+  previousCompletionPercentage: number | null;
+  completionPercentageChange: number | null;
+  bestDay: DayMetricSummary | null;
+  weakestDay: DayMetricSummary | null;
+  currentStreak: number;
+  longestStreak: number;
+  perfectDaysCount: number;
+  totalDays: number;
+  mostFrequentlyMissedPrayer: string | null;
+  mostImprovedPrayer: string | null;
+  days: DayTrendItem[];
+  prayersBreakdown: PrayerTrendBreakdownItem[];
+  // Male mode specific metrics
+  isMaleMode: boolean;
+  prayersWithoutJamaah?: number;
+  jamaahPercentage?: number;
+  previousJamaahCount?: number | null;
+  jamaahCountChange?: number | null;
+  mostFrequentJamaahPrayer?: string | null;
+  leastFrequentJamaahPrayer?: string | null;
+}
+
+export interface TrendSummary {
+  headline: string;
+  details: string;
+  insights: string[];
+  notificationTitle: string;
+  notificationBody: string;
+}
+
+export interface TrendSnapshotRecord {
+  id: string;
+  periodType: TrendPeriodType;
+  periodStart: string;
+  periodEnd: string;
+  generatedAt: number;
+  schemaVersion: number;
+  dataVersion: string;
+  metricsJson: string;
+  summaryJson: string;
+  isMaleMode: number;
+  isNotificationSent: number;
+  createdAt: number;
+}

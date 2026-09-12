@@ -922,11 +922,12 @@ td {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
-    align-items: start;
+    align-items: stretch;
   }
 
   .stats-page-tablet-grid > * {
     min-width: 0;
+    height: 100%;
   }
 
   /* --- Salah Times page: two-column grid on tablet --- */

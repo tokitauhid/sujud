@@ -155,19 +155,13 @@ const Calendar = ({
   }
 
   return (
-    <>
-      {/* <motion.div
-        layout
-        transition={{ layout: { duration: 0.5, ease: "easeInOut" } }}
-      > */}
+    <div className="h-full flex flex-col">
       <section
-        // transition={{ layout: { duration: 0.5, ease: "easeInOut" } }}
-        style={{ height: "auto" }}
-        className={`bg-[var(--app-card-bg)] border border-[var(--app-border)] mt-4 pb-5 calendar-single-month-wrap whitespace-nowrap rounded-none`}
+        className={`bg-[var(--app-card-bg)] border border-[var(--app-border)] pb-5 calendar-single-month-wrap whitespace-nowrap rounded-none h-full min-h-[320px] flex flex-col justify-between`}
       >
         <div
           ref={calenderSingleMonthHeightRef}
-          className={`month-name-days-dates-wrap`}
+          className={`month-name-days-dates-wrap flex-1 flex flex-col justify-between`}
         >
           <section className="flex items-center justify-between p-4">
             <p className="font-semibold text-center font-mono text-white text-sm">
@@ -384,7 +378,7 @@ const Calendar = ({
         clickedDate={clickedDate}
         statsToShow={statsToShow}
       />
-    </>
+    </div>
   );
 };
 

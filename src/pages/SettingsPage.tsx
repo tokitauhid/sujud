@@ -37,6 +37,7 @@ import { toggleDBConnection } from "../utils/dbUtils";
 import BottomSheetSalahTimesSettings from "../components/BottomSheets/SalahTimesSheets/BottomSheetSalahTimesSettings";
 import BottomSheetBatchUpdate from "../components/BottomSheets/BottomSheetBatchUpdate";
 import CloudSyncSettings from "../components/Settings/CloudSyncSettings";
+import BottomSheetTrendSettings from "../components/BottomSheets/BottomSheetTrendSettings";
 
 interface SettingsPageProps {
   sqliteConnection: React.MutableRefObject<SQLiteConnection | undefined>;
@@ -295,6 +296,20 @@ const SettingsPage = ({
                   </div>
                   <MdOutlineChevronRight className="text-[#52525B] text-base" />
                 </div>
+                <div
+                  className="flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer"
+                  id="open-trend-options-sheet"
+                >
+                  <div className="flex flex-col pr-2">
+                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                      Trend Reports & Summaries
+                    </p>
+                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                      Weekly, monthly, and yearly progress notifications
+                    </p>
+                  </div>
+                  <MdOutlineChevronRight className="text-[#52525B] text-base" />
+                </div>
               </div>
               <BottomSheetNotifications
                 dbConnection={dbConnection}
@@ -303,6 +318,12 @@ const SettingsPage = ({
                 setUserPreferences={setUserPreferences}
                 userPreferences={userPreferences}
                 userLocations={userLocations}
+              />
+              <BottomSheetTrendSettings
+                dbConnection={dbConnection}
+                triggerId="open-trend-options-sheet"
+                userPreferences={userPreferences}
+                setUserPreferences={setUserPreferences}
               />
             </div>
 
