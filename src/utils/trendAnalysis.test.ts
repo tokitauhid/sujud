@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   getWeeklyPeriodRange,
   getMonthlyPeriodRange,
@@ -9,8 +9,14 @@ import {
   calculateTrendAnalysis,
   calculateTrendAnalysisWithComparison,
   generateAnalysisSummary,
+  determineTrendReflectionTopic,
 } from "./trendAnalysis";
-import { SalahRecordsArrayType } from "../types/types";
+import {
+  SalahRecordsArrayType,
+  TrendMetrics,
+  TrendSnapshotRecord,
+} from "../types/types";
+import { IslamicContentRecord } from "../types/islamicContent";
 
 describe("Trend Analysis Calculation Engine", () => {
   describe("Period Boundaries", () => {
@@ -320,6 +326,360 @@ describe("Trend Analysis Calculation Engine", () => {
       expect(summary.notificationBody).toContain("You completed");
       expect(summary.notificationBody).toContain("Tap to see your full report.");
       expect(summary.insights.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("Islamic Hadith Reflection Integration (Phase 3)", () => {
+    const mockFixture: IslamicContentRecord[] = [
+      {
+        id: "hadith-good-deeds",
+        type: "hadith",
+        arabicText: "أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا",
+        translatedText: "The most beloved of deeds to Allah are those most consistent.",
+        language: "en",
+        collection: "Sahih al-Bukhari",
+        reference: "Book 76, Hadith 472",
+        grading: "Sahih",
+        sourceUrl: "https://sunnah.com/bukhari:6464",
+        tags: ["good-deeds"],
+        reviewed: true,
+        licenseNote: "Public domain text; test fixture.",
+      },
+      {
+        id: "hadith-consistency",
+        type: "hadith",
+        translatedText: "Keep doing good deeds with steadfastness.",
+        language: "en",
+        collection: "Sahih Muslim",
+        reference: "Book 6, Hadith 262",
+        grading: "Sahih",
+        sourceUrl: "https://sunnah.com/muslim:782",
+        tags: ["consistency"],
+        reviewed: true,
+        licenseNote: "Public domain text; test fixture.",
+      },
+      {
+        id: "hadith-jamaah",
+        type: "hadith",
+        translatedText: "Prayer in congregation is twenty-seven times more rewarding.",
+        language: "en",
+        collection: "Sahih al-Bukhari",
+        reference: "Book 10, Hadith 41",
+        grading: "Sahih",
+        sourceUrl: "https://sunnah.com/bukhari:645",
+        tags: ["jamaah"],
+        reviewed: true,
+        licenseNote: "Public domain text; test fixture.",
+      },
+      {
+        id: "hadith-returning",
+        type: "hadith",
+        translatedText: "Allah accepts repentance of His servant as long as difficulty persists.",
+        language: "en",
+        collection: "Jami` at-Tirmidhi",
+        reference: "Book 48, Hadith 168",
+        grading: "Hasan",
+        sourceUrl: "https://sunnah.com/tirmidhi:3537",
+        tags: ["returning-after-difficulty"],
+        reviewed: true,
+        licenseNote: "Public domain text; test fixture.",
+      },
+      {
+        id: "hadith-time",
+        type: "hadith",
+        translatedText: "The most virtuous deed is prayer at its proper time.",
+        language: "en",
+        collection: "Sahih al-Bukhari",
+        reference: "Book 9, Hadith 1",
+        grading: "Sahih",
+        sourceUrl: "https://sunnah.com/bukhari:527",
+        tags: ["time-and-prayer"],
+        reviewed: true,
+        licenseNote: "Public domain text; test fixture.",
+      },
+      {
+        id: "hadith-patience",
+        type: "hadith",
+        translatedText: "Whoever persists in patience, Allah gives him strength.",
+        language: "en",
+        collection: "Sahih al-Bukhari",
+        reference: "Book 24, Hadith 67",
+        grading: "Sahih",
+        sourceUrl: "https://sunnah.com/bukhari:1469",
+        tags: ["patience"],
+        reviewed: true,
+        licenseNote: "Public domain text; test fixture.",
+      },
+    ];
+
+    const createBaseMetrics = (overrides: Partial<TrendMetrics> = {}): TrendMetrics => ({
+      periodType: "weekly",
+      periodStart: "2026-09-07",
+      periodEnd: "2026-09-13",
+      totalExpected: 35,
+      completed: 30,
+      missed: 0,
+      late: 0,
+      alone: 10,
+      inJamaah: 20,
+      completionPercentage: 86,
+      previousCompletionPercentage: 86,
+      completionPercentageChange: 0,
+      bestDay: null,
+      weakestDay: null,
+      currentStreak: 3,
+      longestStreak: 5,
+      perfectDaysCount: 3,
+      totalDays: 7,
+      mostFrequentlyMissedPrayer: null,
+      mostImprovedPrayer: null,
+      days: [],
+      prayersBreakdown: [],
+      isMaleMode: true,
+      ...overrides,
+    });
+
+    describe("Reflection Topic Priority Selection", () => {
+      it("prioritizes strong improvement (Priority 1) -> good-deeds", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 10,
+          missed: 3, // Even if missed > 0, improvement takes priority
+          perfectDaysCount: 7,
+        });
+        const topic = determineTrendReflectionTopic(metrics, true);
+        expect(topic).toBe("good-deeds");
+      });
+
+      it("selects strong streak or perfect week (Priority 2) -> consistency", () => {
+        const metricsPerfect = createBaseMetrics({
+          completionPercentageChange: 2, // < 5%
+          perfectDaysCount: 7,
+          totalDays: 7,
+        });
+        expect(determineTrendReflectionTopic(metricsPerfect, true)).toBe("consistency");
+
+        const metricsStreak = createBaseMetrics({
+          completionPercentageChange: 0,
+          currentStreak: 8,
+        });
+        expect(determineTrendReflectionTopic(metricsStreak, true)).toBe("consistency");
+      });
+
+      it("selects male-mode Jamaah improvement (Priority 3) -> jamaah", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 2,
+          currentStreak: 2,
+          perfectDaysCount: 2,
+          jamaahCountChange: 5,
+        });
+        const topicMale = determineTrendReflectionTopic(metrics, true);
+        expect(topicMale).toBe("jamaah");
+      });
+
+      it("does not select Jamaah topic for female users even with jamaah count change", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 2,
+          currentStreak: 2,
+          perfectDaysCount: 2,
+          jamaahCountChange: 5,
+          isMaleMode: false,
+        });
+        // In female mode, jamaah improvement condition is bypassed; falls back to consistency
+        const topicFemale = determineTrendReflectionTopic(metrics, false);
+        expect(topicFemale).not.toBe("jamaah");
+        expect(topicFemale).toBe("consistency");
+      });
+
+      it("selects frequent missed prayer (Priority 4) -> returning-after-difficulty", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 0,
+          currentStreak: 0,
+          perfectDaysCount: 0,
+          missed: 4,
+          late: 2,
+        });
+        const topic = determineTrendReflectionTopic(metrics, true);
+        expect(topic).toBe("returning-after-difficulty");
+      });
+
+      it("selects frequent late prayer (Priority 5) -> time-and-prayer", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 0,
+          currentStreak: 0,
+          perfectDaysCount: 0,
+          missed: 0,
+          late: 5,
+        });
+        const topic = determineTrendReflectionTopic(metrics, true);
+        expect(topic).toBe("time-and-prayer");
+      });
+
+      it("selects declining completion rate (Priority 6) -> patience", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: -8,
+          currentStreak: 0,
+          perfectDaysCount: 0,
+          missed: 0,
+          late: 0,
+        });
+        const topic = determineTrendReflectionTopic(metrics, true);
+        expect(topic).toBe("patience");
+      });
+
+      it("falls back to general consistency (Priority 7) -> consistency", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 0,
+          currentStreak: 1,
+          perfectDaysCount: 1,
+          missed: 0,
+          late: 0,
+        });
+        const topic = determineTrendReflectionTopic(metrics, true);
+        expect(topic).toBe("consistency");
+      });
+    });
+
+    describe("Summary and Snapshot Integration", () => {
+      it("embeds hadithReflection in generated summary", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 12,
+        });
+
+        const summary = generateAnalysisSummary(metrics, true, {
+          content: mockFixture,
+        });
+
+        expect(summary.hadithReflection).not.toBeNull();
+        expect(summary.hadithReflection?.id).toBe("hadith-good-deeds");
+        expect(summary.hadithReflection?.topic).toBe("good-deeds");
+        expect(summary.hadithReflection?.collection).toBe("Sahih al-Bukhari");
+        expect(summary.hadithReflection?.reference).toBe("Book 76, Hadith 472");
+        expect(summary.hadithReflection?.grading).toBe("Sahih");
+        expect(summary.hadithReflection?.sourceUrl).toBe("https://sunnah.com/bukhari:6464");
+        expect(summary.hadithReflection?.displayText).toBe(
+          "The most beloved of deeds to Allah are those most consistent.",
+        );
+      });
+
+      it("serializes hadithReflection cleanly into summaryJson", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 12,
+        });
+
+        const summary = generateAnalysisSummary(metrics, true, {
+          content: mockFixture,
+        });
+
+        const snapshot: TrendSnapshotRecord = {
+          id: "test-snap-01",
+          periodType: "weekly",
+          periodStart: "2026-09-07",
+          periodEnd: "2026-09-13",
+          generatedAt: 123456789,
+          schemaVersion: 1,
+          dataVersion: "test-hash",
+          metricsJson: JSON.stringify(metrics),
+          summaryJson: JSON.stringify(summary),
+          isMaleMode: 1,
+          isNotificationSent: 0,
+          createdAt: 123456789,
+        };
+
+        const parsedSummary = JSON.parse(snapshot.summaryJson);
+        expect(parsedSummary.hadithReflection).toBeDefined();
+        expect(parsedSummary.hadithReflection.id).toBe("hadith-good-deeds");
+        expect(parsedSummary.hadithReflection.collection).toBe("Sahih al-Bukhari");
+      });
+
+      it("proves historical snapshot stability across dataset changes", () => {
+        // Generate snapshot with original fixture
+        const metrics = createBaseMetrics({ completionPercentageChange: 12 });
+        const initialSummary = generateAnalysisSummary(metrics, true, {
+          content: mockFixture,
+        });
+        const savedSnapshot: TrendSnapshotRecord = {
+          id: "historic-snap-1",
+          periodType: "weekly",
+          periodStart: "2026-09-07",
+          periodEnd: "2026-09-13",
+          generatedAt: 1000,
+          schemaVersion: 1,
+          dataVersion: "hash-v1",
+          metricsJson: JSON.stringify(metrics),
+          summaryJson: JSON.stringify(initialSummary),
+          isMaleMode: 1,
+          isNotificationSent: 1,
+          createdAt: 1000,
+        };
+
+        // Simulate reading the historical snapshot from SQLite later:
+        const retrievedSummary = JSON.parse(savedSnapshot.summaryJson);
+        expect(retrievedSummary.hadithReflection.id).toBe("hadith-good-deeds");
+
+        // Even if the live content pool changes completely:
+        const completelyDifferentContent: IslamicContentRecord[] = [
+          {
+            id: "new-hadith-999",
+            type: "hadith",
+            translatedText: "Different text entirely.",
+            language: "en",
+            collection: "Sahih Muslim",
+            reference: "Book 1, Hadith 99",
+            grading: "Sahih",
+            sourceUrl: "https://sunnah.com/muslim:99",
+            tags: ["good-deeds"],
+            reviewed: true,
+            licenseNote: "New note",
+          },
+        ];
+
+        // Recalculating live would produce the new hadith...
+        const liveSummary = generateAnalysisSummary(metrics, true, {
+          content: completelyDifferentContent,
+        });
+        expect(liveSummary.hadithReflection?.id).toBe("new-hadith-999");
+
+        // But the historical snapshot summary remains strictly identical!
+        expect(retrievedSummary.hadithReflection.id).toBe("hadith-good-deeds");
+      });
+    });
+
+    describe("Empty Content & Determinism", () => {
+      it("handles empty content gracefully with hadithReflection: null", () => {
+        const metrics = createBaseMetrics();
+        const summary = generateAnalysisSummary(metrics, true, {
+          content: [],
+        });
+
+        expect(summary.hadithReflection).toBeNull();
+
+        const json = JSON.stringify(summary);
+        const parsed = JSON.parse(json);
+        expect(parsed.hadithReflection).toBeNull();
+      });
+
+      it("handles default bundled empty dataset without errors", () => {
+        const metrics = createBaseMetrics();
+        // Calls without options.content, using bundled islamicContent.json ([])
+        const summary = generateAnalysisSummary(metrics, true);
+        expect(summary.hadithReflection).toBeNull();
+      });
+
+      it("deterministically selects the same reflection across multiple runs", () => {
+        const metrics = createBaseMetrics({
+          missed: 3,
+        });
+
+        const first = generateAnalysisSummary(metrics, true, {
+          content: mockFixture,
+        });
+        const second = generateAnalysisSummary(metrics, true, {
+          content: mockFixture,
+        });
+
+        expect(first.hadithReflection?.id).toBe(second.hadithReflection?.id);
+        expect(first.hadithReflection?.id).toBe("hadith-returning");
+      });
     });
   });
 });

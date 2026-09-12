@@ -30,6 +30,15 @@ import {
 } from "../types/types";
 import { withDB } from "./dbUtils";
 import { updateUserPrefs, checkNotificationPermissions } from "./helpers";
+import {
+  IslamicContentRecord,
+  IslamicContentTopic,
+} from "../types/islamicContent";
+import {
+  selectStableHadith,
+  formatSelectedHadithReflection,
+} from "./islamicContent";
+import bundledIslamicContent from "../assets/islamicContent.json";
 
 const PRAYER_NAMES: ("Fajr" | "Dhuhr" | "Asr" | "Maghrib" | "Isha")[] = [
   "Fajr",
@@ -205,7 +214,6 @@ export const calculateTrendAnalysis = (
   let totalLate = 0;
   let totalAlone = 0;
   let totalInJamaah = 0;
-  let totalExcused = 0;
   let perfectDaysCount = 0;
 
   const prayerCounts: Record<
@@ -280,7 +288,6 @@ export const calculateTrendAnalysis = (
     totalAlone += dayAlone;
     totalLate += dayLate;
     totalMissed += dayMissed;
-    totalExcused += dayExcused;
 
     const dayPct = Math.round((dayCompleted / 5) * 100);
     days.push({
@@ -529,12 +536,92 @@ export const calculateTrendAnalysisWithComparison = (
 };
 
 // ---------------------------------------------------------------------------
+// Reflection Topic Determination
+// ---------------------------------------------------------------------------
+
+/**
+ * Determines a reflection topic from TrendMetrics based on the priority:
+ * 1. Strong improvement (completion percentage change >= 5)
+ * 2. Strong streak or perfect week
+ * 3. Jamaah improvement in male mode
+ * 4. Frequent missed prayer
+ * 5. Frequent late prayer
+ * 6. Declining completion rate
+ * 7. General consistency
+ *
+ * Does not infer religious blame. Used strictly to select a relevant reflection topic.
+ */
+export const determineTrendReflectionTopic = (
+  metrics: TrendMetrics,
+  isMaleMode: boolean,
+): IslamicContentTopic => {
+  // 1. Strong improvement
+  if (
+    metrics.completionPercentageChange !== null &&
+    metrics.completionPercentageChange !== undefined &&
+    metrics.completionPercentageChange >= 5
+  ) {
+    return "good-deeds";
+  }
+
+  // 2. Strong streak or perfect week
+  const isPerfectPeriod =
+    metrics.totalDays > 0 && metrics.perfectDaysCount === metrics.totalDays;
+  if (
+    isPerfectPeriod ||
+    metrics.currentStreak >= 7 ||
+    metrics.longestStreak >= 7
+  ) {
+    return "consistency";
+  }
+
+  // 3. Jamaah improvement in male mode
+  if (
+    isMaleMode &&
+    metrics.jamaahCountChange !== null &&
+    metrics.jamaahCountChange !== undefined &&
+    metrics.jamaahCountChange > 0
+  ) {
+    return "jamaah";
+  }
+
+  // 4. Frequent missed prayer
+  if (metrics.missed > 0) {
+    return "returning-after-difficulty";
+  }
+
+  // 5. Frequent late prayer
+  if (metrics.late > 0) {
+    return "time-and-prayer";
+  }
+
+  // 6. Declining completion rate
+  if (
+    metrics.completionPercentageChange !== null &&
+    metrics.completionPercentageChange !== undefined &&
+    metrics.completionPercentageChange < 0
+  ) {
+    return "patience";
+  }
+
+  // 7. General consistency fallback
+  return "consistency";
+};
+
+// ---------------------------------------------------------------------------
 // Summary & Notification Text Generator
 // ---------------------------------------------------------------------------
+
+export interface GenerateAnalysisSummaryOptions {
+  content?: IslamicContentRecord[];
+  previousHadithId?: string | null;
+  periodKey?: string;
+}
 
 export const generateAnalysisSummary = (
   metrics: TrendMetrics,
   isMaleMode: boolean,
+  options?: GenerateAnalysisSummaryOptions,
 ): TrendSummary => {
   const insights: string[] = [];
   const periodNoun =
@@ -651,12 +738,32 @@ export const generateAnalysisSummary = (
     notificationBody = `You completed ${metrics.completed} of ${metrics.totalExpected} prayers ${periodNoun} (${metrics.completionPercentage}%). Tap to see your full report.`;
   }
 
+  // Hadith Reflection Selection
+  const topic = determineTrendReflectionTopic(metrics, isMaleMode);
+  const contentPool =
+    options?.content ?? (bundledIslamicContent as IslamicContentRecord[]);
+  const periodKey =
+    options?.periodKey ?? `${metrics.periodType}_${metrics.periodStart}`;
+  const previousHadithId = options?.previousHadithId ?? null;
+
+  const selectedHadith = selectStableHadith(
+    topic,
+    periodKey,
+    contentPool,
+    previousHadithId,
+  );
+
+  const hadithReflection = selectedHadith
+    ? formatSelectedHadithReflection(selectedHadith, topic)
+    : null;
+
   return {
     headline,
     details,
     insights,
     notificationTitle,
     notificationBody,
+    hadithReflection,
   };
 };
 

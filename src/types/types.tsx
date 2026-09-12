@@ -1,4 +1,5 @@
 import { calculationMethods } from "../utils/constants";
+import type { SelectedHadithReflection } from "./islamicContent";
 
 export type OnboardingMode = "newUser" | "salahTimes" | null;
 
@@ -324,6 +325,7 @@ export interface TrendSummary {
   insights: string[];
   notificationTitle: string;
   notificationBody: string;
+  hadithReflection?: SelectedHadithReflection | null;
 }
 
 export interface TrendSnapshotRecord {
@@ -340,3 +342,12 @@ export interface TrendSnapshotRecord {
   isNotificationSent: number;
   createdAt: number;
 }
+
+export type {
+  IslamicContentType,
+  IslamicContentTopic,
+  IslamicContentRecord,
+  SelectedHadithReflection,
+  ContentValidationResult,
+  SelectHadithOptions,
+} from "./islamicContent";

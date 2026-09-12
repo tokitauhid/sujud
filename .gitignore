@@ -56,6 +56,8 @@ Thumbs.db
 prompt.md
 plan.md
 ongoing_project.md
+src/assets/islamicContent.candidates.json
+temp/
 
 # Local Development / Scratch Tools
 public/firebase-viewer.html

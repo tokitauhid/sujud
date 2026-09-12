@@ -14,7 +14,7 @@
 
 ---
 
-Sujud helps you log your daily prayers, analyse your consistency over time, and build a stronger connection with your Salah — one prostration at a time.
+Sujud is a data-driven, data-dense Salah tracker that helps you log your daily prayers, analyse your consistency over time, and build a stronger connection with your Salah — one prostration at a time.
 
 ## 📱 App Screenshots
 
@@ -44,6 +44,7 @@ Sujud helps you log your daily prayers, analyse your consistency over time, and 
 ## ✨ Features
 
 - 📿 **Prayer Tracking** — Log each of your five daily prayers with a simple tap.
+- 📈 **Data-Driven Insights** — Explore detailed prayer history, status breakdowns, streaks, and progress trends.
 - 🔔 **Smart Notifications** — Adhan alerts and gentle post-prayer logging reminders.
 - 🌐 **Cloud Sync** — Seamlessly sync across all your devices using Google Sign-In and Firebase.
 
