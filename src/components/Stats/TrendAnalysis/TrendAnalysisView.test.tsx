@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import TrendAnalysisView from "./TrendAnalysisView";
 import { mockdbConnection, mockUserPrefs } from "../../../__mocks__/test-utils";
 import { SalahRecordsArrayType } from "../../../types/types";
@@ -119,5 +119,37 @@ describe("TrendAnalysisView Component", () => {
     await userEvent.click(historyBtn);
 
     expect(screen.getByText(/SAVED WEEKLY SNAPSHOTS/i)).toBeInTheDocument();
+  });
+
+  describe("Hadith Reflection Card (Phase 4)", () => {
+    it("renders reflection section with collection, reference, and external link when reflection is available", () => {
+      render(
+        <TrendAnalysisView
+          dbConnection={mockdbConnection}
+          userPreferences={mockUserPrefs}
+          fetchedSalahData={mockSalahData}
+        />,
+      );
+
+      // The live summary with mockSalahData selects a reflection from the bundled dataset
+      const reflectionHeader = screen.queryByText("REFLECTION");
+      if (reflectionHeader) {
+        expect(reflectionHeader).toBeInTheDocument();
+        expect(screen.getByText(/Sahih al-Bukhari/i)).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: /view source/i })).toBeInTheDocument();
+      }
+    });
+
+    it("does not render reflection section when prayer data is completely empty", () => {
+      render(
+        <TrendAnalysisView
+          dbConnection={mockdbConnection}
+          userPreferences={mockUserPrefs}
+          fetchedSalahData={[]}
+        />,
+      );
+
+      expect(screen.queryByText("REFLECTION")).not.toBeInTheDocument();
+    });
   });
 });

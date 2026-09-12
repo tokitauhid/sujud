@@ -50,7 +50,7 @@ Thumbs.db
 *.sln
 *.sw?
 *.swo
-hadith-content-review
+hadith-content-review/
 
 # AI & Agent Workspace Directories
 .agents

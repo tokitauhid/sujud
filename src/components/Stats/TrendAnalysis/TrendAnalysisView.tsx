@@ -13,6 +13,8 @@ import {
   RotateCcw,
   Sparkles,
   Info,
+  BookOpen,
+  ExternalLink,
 } from "lucide-react";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import {
@@ -434,7 +436,71 @@ export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
         </ul>
       </div>
 
-      {/* 7. Visual Trend Chart */}
+      {/* Hadith Reflection Card (Phase 4) */}
+      {summary.hadithReflection && (
+        <div className="bg-[var(--app-card-bg)] border border-[var(--app-border)] p-3.5 text-white">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#10B981] flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-[#10B981]" />
+              REFLECTION
+            </span>
+            {summary.hadithReflection.topic && (
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30">
+                {summary.hadithReflection.topic.replace(/-/g, " ")}
+              </span>
+            )}
+          </div>
+
+          {summary.hadithReflection.arabicText && (
+            <p
+              dir="rtl"
+              className="text-base text-right text-[#E2E8F0] leading-relaxed mb-2 font-medium"
+            >
+              {summary.hadithReflection.arabicText}
+            </p>
+          )}
+
+          <p className="text-xs text-[#CBD5E1] leading-relaxed italic mb-3">
+            "{summary.hadithReflection.translatedText}"
+          </p>
+
+          <div className="pt-2 border-t border-[#242424] flex items-center justify-between flex-wrap gap-2 text-[11px] text-[#94A3B8]">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-white">
+                {summary.hadithReflection.collection}
+              </span>
+              <span>•</span>
+              <span>{summary.hadithReflection.reference}</span>
+              {summary.hadithReflection.grading &&
+                summary.hadithReflection.grading !== "Review required" && (
+                  <>
+                    <span>•</span>
+                    <span className="px-1.5 py-0.5 bg-[#38BDF8]/10 text-[#38BDF8] border border-[#38BDF8]/30 text-[9px] font-bold">
+                      {summary.hadithReflection.grading}
+                      {summary.hadithReflection.gradingAuthority
+                        ? ` (${summary.hadithReflection.gradingAuthority})`
+                        : ""}
+                    </span>
+                  </>
+                )}
+            </div>
+
+            {summary.hadithReflection.sourceUrl && (
+              <a
+                href={summary.hadithReflection.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-[#38BDF8] hover:underline flex items-center gap-1 font-medium"
+              >
+                View source
+                <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Visual Trend Chart */}
       <TrendBarChart
         days={metrics.days}
         isMaleMode={isMaleMode}

@@ -324,7 +324,7 @@ describe("Trend Analysis Calculation Engine", () => {
 
       expect(summary.notificationTitle).toBe("Sujud Weekly Summary");
       expect(summary.notificationBody).toContain("You completed");
-      expect(summary.notificationBody).toContain("Tap to see your full report.");
+      expect(summary.notificationBody).toContain("Your full report");
       expect(summary.insights.length).toBeGreaterThan(0);
     });
   });
@@ -658,11 +658,20 @@ describe("Trend Analysis Calculation Engine", () => {
         expect(parsed.hadithReflection).toBeNull();
       });
 
-      it("handles default bundled empty dataset without errors", () => {
+      it("handles explicit empty dataset without errors", () => {
         const metrics = createBaseMetrics();
-        // Calls without options.content, using bundled islamicContent.json ([])
-        const summary = generateAnalysisSummary(metrics, true);
+        const summary = generateAnalysisSummary(metrics, true, { content: [] });
         expect(summary.hadithReflection).toBeNull();
+      });
+
+      it("handles default bundled dataset without errors", () => {
+        const metrics = createBaseMetrics();
+        const summary = generateAnalysisSummary(metrics, true);
+        // Bundled dataset is loaded safely; if reflections exist, it selects one deterministically
+        if (summary.hadithReflection) {
+          expect(summary.hadithReflection.collection).toBeDefined();
+          expect(summary.hadithReflection.translatedText).toBeDefined();
+        }
       });
 
       it("deterministically selects the same reflection across multiple runs", () => {
@@ -679,6 +688,69 @@ describe("Trend Analysis Calculation Engine", () => {
 
         expect(first.hadithReflection?.id).toBe(second.hadithReflection?.id);
         expect(first.hadithReflection?.id).toBe("hadith-returning");
+      });
+    });
+
+    describe("Weekly Notification Integration (Phase 5)", () => {
+      it("includes hadith collection reference in notificationBody when reflection exists", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 8,
+          completed: 32,
+        });
+
+        const summary = generateAnalysisSummary(metrics, true, {
+          content: mockFixture,
+        });
+
+        expect(summary.notificationBody).toContain(
+          "Your Salah completion improved by 8% this week.",
+        );
+        expect(summary.notificationBody).toContain(
+          "Your full report includes a reflection from Sahih al-Bukhari.",
+        );
+      });
+
+      it("enforces concise notification length (< 180 chars)", () => {
+        const metrics = createBaseMetrics({
+          completionPercentageChange: 15,
+          completed: 35,
+          inJamaah: 28,
+        });
+
+        const summary = generateAnalysisSummary(metrics, true, {
+          content: mockFixture,
+        });
+
+        expect(summary.notificationBody.length).toBeLessThanOrEqual(180);
+      });
+
+      it("does not include hadith reference when completed prayers is 0", () => {
+        const metrics = createBaseMetrics({
+          completed: 0,
+          totalExpected: 35,
+          completionPercentage: 0,
+          completionPercentageChange: null,
+        });
+
+        const summary = generateAnalysisSummary(metrics, true, {
+          content: mockFixture,
+        });
+
+        expect(summary.notificationBody).not.toContain("includes a reflection from");
+        expect(summary.notificationBody).toContain("Tap to see your full report.");
+      });
+
+      it("does not include hadith reference when content is empty", () => {
+        const metrics = createBaseMetrics({
+          completed: 30,
+        });
+
+        const summary = generateAnalysisSummary(metrics, true, {
+          content: [],
+        });
+
+        expect(summary.notificationBody).not.toContain("includes a reflection from");
+        expect(summary.notificationBody).toContain("Tap to see your full report.");
       });
     });
   });

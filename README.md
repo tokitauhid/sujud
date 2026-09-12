@@ -45,11 +45,11 @@ Sujud is a data-driven, data-dense Salah tracker that helps you log your daily p
 
 - 📿 **Prayer Tracking** — Log each of your five daily prayers with a simple tap.
 - 📈 **Data-Driven Insights** — Explore detailed prayer history, status breakdowns, streaks, and progress trends.
-- 🔔 **Smart Notifications** — Adhan alerts and gentle post-prayer logging reminders.
+- 📊 **Trend Analysis & Reflections** — Weekly, monthly, and yearly analytical reports with visual charts, Jamaah breakdowns, historical snapshots, and authentic hadith reflections deterministically tailored to worship trends.
+- 🔔 **Smart Notifications** — Adhan alerts, gentle post-prayer reminders, and Screen Time-style weekly completion summaries with reflection references.
 - 🌐 **Cloud Sync** — Seamlessly sync across all your devices using Google Sign-In and Firebase.
 
 ### 🚧 Coming Soon
-- 📊 **Trend Analysis** — Beautiful weekly, monthly, and yearly reports with visual charts.
 - 🗒️ **Notes** — Attach personal reminders for du'as and adhkar to any prayer.
 - 🎨 **Themes** — Multiple colour themes, including a pure OLED black mode.
 - 📅 **Hijri Calendar** — Browse and reflect on your prayer history by Islamic date.
@@ -156,6 +156,10 @@ This script will automatically:
 Sujud is a fork of **[My Salah App](https://github.com/My-Ummah-Apps/My-Salah-App)** — originally created and maintained by [My Ummah Apps](https://github.com/mpmua). The core prayer tracking engine, architecture, and design foundations were built by the original author. Full credit and deep gratitude go to them for creating such an incredible open-source tool for the Muslim community.
 
 If you find this app useful, please also ⭐ the [original project](https://github.com/My-Ummah-Apps/My-Salah-App).
+
+### 📖 Islamic Content & Hadith Sources
+
+Hadith reflections in Trend Analysis are bundled locally from verified, authentic collections (including Sahih al-Bukhari) with verified references, Arabic text, gradings, and direct source links. The app operates completely offline with no dependency on external live APIs for content delivery.
 
 ---
 

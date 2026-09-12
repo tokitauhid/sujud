@@ -33,6 +33,7 @@ import { updateUserPrefs, checkNotificationPermissions } from "./helpers";
 import {
   IslamicContentRecord,
   IslamicContentTopic,
+  SelectedHadithReflection,
 } from "../types/islamicContent";
 import {
   selectStableHadith,
@@ -724,38 +725,58 @@ export const generateAnalysisSummary = (
     );
   }
 
-  // Screen Time-style lock-screen notification
+  // Hadith Reflection Selection (Only when meaningful prayer data exists)
+  let hadithReflection: SelectedHadithReflection | null = null;
+  let selectedHadith: IslamicContentRecord | null = null;
+  if (metrics.completed > 0) {
+    const topic = determineTrendReflectionTopic(metrics, isMaleMode);
+    const contentPool =
+      options?.content ?? (bundledIslamicContent as IslamicContentRecord[]);
+    const periodKey =
+      options?.periodKey ?? `${metrics.periodType}_${metrics.periodStart}`;
+    const previousHadithId = options?.previousHadithId ?? null;
+
+    selectedHadith = selectStableHadith(
+      topic,
+      periodKey,
+      contentPool,
+      previousHadithId,
+    );
+
+    hadithReflection = selectedHadith
+      ? formatSelectedHadithReflection(selectedHadith, topic)
+      : null;
+  }
+
+  // Screen Time-style lock-screen notification (Phase 5)
   const capitalizedType =
     metrics.periodType.charAt(0).toUpperCase() + metrics.periodType.slice(1);
   const notificationTitle = `Sujud ${capitalizedType} Summary`;
 
-  let notificationBody = "";
+  let baseNotice = "";
   if (metrics.completionPercentageChange !== null && metrics.completionPercentageChange > 0) {
-    notificationBody = `Your Salah completion improved by ${metrics.completionPercentageChange}% ${periodNoun}. You completed ${metrics.completed} of ${metrics.totalExpected} prayers. Tap to see your full report.`;
+    baseNotice = `Your Salah completion improved by ${metrics.completionPercentageChange}% ${periodNoun}.`;
   } else if (isMaleMode && (metrics.inJamaah || 0) > 0) {
-    notificationBody = `You completed ${metrics.completed} of ${metrics.totalExpected} prayers ${periodNoun} (${metrics.inJamaah} in Jamaah). Tap to see your full report.`;
+    baseNotice = `You completed ${metrics.completed} of ${metrics.totalExpected} prayers ${periodNoun} (${metrics.inJamaah} in Jamaah).`;
   } else {
-    notificationBody = `You completed ${metrics.completed} of ${metrics.totalExpected} prayers ${periodNoun} (${metrics.completionPercentage}%). Tap to see your full report.`;
+    baseNotice = `You completed ${metrics.completed} of ${metrics.totalExpected} prayers ${periodNoun} (${metrics.completionPercentage}%).`;
   }
 
-  // Hadith Reflection Selection
-  const topic = determineTrendReflectionTopic(metrics, isMaleMode);
-  const contentPool =
-    options?.content ?? (bundledIslamicContent as IslamicContentRecord[]);
-  const periodKey =
-    options?.periodKey ?? `${metrics.periodType}_${metrics.periodStart}`;
-  const previousHadithId = options?.previousHadithId ?? null;
+  // Include short hadith reference when meaningful data exists, record is reviewed,
+  // attribution is complete, and notification length remains concise (< 180 chars)
+  const canIncludeReflection =
+    metrics.completed > 0 &&
+    hadithReflection !== null &&
+    Boolean(selectedHadith?.reviewed) &&
+    Boolean(hadithReflection.collection && hadithReflection.collection.trim().length > 0);
 
-  const selectedHadith = selectStableHadith(
-    topic,
-    periodKey,
-    contentPool,
-    previousHadithId,
-  );
-
-  const hadithReflection = selectedHadith
-    ? formatSelectedHadithReflection(selectedHadith, topic)
-    : null;
+  let notificationBody = `${baseNotice} Tap to see your full report.`;
+  if (canIncludeReflection && hadithReflection) {
+    const candidateBody = `${baseNotice} Your full report includes a reflection from ${hadithReflection.collection}.`;
+    if (candidateBody.length <= 180) {
+      notificationBody = candidateBody;
+    }
+  }
 
   return {
     headline,
