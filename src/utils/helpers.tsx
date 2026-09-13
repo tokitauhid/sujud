@@ -9,8 +9,8 @@ import {
   salahTimesObjType,
   userPreferencesType,
 } from "../types/types";
-import { toggleDBConnection, withDB } from "./dbUtils";
-import { syncPreferenceToCloud } from "../firebase/syncService";
+import { withDB } from "./dbUtils";
+import { syncPreferenceToCloud, syncMultiplePreferencesToCloud } from "../firebase/syncService";
 import {
   CalculationMethod,
   CalculationParameters,
@@ -426,9 +426,12 @@ export const setAdhanLibraryDefaults = async (
   userPreferences: userPreferencesType,
   userLocations: LocationsDataObjTypeArr,
 ) => {
-  // if (!userPreferences.prayerCalculationMethod) return;
+  if (!calcMethod || typeof CalculationMethod[calcMethod] !== "function") {
+    console.error("Invalid calculation method:", calcMethod);
+    return;
+  }
 
-  if (!userLocations) {
+  if (!userLocations || userLocations.length === 0) {
     console.error(
       "Unable to set calculation method as no user locations exist",
     );
@@ -436,26 +439,23 @@ export const setAdhanLibraryDefaults = async (
   }
 
   try {
-    await toggleDBConnection(dbConnection, "open");
-
     const activeLocation = getActiveLocation(userLocations);
-
-    const params = CalculationMethod[calcMethod]();
 
     if (!activeLocation) {
       console.error("Active location does not exist");
       return;
     }
 
+    const params = CalculationMethod[calcMethod]();
+
     const coordinates = new Coordinates(
       activeLocation.latitude,
       activeLocation.longitude,
     );
 
-    const defaultCalcMethodValues = {
+    const defaultCalcMethodValues: Record<string, string> = {
       prayerCalculationMethod: calcMethod,
-      // madhab: params.madhab,
-      madhab: userPreferences.madhab,
+      madhab: userPreferences?.madhab || "shafi",
       highLatitudeRule: HighLatitudeRule.recommended(coordinates),
       fajrAngle: String(params.fajrAngle),
       ishaAngle: String(params.ishaAngle),
@@ -466,28 +466,24 @@ export const setAdhanLibraryDefaults = async (
       ishaAdjustment: "0",
     };
 
-    // console.log("SETTING DEFAULTS", defaultCalcMethodValues);
-
-    const query = `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`;
-
-    if (!dbConnection || !dbConnection.current) {
-      throw new Error("dbConnection / dbconnection.current does not exist");
-    }
-
     const now = Date.now();
-    for (const [key, value] of Object.entries(defaultCalcMethodValues)) {
-      // console.log(key, value);
-      await dbConnection.current.run(query, [key, value, now]);
-    }
 
-    setUserPreferences((userPreferences: userPreferencesType) => ({
-      ...userPreferences,
+    await withDB(dbConnection, async (db) => {
+      const query = `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`;
+      for (const [key, value] of Object.entries(defaultCalcMethodValues)) {
+        await db.run(query, [key, value, now]);
+      }
+    });
+
+    setUserPreferences((prev: userPreferencesType) => ({
+      ...prev,
       ...defaultCalcMethodValues,
     }));
+
+    // Sync all default calculation method values to cloud
+    syncMultiplePreferencesToCloud(defaultCalcMethodValues, now);
   } catch (error) {
-    console.error(error);
-  } finally {
-    await toggleDBConnection(dbConnection, "close");
+    console.error("Failed to set adhan library defaults:", error);
   }
 };
 

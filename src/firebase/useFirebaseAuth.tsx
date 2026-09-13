@@ -81,6 +81,7 @@ export const FirebaseAuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async (): Promise<void> => {
     if (!auth) throw new Error("Firebase Auth is not initialized.");
     try {
+      localStorage.removeItem("lastSyncedUserId");
       await FirebaseAuthentication.signOut();
       await firebaseSignOut(auth);
     } catch (error) {

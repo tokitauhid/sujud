@@ -139,6 +139,28 @@ export function syncPreferenceToCloud(
 }
 
 /**
+ * Push multiple preferences to Firestore in a single merged document write.
+ */
+export function syncMultiplePreferencesToCloud(
+  prefs: Record<string, string>,
+  updatedAt: number
+): void {
+  const user = auth?.currentUser;
+  if (!user || !db) return;
+
+  const payload: Record<string, { value: string; updatedAt: number }> = {};
+  for (const [key, val] of Object.entries(prefs)) {
+    payload[key] = { value: String(val), updatedAt };
+  }
+
+  setDoc(
+    doc(db, "users", user.uid, "preferences", "data"),
+    payload,
+    { merge: true }
+  ).catch(e => console.error("[SYNC] Failed to push multiple preferences:", e));
+}
+
+/**
  * Push a single location record to Firestore.
  * Call this fire-and-forget after every location mutation.
  */
@@ -276,7 +298,12 @@ export function initRealtimeSync(
       const statements: Array<{ statement: string; values: any[] }> = [];
       for (const [key, pref] of Object.entries(prefs)) {
         statements.push({
-          statement: `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
+          statement: `INSERT INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt)
+            VALUES (?, ?, ?)
+            ON CONFLICT(preferenceName) DO UPDATE SET
+              preferenceValue = excluded.preferenceValue,
+              updatedAt = excluded.updatedAt
+            WHERE excluded.updatedAt >= userPreferencesTable.updatedAt`,
           values: [key, pref.value, pref.updatedAt],
         });
       }
@@ -570,6 +597,23 @@ export async function pullCloudDataToLocal(
     const logsSnap = await getDocs(salahLogsCol(userId));
     const locsSnap = await getDocs(locationsCol(userId));
 
+    // Preserve local calculation method if cloud doesn't have a valid non-empty one
+    let localPrayerCalculationMethod = "";
+    let localPrayerCalculationMethodUpdatedAt = 0;
+    try {
+      await withDB(dbConnection, async (db) => {
+        const res = await db.query(
+          `SELECT preferenceValue, updatedAt FROM userPreferencesTable WHERE preferenceName = 'prayerCalculationMethod'`
+        );
+        if (res?.values?.[0]?.preferenceValue) {
+          localPrayerCalculationMethod = res.values[0].preferenceValue;
+          localPrayerCalculationMethodUpdatedAt = res.values[0].updatedAt || Date.now();
+        }
+      });
+    } catch (e) {
+      console.error("[PULL] Failed to read local calculation method:", e);
+    }
+
     // Start replacing local data via statements
     const statements: any[] = [];
     
@@ -578,7 +622,7 @@ export async function pullCloudDataToLocal(
     statements.push({ statement: `DELETE FROM salahDataTable`, values: [] });
     statements.push({ statement: `DELETE FROM userLocationsTable`, values: [] });
 
-    if (prefsSnap.exists()) {
+      if (prefsSnap.exists()) {
       const data = prefsSnap.data();
       for (const [k, v] of Object.entries(data)) {
         if (k === "updatedAt") continue;
@@ -594,6 +638,17 @@ export async function pullCloudDataToLocal(
           statement: `INSERT INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
           values: [k, strVal, up]
         });
+      }
+
+      // If cloud was missing/empty on prayerCalculationMethod but local had one, preserve and heal cloud
+      const cloudMethodObj = data?.prayerCalculationMethod;
+      const cloudMethodVal = typeof cloudMethodObj === "object" && cloudMethodObj !== null ? cloudMethodObj.value : cloudMethodObj;
+      if (!cloudMethodVal && localPrayerCalculationMethod) {
+        statements.push({
+          statement: `INSERT OR REPLACE INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt) VALUES (?, ?, ?)`,
+          values: ["prayerCalculationMethod", localPrayerCalculationMethod, localPrayerCalculationMethodUpdatedAt],
+        });
+        syncPreferenceToCloud("prayerCalculationMethod", localPrayerCalculationMethod, localPrayerCalculationMethodUpdatedAt);
       }
     }
 

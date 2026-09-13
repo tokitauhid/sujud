@@ -87,7 +87,7 @@ import {
 } from "./utils/constants";
 import TabletSideNav from "./components/TabletSideNav";
 import { FirebaseAuthProvider, useFirebaseAuth } from "./firebase/useFirebaseAuth";
-import { initRealtimeSync, initialSyncOnSignIn } from "./firebase/syncService";
+import { initRealtimeSync, initialSyncOnSignIn, syncPreferenceToCloud } from "./firebase/syncService";
 import { checkAndGenerateTrendNotifications } from "./utils/trendAnalysis";
 
 
@@ -163,11 +163,15 @@ const AppContent = () => {
     let unsubscribe: (() => void) | null = null;
 
     const setup = async () => {
-      // One-time initial sync on sign-in
+      // One-time initial sync on sign-in (only if this device hasn't synced for this user)
       try {
-        const result = await initialSyncOnSignIn(user.uid, dbConnection);
-        if (result === 'pulled') {
-          await fetchDataFromDB();
+        const lastSyncedUser = localStorage.getItem("lastSyncedUserId");
+        if (lastSyncedUser !== user.uid) {
+          const result = await initialSyncOnSignIn(user.uid, dbConnection);
+          if (result === 'pulled') {
+            await fetchDataFromDB();
+          }
+          localStorage.setItem("lastSyncedUserId", user.uid);
         }
       } catch (e) {
         console.error("[SYNC] Initial sync failed:", e);
@@ -184,6 +188,20 @@ const AppContent = () => {
           setUserPreferences(prev => {
             const updated = { ...prev };
             for (const [key, pref] of Object.entries(prefs)) {
+              if (
+                key === "prayerCalculationMethod" &&
+                !pref.value &&
+                prev.prayerCalculationMethod
+              ) {
+                // Cloud has an empty/missing calculation method but local state is set.
+                // Do not reset the user's selected calculation method! Heal the cloud instead.
+                syncPreferenceToCloud(
+                  "prayerCalculationMethod",
+                  prev.prayerCalculationMethod,
+                  Date.now(),
+                );
+                continue;
+              }
               if (key === "reasons") {
                 const val = pref.value;
                 (updated as any).reasons = Array.isArray(val)
