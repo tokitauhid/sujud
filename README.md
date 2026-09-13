@@ -119,7 +119,17 @@ npm run lint      # Run ESLint
 
 ## 📱 Building for Mobile
 
-To generate web bundles and sync with the Android native project:
+### Option 1: Automated Local APK Build & ADB Deployment (CLI)
+Build a signed release APK (or unsigned debug APK) and optionally push it directly to your connected phone:
+```bash
+npm run build:apk
+# or directly:
+./scripts/build-release-apk.sh
+```
+> See [`scripts/BUILD_RELEASE.md`](./scripts/BUILD_RELEASE.md) for full prerequisites, signing configuration, and CLI options.
+
+### Option 2: Android Studio Workflow
+To generate web bundles, sync assets, and open the native project in Android Studio:
 ```bash
 npm run build
 npx cap sync android

@@ -14,6 +14,7 @@
     "test:ui": "vitest --ui",
     "capture:screenshots": "node scripts/capture-screenshots.mjs",
     "verify:all": "node scripts/verify-all-issues.mjs",
+    "build:apk": "./scripts/build-release-apk.sh",
     "release": "./release.sh"
   },
   "dependencies": {
