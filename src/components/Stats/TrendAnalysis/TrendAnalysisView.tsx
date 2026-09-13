@@ -242,16 +242,11 @@ export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
 
           <button
             onClick={() => setIsHistoryModalOpen(true)}
-            className="relative p-1.5 hover:bg-[#202020] text-[#94A3B8] hover:text-white transition-colors ml-1"
-            title="View saved snapshot history"
-            aria-label="View saved snapshot history"
+            className="p-1.5 hover:bg-[#202020] text-[#94A3B8] hover:text-white transition-colors ml-1"
+            title={`${periodType === "weekly" ? "Weekly" : periodType === "monthly" ? "Monthly" : "Yearly"} report history`}
+            aria-label="View report history"
           >
             <History className="w-4 h-4" />
-            {savedSnapshots.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#10B981] text-black text-[8px] font-bold rounded-full flex items-center justify-center">
-                {savedSnapshots.length > 9 ? "9+" : savedSnapshots.length}
-              </span>
-            )}
           </button>
         </div>
       </div>
@@ -262,11 +257,10 @@ export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-[#10B981] shrink-0" />
             <div className="text-[11px] text-[#A7F3D0]">
-              Viewing immutable snapshot from{" "}
+              Viewing history from{" "}
               <span className="font-bold">
-                {format(new Date(viewingSnapshot.generatedAt), "MMM dd, HH:mm")}
-              </span>{" "}
-              ({viewingSnapshot.dataVersion})
+                {format(new Date(viewingSnapshot.generatedAt), "MMM dd, yyyy")}
+              </span>
             </div>
           </div>
           <button
@@ -274,7 +268,7 @@ export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
             className="flex items-center gap-1 text-[10px] text-black bg-[#10B981] px-2 py-0.5 font-bold uppercase hover:bg-[#059669] transition-colors shrink-0"
           >
             <RotateCcw className="w-3 h-3" />
-            Live
+            Current
           </button>
         </div>
       )}

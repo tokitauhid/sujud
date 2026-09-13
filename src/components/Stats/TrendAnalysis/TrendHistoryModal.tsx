@@ -29,7 +29,7 @@ export const TrendHistoryModal: React.FC<TrendHistoryModalProps> = ({
           <div className="flex items-center gap-2">
             <History className="w-4 h-4 text-[#10B981]" />
             <h2 className="text-xs font-bold uppercase tracking-wider text-white">
-              SAVED {periodType.toUpperCase()} SNAPSHOTS
+              {periodType.toUpperCase()} REPORT HISTORY
             </h2>
           </div>
           <button
@@ -42,7 +42,7 @@ export const TrendHistoryModal: React.FC<TrendHistoryModalProps> = ({
         </div>
 
         <p className="text-[11px] text-[#71717A] mt-2 mb-3 shrink-0">
-          Historical analyses are immutable records preserved exactly as generated.
+          Past reports are saved here so you can review your prayer habits over time.
         </p>
 
         {/* Snapshot List */}
@@ -50,9 +50,9 @@ export const TrendHistoryModal: React.FC<TrendHistoryModalProps> = ({
           {snapshots.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center text-[#71717A]">
               <History className="w-8 h-8 mb-2 opacity-30" />
-              <p className="text-xs">No saved snapshots for this period type yet.</p>
+              <p className="text-xs">No past reports for this period yet.</p>
               <p className="text-[10px] mt-1 text-[#52525B]">
-                Snapshots are automatically saved when analyses or notifications are created.
+                Reports are automatically saved as your prayer habits are tracked.
               </p>
             </div>
           ) : (
@@ -93,7 +93,7 @@ export const TrendHistoryModal: React.FC<TrendHistoryModalProps> = ({
                         )}
                       </div>
                       <div className="text-[10px] text-[#71717A] mt-1">
-                        Generated {format(generatedDate, "MMM dd, yyyy HH:mm")} • {snap.dataVersion}
+                        Saved on {format(generatedDate, "MMM dd, yyyy")}
                       </div>
                     </div>
 

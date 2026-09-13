@@ -115,10 +115,10 @@ describe("TrendAnalysisView Component", () => {
       />,
     );
 
-    const historyBtn = screen.getByLabelText(/view saved snapshot history/i);
+    const historyBtn = screen.getByLabelText(/view report history/i);
     await userEvent.click(historyBtn);
 
-    expect(screen.getByText(/SAVED WEEKLY SNAPSHOTS/i)).toBeInTheDocument();
+    expect(screen.getByText(/WEEKLY REPORT HISTORY/i)).toBeInTheDocument();
   });
 
   describe("Hadith Reflection Card (Phase 4)", () => {
