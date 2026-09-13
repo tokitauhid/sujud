@@ -88,7 +88,24 @@ export interface userPreferencesType {
   lastTrendWeeklyDelivered: string;
   lastTrendMonthlyDelivered: string;
   lastTrendYearlyDelivered: string;
+  fajrAdhanMode: AdhanSchedulingMode;
+  dhuhrAdhanMode: AdhanSchedulingMode;
+  asrAdhanMode: AdhanSchedulingMode;
+  maghribAdhanMode: AdhanSchedulingMode;
+  ishaAdhanMode: AdhanSchedulingMode;
+  fajrAdhanOffset: string;
+  dhuhrAdhanOffset: string;
+  asrAdhanOffset: string;
+  maghribAdhanOffset: string;
+  ishaAdhanOffset: string;
+  fajrAdhanManualTime: string;
+  dhuhrAdhanManualTime: string;
+  asrAdhanManualTime: string;
+  maghribAdhanManualTime: string;
+  ishaAdhanManualTime: string;
 }
+
+export type AdhanSchedulingMode = "start" | "offset" | "manual";
 
 export type calculationMethod = (typeof calculationMethods)[number];
 

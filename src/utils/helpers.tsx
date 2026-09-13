@@ -31,6 +31,7 @@ import {
 } from "capacitor-native-settings";
 
 import { BatteryOptimization } from "@capawesome-team/capacitor-android-battery-optimization";
+import { AdhanAlarm } from "../services/AdhanAlarm";
 
 export const showToast = async (text: string, duration: "short" | "long") => {
   await Toast.show({
@@ -153,44 +154,6 @@ export const getActiveLocation = (userLocations: LocationsDataObjTypeArr) => {
   return activeLocation;
 };
 
-export const cancelNotifications = async (
-  notificationName: SalahNamesTypeAdhanLibrary | "Daily Reminder",
-) => {
-  // console.log(
-  //   "CANCELLING NOTIFICATIONS FOR THE FOLLOWING REMINDERS: ",
-  //   notificationName,
-  // );
-
-  const pendingNotifications = await LocalNotifications.getPending();
-
-  // console.log(
-  //   "pendingNotifications before cancellation: ",
-  //   pendingNotifications.notifications,
-  // );
-
-  const notificationNameToCancel =
-    notificationName !== "Daily Reminder"
-      ? upperCaseFirstLetter(notificationName)
-      : notificationName;
-
-  const notificationsToCancel = pendingNotifications.notifications
-    .filter((item) => item.title === notificationNameToCancel)
-    .map((n) => ({
-      id: n.id,
-    }));
-
-  // console.log("notificationsToCancel: ", notificationsToCancel);
-
-  if (notificationsToCancel.length === 0) return;
-
-  await LocalNotifications.cancel({ notifications: notificationsToCancel });
-
-  // console.log(
-  //   "pending notifications after cancelling: ",
-  //   (await LocalNotifications.getPending()).notifications,
-  // );
-};
-
 const salahIdMap = {
   fajr: 1,
   sunrise: 2,
@@ -207,6 +170,40 @@ const generateNotificationId = (
   const dateFormatted = format(date, "ddMMyyyy");
 
   return Number(dateFormatted + salahIdMap[salahName]);
+};
+
+export const cancelNotifications = async (
+  notificationName: SalahNamesTypeAdhanLibrary | "Daily Reminder",
+) => {
+  // Cancel AdhanAlarm if scheduled on Android
+  if (
+    notificationName !== "Daily Reminder" &&
+    Capacitor.getPlatform() === "android"
+  ) {
+    const now = new Date();
+    for (let i = 0; i < 9; i++) {
+      const targetDate = addDays(now, i);
+      const id = generateNotificationId(notificationName, targetDate);
+      await AdhanAlarm.cancelAdhan({ id });
+    }
+  }
+
+  const pendingNotifications = await LocalNotifications.getPending();
+
+  const notificationNameToCancel =
+    notificationName !== "Daily Reminder"
+      ? upperCaseFirstLetter(notificationName)
+      : notificationName;
+
+  const notificationsToCancel = pendingNotifications.notifications
+    .filter((item) => item.title === notificationNameToCancel)
+    .map((n) => ({
+      id: n.id,
+    }));
+
+  if (notificationsToCancel.length === 0) return;
+
+  await LocalNotifications.cancel({ notifications: notificationsToCancel });
 };
 
 export const toLocalDateFromUTCClock = (utcDate: Date) => {
@@ -305,49 +302,95 @@ export const scheduleSalahNotifications = async (
     if (!result) return;
     const { params, coordinates } = result;
 
-    const arr = [];
+    const arr: { triggerTime: Date; day: Date }[] = [];
 
     for (let i = 0; i < nextSevenDays.length; i++) {
-      const salahTime = new PrayerTimes(coordinates, nextSevenDays[i], params)[
+      const day = nextSevenDays[i];
+      const salahTime = new PrayerTimes(coordinates, day, params)[
         salahName
       ];
 
-      if (now < salahTime) {
-        arr.push(salahTime);
+      let triggerTime = salahTime;
+
+      if (setting === "adhan" && salahName !== "sunrise") {
+        const modeKey = `${salahName}AdhanMode` as keyof userPreferencesType;
+        const mode = (userPreferences[modeKey] as string) || "start";
+
+        if (mode === "offset") {
+          const offsetKey = `${salahName}AdhanOffset` as keyof userPreferencesType;
+          const offsetMinutes = parseInt(
+            (userPreferences[offsetKey] as string) || "0",
+            10,
+          );
+          triggerTime = new Date(
+            salahTime.getTime() + offsetMinutes * 60 * 1000,
+          );
+        } else if (mode === "manual") {
+          const manualTimeKey = `${salahName}AdhanManualTime` as keyof userPreferencesType;
+          const manualTime =
+            (userPreferences[manualTimeKey] as string) || "12:00";
+          const [hours, minutes] = manualTime.split(":").map(Number);
+          triggerTime = new Date(
+            day.getFullYear(),
+            day.getMonth(),
+            day.getDate(),
+            hours || 0,
+            minutes || 0,
+            0,
+            0,
+          );
+        }
+      }
+
+      if (now < triggerTime) {
+        arr.push({ triggerTime, day });
       }
     }
 
     for (let i = 0; i < arr.length; i++) {
-      const uniqueId = generateNotificationId(salahName, arr[i]);
+      const { triggerTime, day } = arr[i];
+      const uniqueId = generateNotificationId(salahName, day);
 
       const notificationMsg =
-        salahName === "sunrise"
-          ? "The sun is rising!"
-          : `It's time to pray ${upperCaseFirstLetter(salahName)}`;
+        setting === "adhan"
+          ? `Adhan for ${upperCaseFirstLetter(salahName)}`
+          : salahName === "sunrise"
+            ? "The sun is rising!"
+            : `It's time to pray ${upperCaseFirstLetter(salahName)}`;
 
-      const channelId =
-        setting === "adhan" && salahName === "fajr"
-          ? "fajr-reminder-with-adhan"
-          : setting === "adhan" && salahName !== "fajr"
-            ? "dhuhr-asr-maghrib-isha-reminders-with-adhan"
-            : "salah-reminders-without-adhan";
+      if (setting === "adhan" && Capacitor.getPlatform() === "android") {
+        await AdhanAlarm.scheduleAdhan({
+          id: uniqueId,
+          title: `${upperCaseFirstLetter(salahName)}`,
+          body: notificationMsg,
+          timestamp: triggerTime.getTime(),
+          sound: salahName === "fajr" ? "adhan_fajr" : "adhan",
+        });
+      } else {
+        const channelId =
+          setting === "adhan" && salahName === "fajr"
+            ? "fajr-reminder-with-adhan"
+            : setting === "adhan" && salahName !== "fajr"
+              ? "dhuhr-asr-maghrib-isha-reminders-with-adhan"
+              : "salah-reminders-without-adhan";
 
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            id: uniqueId,
-            title: `${upperCaseFirstLetter(salahName)}`,
-            body: notificationMsg,
-            schedule: {
-              at: arr[i],
-              allowWhileIdle: true,
-              repeats: false,
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              id: uniqueId,
+              title: `${upperCaseFirstLetter(salahName)}`,
+              body: notificationMsg,
+              schedule: {
+                at: triggerTime,
+                allowWhileIdle: true,
+                repeats: false,
+              },
+              sound: sound,
+              channelId: channelId,
             },
-            sound: sound,
-            channelId: channelId,
-          },
-        ],
-      });
+          ],
+        });
+      }
     }
   }
 

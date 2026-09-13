@@ -80,6 +80,21 @@ export const dictPreferencesDefaultValues: userPreferencesType = {
   lastTrendWeeklyDelivered: "",
   lastTrendMonthlyDelivered: "",
   lastTrendYearlyDelivered: "",
+  fajrAdhanMode: "start",
+  dhuhrAdhanMode: "start",
+  asrAdhanMode: "start",
+  maghribAdhanMode: "start",
+  ishaAdhanMode: "start",
+  fajrAdhanOffset: "0",
+  dhuhrAdhanOffset: "0",
+  asrAdhanOffset: "0",
+  maghribAdhanOffset: "0",
+  ishaAdhanOffset: "0",
+  fajrAdhanManualTime: "05:00",
+  dhuhrAdhanManualTime: "13:15",
+  asrAdhanManualTime: "16:30",
+  maghribAdhanManualTime: "18:15",
+  ishaAdhanManualTime: "20:00",
 };
 
 export const calculationMethods = [

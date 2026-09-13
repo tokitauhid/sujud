@@ -41,6 +41,7 @@ import {
   MODAL_BREAKPOINTS,
 } from "../../utils/constants";
 import { Capacitor } from "@capacitor/core";
+import { AdhanAlarm, DeviceStatus } from "../../services/AdhanAlarm";
 
 const BottomSheetNotifications = ({
   dbConnection,
@@ -64,6 +65,7 @@ const BottomSheetNotifications = ({
 
   const [isBatteryOptEnabled, setIsBatteryOptEnabled] =
     useState<boolean>(false);
+  const [deviceStatus, setDeviceStatus] = useState<DeviceStatus | null>(null);
   const [selectedDailyNotificationOption, setSelectedDailyNotificationOption] =
     useState(userPreferences.dailyNotificationOption);
 
@@ -71,6 +73,12 @@ const BottomSheetNotifications = ({
     if (Capacitor.getPlatform() !== "android") return;
     const res = await isBatteryOptimizationEnabled();
     setIsBatteryOptEnabled(res);
+    try {
+      const status = await AdhanAlarm.getDeviceStatus();
+      setDeviceStatus(status);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   useEffect(() => {
@@ -457,28 +465,60 @@ const BottomSheetNotifications = ({
             </section>
           )}
         {Capacitor.getPlatform() === "android" && (
-          <section className="p-3 mt-10 mb-10">
+          <section className="p-3 mt-8 mb-10 border-t border-[#333]">
+            <h3 className="text-base font-semibold mb-3">Sound & Background Delivery</h3>
+
+            {/* Xiaomi / HyperOS Specific Setup */}
+            {deviceStatus?.isXiaomi && (
+              <div className="p-3 bg-[#1e1e1e] rounded-lg mb-4 border border-amber-600/30">
+                <p className="text-sm font-medium text-amber-400 mb-1">
+                  Xiaomi / HyperOS Background Setup
+                </p>
+                <p className="text-xs opacity-75 mb-3">
+                  HyperOS requires Autostart and Battery Saver set to "No restrictions" so prayer alarms ring when the device is locked overnight:
+                </p>
+                <div className="flex flex-col gap-2">
+                  <IonButton
+                    size="small"
+                    fill="outline"
+                    onClick={async () => {
+                      await AdhanAlarm.openAutostartSettings();
+                    }}
+                  >
+                    1. Enable Autostart
+                  </IonButton>
+                  <IonButton
+                    size="small"
+                    fill="outline"
+                    onClick={async () => {
+                      await AdhanAlarm.openBatterySaverSettings();
+                    }}
+                  >
+                    2. Set Battery Saver to "No restrictions"
+                  </IonButton>
+                </div>
+              </div>
+            )}
+
+            {/* Standard Android Battery Optimization */}
             <div className="flex items-center justify-between notification-text-and-toggle-wrap">
-              <p>
-                Battery Optimisation Is Currently:{" "}
+              <p className="text-sm">
+                Battery Optimisation:{" "}
                 <span
                   className={`${isBatteryOptEnabled ? "text-red-500" : "text-green-500"}`}
-                >{`${isBatteryOptEnabled ? "Enabled" : "Disabled"}`}</span>
-              </p>{" "}
+                >{`${isBatteryOptEnabled ? "Enabled (Restricted)" : "Disabled (Optimal)"}`}</span>
+              </p>
             </div>
 
             {isBatteryOptEnabled && (
               <>
-                <p className="mt-3 mb-5 text-sm opacity-50">
-                  {`Battery optimization for this app is currently on, which may delay notifications. To ensure timely alerts, you can turn it off in Settings:`}
-                </p>{" "}
+                <p className="mt-2 mb-3 text-xs opacity-60">
+                  Battery optimization is currently on, which may delay notifications. Turn it off to ensure timely alerts:
+                </p>
                 <IonButton
                   className="text-xs"
+                  size="small"
                   onClick={async () => {
-                    // const res = await requestIgnoreBatteryOptimization();
-                    // console.log("res: ", res);
-                    // await getBatteryOptimizationStatus();
-
                     await promptToOpenDeviceSettings(
                       "Disable Battery Optimization",
                       "To ensure notifications arrive on time, please turn off battery optimization for this app.",
@@ -491,8 +531,8 @@ const BottomSheetNotifications = ({
               </>
             )}
             {!isBatteryOptEnabled && (
-              <p className="mt-3 text-sm opacity-50">
-                {`Battery optimization is off, so notifications should arrive promptly.`}
+              <p className="mt-2 text-xs opacity-60">
+                Battery optimization is off, so notifications can arrive promptly.
               </p>
             )}
           </section>

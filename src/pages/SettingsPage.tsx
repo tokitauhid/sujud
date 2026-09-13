@@ -12,11 +12,14 @@ import {
 import { Filesystem, Encoding, Directory } from "@capacitor/filesystem";
 import { MdOutlineChevronRight } from "react-icons/md";
 import BottomSheetNotifications from "../components/BottomSheets/BottomSheetNotifications";
+import BottomSheetAdhanSettings from "../components/BottomSheets/BottomSheetAdhanSettings";
 import {
   SQLiteConnection,
   SQLiteDBConnection,
 } from "@capacitor-community/sqlite";
 import { Capacitor } from "@capacitor/core";
+import { App } from "@capacitor/app";
+import BottomSheetDeveloperOptions from "../components/BottomSheets/BottomSheetDeveloperOptions";
 import {
   updateUserPrefs,
   showToast,
@@ -81,6 +84,40 @@ const SettingsPage = ({
     userPreferences.showMissedSalahCount === "0" ? false : true,
   );
   const [showBatchUpdateModal, setShowBatchUpdateModal] = useState(false);
+  const [appVersion, setAppVersion] = useState<string>("v3.2.2");
+  const [isDeveloperMode, setIsDeveloperMode] = useState<boolean>(() => {
+    return localStorage.getItem("sujud_developer_mode") === "true";
+  });
+  const clickCountRef = useRef<number>(0);
+  const lastClickTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    App.getInfo()
+      .then((info) => {
+        if (info && info.version) {
+          setAppVersion(`v${info.version}`);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleVersionClick = () => {
+    if (isDeveloperMode) return;
+
+    const now = Date.now();
+    if (now - lastClickTimeRef.current > 3500) {
+      clickCountRef.current = 0;
+    }
+    lastClickTimeRef.current = now;
+    clickCountRef.current += 1;
+
+    if (clickCountRef.current >= 7) {
+      clickCountRef.current = 0;
+      setIsDeveloperMode(true);
+      localStorage.setItem("sujud_developer_mode", "true");
+      showToast("Developer options enabled! You are now a developer.", "long");
+    }
+  };
 
   const triggerInput = () => {
     if (importDBRef.current) {
@@ -298,6 +335,20 @@ const SettingsPage = ({
                 </div>
                 <div
                   className="flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer"
+                  id="open-adhan-settings-sheet"
+                >
+                  <div className="flex flex-col pr-2">
+                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                      Adhan Settings
+                    </p>
+                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                      Configure adhan schedule, offsets & custom times
+                    </p>
+                  </div>
+                  <MdOutlineChevronRight className="text-[#52525B] text-base" />
+                </div>
+                <div
+                  className="flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer"
                   id="open-trend-options-sheet"
                 >
                   <div className="flex flex-col pr-2">
@@ -317,6 +368,13 @@ const SettingsPage = ({
                 isAppActive={isAppActive}
                 setUserPreferences={setUserPreferences}
                 userPreferences={userPreferences}
+                userLocations={userLocations}
+              />
+              <BottomSheetAdhanSettings
+                dbConnection={dbConnection}
+                triggerId="open-adhan-settings-sheet"
+                userPreferences={userPreferences}
+                setUserPreferences={setUserPreferences}
                 userLocations={userLocations}
               />
               <BottomSheetTrendSettings
@@ -445,6 +503,33 @@ const SettingsPage = ({
               </div>
             </div>
 
+            {/* DEVELOPER OPTIONS */}
+            {isDeveloperMode && (
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-widest text-[#F59E0B] px-1 mb-1.5 flex items-center justify-between">
+                  <span>DEVELOPER OPTIONS</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDeveloperMode(false);
+                      localStorage.removeItem("sujud_developer_mode");
+                      showToast("Developer options disabled", "short");
+                    }}
+                    className="text-[10px] font-mono text-[#71717A] hover:text-white"
+                  >
+                    [Disable]
+                  </button>
+                </div>
+                <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+                  <SettingIndividual
+                    id="open-developer-options-sheet"
+                    headingText="Developer & Notification Diagnostics"
+                    subText="Test alarms, Adhan audio playback, and background services"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* SOURCE CODE */}
             <div>
               <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
@@ -460,6 +545,27 @@ const SettingsPage = ({
                 />
               </div>
             </div>
+
+            {/* APP VERSION & BUILD INFO */}
+            <div
+              className="text-center py-6 cursor-pointer select-none active:opacity-60 transition-opacity"
+              onClick={handleVersionClick}
+            >
+              <p className="text-[11px] font-mono text-[#71717A] tracking-wider uppercase">
+                Sujud {appVersion}
+              </p>
+            </div>
+
+            {isDeveloperMode && (
+              <BottomSheetDeveloperOptions
+                triggerId="open-developer-options-sheet"
+                onDisableDeveloperMode={() => {
+                  setIsDeveloperMode(false);
+                  localStorage.removeItem("sujud_developer_mode");
+                  showToast("Developer options disabled", "short");
+                }}
+              />
+            )}
 
             <input
               ref={importDBRef}
