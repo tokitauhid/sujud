@@ -14,6 +14,8 @@ import {
   subYears,
   addYears,
   eachDayOfInterval,
+  addDays,
+  differenceInCalendarDays,
 } from "date-fns";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
@@ -297,10 +299,23 @@ export const calculateTrendAnalysis = (
   salahRecords: SalahRecordsArrayType,
   isMaleMode: boolean,
   previousMetrics?: TrendMetrics | null,
+  referenceDate?: Date | string,
 ): TrendMetrics => {
   const startDate = parseISO(periodStart);
   const endDate = parseISO(periodEnd);
   const intervalDays = eachDayOfInterval({ start: startDate, end: endDate });
+
+  const refDate =
+    referenceDate !== undefined
+      ? typeof referenceDate === "string"
+        ? parseISO(referenceDate)
+        : referenceDate
+      : new Date();
+  const todayStr = format(refDate, "yyyy-MM-dd");
+  const isInProgress = periodStart <= todayStr && todayStr < periodEnd;
+  const elapsedDaysCount = isInProgress
+    ? Math.max(1, differenceInCalendarDays(parseISO(todayStr), startDate) + 1)
+    : intervalDays.length;
 
   const recordMap = new Map<string, (typeof salahRecords)[0]>();
   for (const record of salahRecords) {
@@ -404,7 +419,7 @@ export const calculateTrendAnalysis = (
     });
   }
 
-  const totalExpected = intervalDays.length * 5;
+  const totalExpected = (isInProgress ? elapsedDaysCount : intervalDays.length) * 5;
   const completionPercentage =
     totalExpected > 0 ? Math.round((totalCompleted / totalExpected) * 100) : 0;
 
@@ -471,7 +486,7 @@ export const calculateTrendAnalysis = (
   // Prayer-by-prayer breakdown
   const prayersBreakdown: PrayerTrendBreakdownItem[] = PRAYER_NAMES.map((name) => {
     const counts = prayerCounts[name];
-    const expected = intervalDays.length;
+    const expected = isInProgress ? elapsedDaysCount : intervalDays.length;
     const rate = expected > 0 ? Math.round((counts.completed / expected) * 100) : 0;
     let changeVsPreviousRate: number | null = null;
 
@@ -613,16 +628,52 @@ export const calculateTrendAnalysisWithComparison = (
   periodEnd: string,
   salahRecords: SalahRecordsArrayType,
   isMaleMode: boolean,
+  referenceDate?: Date | string,
 ): TrendMetrics => {
+  const refDate =
+    referenceDate !== undefined
+      ? typeof referenceDate === "string"
+        ? parseISO(referenceDate)
+        : referenceDate
+      : new Date();
+  const todayStr = format(refDate, "yyyy-MM-dd");
+  const isInProgress = periodStart <= todayStr && todayStr < periodEnd;
   const prevPeriod = getPreviousPeriod(periodType, periodStart);
-  const prevMetrics = calculateTrendAnalysis(
-    periodType,
-    prevPeriod.start,
-    prevPeriod.end,
-    salahRecords,
-    isMaleMode,
-    null,
-  );
+
+  let prevMetrics: TrendMetrics;
+
+  if (isInProgress) {
+    const elapsedDaysCount = Math.max(
+      1,
+      differenceInCalendarDays(parseISO(todayStr), parseISO(periodStart)) + 1,
+    );
+    const prevElapsedEnd = format(
+      addDays(parseISO(prevPeriod.start), elapsedDaysCount - 1),
+      "yyyy-MM-dd",
+    );
+
+    // Evaluate equivalent elapsed days in the previous period
+    prevMetrics = calculateTrendAnalysis(
+      periodType,
+      prevPeriod.start,
+      prevElapsedEnd,
+      salahRecords,
+      isMaleMode,
+      null,
+      prevElapsedEnd,
+    );
+  } else {
+    // For fully completed (or past) periods, compare full period vs full period
+    prevMetrics = calculateTrendAnalysis(
+      periodType,
+      prevPeriod.start,
+      prevPeriod.end,
+      salahRecords,
+      isMaleMode,
+      null,
+      refDate,
+    );
+  }
 
   return calculateTrendAnalysis(
     periodType,
@@ -631,6 +682,7 @@ export const calculateTrendAnalysisWithComparison = (
     salahRecords,
     isMaleMode,
     prevMetrics,
+    refDate,
   );
 };
 

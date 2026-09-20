@@ -850,4 +850,165 @@ describe("Trend Analysis Calculation Engine", () => {
       });
     });
   });
+
+  describe("Equivalent Period Comparison for In-Progress Weeks (Bug 5)", () => {
+    // Week 1: 2026-09-07 (Mon) to 2026-09-13 (Sun)
+    // Week 2: 2026-09-14 (Mon) to 2026-09-20 (Sun)
+    const prevWeekFullRecords: SalahRecordsArrayType = [
+      { date: "2026-09-07", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5
+      { date: "2026-09-08", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "missed", Isha: "group" } }, // 4 (9 total Mon-Tue)
+      { date: "2026-09-09", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5
+      { date: "2026-09-10", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5
+      { date: "2026-09-11", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5 (24 total Mon-Fri)
+      { date: "2026-09-12", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5
+      { date: "2026-09-13", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5 (34 total Mon-Sun)
+    ];
+
+    const currentWeekTuesdayRecords: SalahRecordsArrayType = [
+      { date: "2026-09-14", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5 (Mon)
+      { date: "2026-09-15", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5 (Tue - 10 total Mon-Tue)
+    ];
+
+    const combinedTuesdayRecords = [...prevWeekFullRecords, ...currentWeekTuesdayRecords];
+
+    it("compares Monday-Tuesday of current week against Monday-Tuesday of previous week on Tuesday", () => {
+      const tuesdayDate = "2026-09-15"; // Tuesday
+
+      const metrics = calculateTrendAnalysisWithComparison(
+        "weekly",
+        "2026-09-14",
+        "2026-09-20",
+        combinedTuesdayRecords,
+        true,
+        tuesdayDate,
+      );
+
+      // On Tuesday, 2 elapsed days -> 10 expected prayers
+      expect(metrics.totalExpected).toBe(10);
+      expect(metrics.completed).toBe(10);
+      expect(metrics.completionPercentage).toBe(100); // 10 / 10 = 100%
+
+      // Previous week Monday-Tuesday had 9 of 10 prayers completed = 90%
+      expect(metrics.previousCompletionPercentage).toBe(90);
+      expect(metrics.completionPercentageChange).toBe(10); // +10% improvement!
+
+      // Insights and summary reflect improvement rather than false decline
+      const summary = generateAnalysisSummary(metrics, true);
+      expect(summary.headline).toContain("improved by 10% this week");
+      expect(summary.details).toContain("You completed 10 of 10 prayers.");
+
+      // Prayer breakdown evaluates rate against 2 elapsed occurrences
+      const fajr = metrics.prayersBreakdown.find((p) => p.name === "Fajr");
+      expect(fajr?.expected).toBe(2);
+      expect(fajr?.completed).toBe(2);
+      expect(fajr?.completionRate).toBe(100);
+    });
+
+    it("compares current Monday with previous Monday on Monday (1 day)", () => {
+      const mondayDate = "2026-09-14";
+      const mondayRecords = [
+        ...prevWeekFullRecords,
+        { date: "2026-09-14", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "male-alone" } }, // 5
+      ];
+
+      const metrics = calculateTrendAnalysisWithComparison(
+        "weekly",
+        "2026-09-14",
+        "2026-09-20",
+        mondayRecords,
+        true,
+        mondayDate,
+      );
+
+      expect(metrics.totalExpected).toBe(5); // 1 day * 5
+      expect(metrics.completed).toBe(5);
+      expect(metrics.completionPercentage).toBe(100);
+      expect(metrics.previousCompletionPercentage).toBe(100); // Prev Monday was 5/5
+      expect(metrics.completionPercentageChange).toBe(0); // Steady
+    });
+
+    it("compares Monday-Friday with previous Monday-Friday on Friday (5 days)", () => {
+      const fridayDate = "2026-09-18";
+      const fridayRecords = [
+        ...prevWeekFullRecords,
+        { date: "2026-09-14", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5
+        { date: "2026-09-15", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5
+        { date: "2026-09-16", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5
+        { date: "2026-09-17", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5
+        { date: "2026-09-18", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 5 (25 total)
+      ];
+
+      const metrics = calculateTrendAnalysisWithComparison(
+        "weekly",
+        "2026-09-14",
+        "2026-09-20",
+        fridayRecords,
+        true,
+        fridayDate,
+      );
+
+      expect(metrics.totalExpected).toBe(25); // 5 days * 5
+      expect(metrics.completed).toBe(25);
+      expect(metrics.completionPercentage).toBe(100);
+
+      // Prev week Monday-Friday was 24 / 25 = 96%
+      expect(metrics.previousCompletionPercentage).toBe(96);
+      expect(metrics.completionPercentageChange).toBe(4);
+    });
+
+    it("compares entire week on Sunday when week is fully elapsed (7 days)", () => {
+      const sundayDate = "2026-09-20";
+      const fullWeekRecords = [
+        ...prevWeekFullRecords,
+        ...prevWeekFullRecords.map((r, i) => ({
+          date: `2026-09-${String(14 + i).padStart(2, "0")}`,
+          salahs: r.salahs,
+        })),
+      ];
+
+      const metrics = calculateTrendAnalysisWithComparison(
+        "weekly",
+        "2026-09-14",
+        "2026-09-20",
+        fullWeekRecords,
+        true,
+        sundayDate,
+      );
+
+      expect(metrics.totalExpected).toBe(35);
+      expect(metrics.previousCompletionPercentage).toBe(97);
+    });
+
+    it("handles new year boundary crossings seamlessly", () => {
+      // Current week spans across year boundary: 2025-12-29 (Mon) to 2026-01-04 (Sun)
+      // Reference date is Friday 2026-01-02 (5 elapsed days: Dec 29, 30, 31, Jan 1, Jan 2)
+      // Previous week: 2025-12-22 (Mon) to 2025-12-28 (Sun), equivalent Friday is 2025-12-26
+      const yearCrossingRecords: SalahRecordsArrayType = [
+        { date: "2025-12-22", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2025-12-23", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2025-12-24", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2025-12-25", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2025-12-26", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 25 total
+        { date: "2025-12-29", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2025-12-30", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2025-12-31", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2026-01-01", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2026-01-02", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // 25 total
+      ];
+
+      const metrics = calculateTrendAnalysisWithComparison(
+        "weekly",
+        "2025-12-29",
+        "2026-01-04",
+        yearCrossingRecords,
+        true,
+        "2026-01-02",
+      );
+
+      expect(metrics.totalExpected).toBe(25);
+      expect(metrics.completed).toBe(25);
+      expect(metrics.completionPercentage).toBe(100);
+      expect(metrics.previousCompletionPercentage).toBe(100);
+    });
+  });
 });
