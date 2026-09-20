@@ -39,6 +39,7 @@ import {
   hasCloudData,
   initialSyncOnSignIn,
 } from "../firebase/syncService";
+import { markInitialSettingsSetupCompleted } from "../utils/deviceSettings";
 import { FcGoogle } from "react-icons/fc";
 import { IoSyncOutline } from "react-icons/io5";
 
@@ -123,6 +124,7 @@ const Onboarding = ({
 
       setShowJoyRideEditIcon(true);
     }
+    markInitialSettingsSetupCompleted();
     setOnboardingMode(null);
   };
 
@@ -150,6 +152,8 @@ const Onboarding = ({
           // Returning user: sync and skip remaining onboarding
           await initialSyncOnSignIn(currentUser.uid, dbConnection);
           await fetchDataFromDB?.(true);
+          localStorage.setItem("lastSyncedUserId", currentUser.uid);
+          markInitialSettingsSetupCompleted();
           showToast("Data synced from cloud!", "short");
           await dismissOnboardingSlides();
           return;

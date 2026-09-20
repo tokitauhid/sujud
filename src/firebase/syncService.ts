@@ -10,7 +10,6 @@ import {
   Timestamp,
   onSnapshot,
   QuerySnapshot,
-  DocumentSnapshot,
 } from "firebase/firestore";
 import { db, auth } from "./firebaseConfig";
 import {
@@ -42,7 +41,7 @@ export interface CloudData {
 
 export interface RealtimeSyncCallbacks {
   onSalahLogsChanged: (changes: Array<{ type: 'added' | 'modified' | 'removed'; data: DBResultDataObjType }>) => void;
-  onPreferencesChanged: (prefs: Record<string, { value: string; updatedAt: number }>) => void;
+  onPreferencesChanged?: (prefs: Record<string, { value: string; updatedAt: number }>) => void;
   onLocationsChanged: (changes: Array<{ type: 'added' | 'modified' | 'removed'; data: LocationsDataObjType }>) => void;
 }
 
@@ -278,56 +277,9 @@ export function initRealtimeSync(
     (error) => console.error("[SYNC] Salah logs listener error:", error)
   );
 
-  // --- Preferences listener ---
-  const unsubPrefs = onSnapshot(
-    doc(db, "users", userId, "preferences", "data"),
-    (snapshot: DocumentSnapshot) => {
-      if (snapshot.metadata.hasPendingWrites) return;
-      if (!snapshot.exists()) return;
+  // Note: Preferences are intentionally NOT listened to in real-time.
+  // Settings are device-specific and only synced during initial setup (Bug 6).
 
-      const data = snapshot.data();
-      const prefs: Record<string, { value: string; updatedAt: number }> = {};
-
-      for (const [key, val] of Object.entries(data)) {
-        if (key === "updatedAt") continue;
-        if (typeof val === "object" && val !== null && "value" in val) {
-          prefs[key] = { value: (val as any).value, updatedAt: normalizeTimestamp((val as any).updatedAt) };
-        }
-      }
-
-      const statements: Array<{ statement: string; values: any[] }> = [];
-      for (const [key, pref] of Object.entries(prefs)) {
-        statements.push({
-          statement: `INSERT INTO userPreferencesTable (preferenceName, preferenceValue, updatedAt)
-            VALUES (?, ?, ?)
-            ON CONFLICT(preferenceName) DO UPDATE SET
-              preferenceValue = excluded.preferenceValue,
-              updatedAt = excluded.updatedAt
-            WHERE excluded.updatedAt >= userPreferencesTable.updatedAt`,
-          values: [key, pref.value, pref.updatedAt],
-        });
-      }
-
-      const persistAndNotifyPrefs = async () => {
-        try {
-          if (statements.length > 0 && dbConnection.current) {
-            await withDB(dbConnection, async (db) => {
-              const BATCH_SIZE = 50;
-              for (let i = 0; i < statements.length; i += BATCH_SIZE) {
-                await db.executeSet(statements.slice(i, i + BATCH_SIZE));
-              }
-            });
-          }
-          callbacks.onPreferencesChanged(prefs);
-        } catch (e) {
-          console.error("[SYNC] Failed to write incoming prefs batch:", e);
-          callbacks.onPreferencesChanged(prefs);
-        }
-      };
-      persistAndNotifyPrefs();
-    },
-    (error) => console.error("[SYNC] Preferences listener error:", error)
-  );
 
   // --- Locations listener ---
   const unsubLocations = onSnapshot(
@@ -404,7 +356,6 @@ export function initRealtimeSync(
     if (salahDebounceTimer) clearTimeout(salahDebounceTimer);
     if (locationsDebounceTimer) clearTimeout(locationsDebounceTimer);
     unsubSalahs();
-    unsubPrefs();
     unsubLocations();
   };
 }

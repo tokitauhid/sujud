@@ -87,7 +87,8 @@ import {
 } from "./utils/constants";
 import TabletSideNav from "./components/TabletSideNav";
 import { FirebaseAuthProvider, useFirebaseAuth } from "./firebase/useFirebaseAuth";
-import { initRealtimeSync, initialSyncOnSignIn, syncPreferenceToCloud } from "./firebase/syncService";
+import { initRealtimeSync, initialSyncOnSignIn } from "./firebase/syncService";
+import { markInitialSettingsSetupCompleted, resetInitialSettingsSetup } from "./utils/deviceSettings";
 import { checkAndGenerateTrendNotifications } from "./utils/trendAnalysis";
 import { checkAndGenerateWeeklyReflectionNotification } from "./utils/weeklyReflection";
 
@@ -168,54 +169,23 @@ const AppContent = () => {
       try {
         const lastSyncedUser = localStorage.getItem("lastSyncedUserId");
         if (lastSyncedUser !== user.uid) {
+          resetInitialSettingsSetup();
           const result = await initialSyncOnSignIn(user.uid, dbConnection);
           if (result === 'pulled') {
             await fetchDataFromDB();
           }
           localStorage.setItem("lastSyncedUserId", user.uid);
+          markInitialSettingsSetupCompleted();
         }
       } catch (e) {
         console.error("[SYNC] Initial sync failed:", e);
       }
 
-      // Start real-time listeners
+      // Start real-time listeners for salahLogs and locations
       unsubscribe = initRealtimeSync(user.uid, dbConnection, {
         onSalahLogsChanged: () => {
           // Refresh salah data from SQLite to get consistent state
           fetchDataFromDB();
-        },
-        onPreferencesChanged: (prefs) => {
-          // Update React state directly from incoming prefs
-          setUserPreferences(prev => {
-            const updated = { ...prev };
-            for (const [key, pref] of Object.entries(prefs)) {
-              if (
-                key === "prayerCalculationMethod" &&
-                !pref.value &&
-                prev.prayerCalculationMethod
-              ) {
-                // Cloud has an empty/missing calculation method but local state is set.
-                // Do not reset the user's selected calculation method! Heal the cloud instead.
-                syncPreferenceToCloud(
-                  "prayerCalculationMethod",
-                  prev.prayerCalculationMethod,
-                  Date.now(),
-                );
-                continue;
-              }
-              if (key === "reasons") {
-                const val = pref.value;
-                (updated as any).reasons = Array.isArray(val)
-                  ? val
-                  : typeof val === "string"
-                  ? val.split(",").filter(Boolean)
-                  : [];
-              } else {
-                (updated as any)[key] = pref.value;
-              }
-            }
-            return updated;
-          });
         },
         onLocationsChanged: () => {
           // Refresh locations from SQLite
@@ -767,6 +737,8 @@ const AppContent = () => {
         !window.location.search.includes("no_onboarding")
       ) {
         setOnboardingMode("newUser");
+      } else if (isExistingUser && isExistingUser.preferenceValue === "1") {
+        markInitialSettingsSetupCompleted();
       }
 
       if (

@@ -11,6 +11,7 @@ import {
 } from "../types/types";
 import { withDB } from "./dbUtils";
 import { syncPreferenceToCloud, syncMultiplePreferencesToCloud } from "../firebase/syncService";
+import { isInitialSettingsSetupCompleted } from "./deviceSettings";
 import {
   CalculationMethod,
   CalculationParameters,
@@ -133,12 +134,14 @@ export const updateUserPrefs = async (
       [preferenceName]: preferenceValue,
     }));
 
-    // Push to cloud (fire-and-forget)
-    syncPreferenceToCloud(
-      preferenceName,
-      valToStore,
-      Date.now()
-    );
+    // Push to cloud only during initial setup (Bug 6: settings are device-specific after setup)
+    if (!isInitialSettingsSetupCompleted()) {
+      syncPreferenceToCloud(
+        preferenceName,
+        valToStore,
+        Date.now()
+      );
+    }
   } catch (error) {
     console.error(`ERROR ENTERING ${preferenceName} into DB`);
     console.error(error);
@@ -523,8 +526,10 @@ export const setAdhanLibraryDefaults = async (
       ...defaultCalcMethodValues,
     }));
 
-    // Sync all default calculation method values to cloud
-    syncMultiplePreferencesToCloud(defaultCalcMethodValues, now);
+    // Sync default calculation method values to cloud only during initial setup (Bug 6)
+    if (!isInitialSettingsSetupCompleted()) {
+      syncMultiplePreferencesToCloud(defaultCalcMethodValues, now);
+    }
   } catch (error) {
     console.error("Failed to set adhan library defaults:", error);
   }
