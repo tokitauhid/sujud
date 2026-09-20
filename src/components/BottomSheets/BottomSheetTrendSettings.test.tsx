@@ -25,6 +25,7 @@ describe("BottomSheetTrendSettings Component", () => {
     expect(screen.getByText(/TREND NOTIFICATIONS/i)).toBeInTheDocument();
     expect(screen.getByText(/Enable Trend Reports/i)).toBeInTheDocument();
     expect(screen.getByText(/Weekly Summary/i)).toBeInTheDocument();
+    expect(screen.getByText(/Weekly Reflection/i)).toBeInTheDocument();
     expect(screen.getByText(/Monthly Summary/i)).toBeInTheDocument();
     expect(screen.getByText(/Yearly Summary/i)).toBeInTheDocument();
     expect(screen.getByText(/Delivery Time/i)).toBeInTheDocument();

@@ -89,6 +89,7 @@ import TabletSideNav from "./components/TabletSideNav";
 import { FirebaseAuthProvider, useFirebaseAuth } from "./firebase/useFirebaseAuth";
 import { initRealtimeSync, initialSyncOnSignIn, syncPreferenceToCloud } from "./firebase/syncService";
 import { checkAndGenerateTrendNotifications } from "./utils/trendAnalysis";
+import { checkAndGenerateWeeklyReflectionNotification } from "./utils/weeklyReflection";
 
 
 const AppContent = () => {
@@ -250,6 +251,12 @@ const AppContent = () => {
                   await scheduleAllSalahNotifications();
                   await fetchDataFromDB();
                   await checkAndGenerateTrendNotifications(
+                    dbConnection,
+                    userPreferences,
+                    fetchedSalahData,
+                    setUserPreferences,
+                  );
+                  await checkAndGenerateWeeklyReflectionNotification(
                     dbConnection,
                     userPreferences,
                     fetchedSalahData,
@@ -460,6 +467,16 @@ const AppContent = () => {
         visibility: 1,
         vibration: true,
       });
+
+      await LocalNotifications.createChannel({
+        id: "weekly-reflection",
+        name: "Weekly Reflection",
+        importance: 4,
+        description: "Weekly Islamic reflection and Hadith",
+        sound: "default",
+        visibility: 1,
+        vibration: true,
+      });
     };
 
     createAndroidNotificationChannels();
@@ -479,6 +496,8 @@ const AppContent = () => {
               window.location.href = `/StatsPage?tab=trends&snapshotId=${encodeURIComponent(
                 extra.snapshotId,
               )}`;
+            } else if (extra?.type === "weekly_reflection") {
+              window.location.href = "/StatsPage";
             }
           },
         );
@@ -497,13 +516,21 @@ const AppContent = () => {
   }, []);
 
   useEffect(() => {
-    if (isDatabaseInitialised && fetchedSalahData.length > 0) {
-      checkAndGenerateTrendNotifications(
+    if (isDatabaseInitialised) {
+      checkAndGenerateWeeklyReflectionNotification(
         dbConnection,
         userPreferences,
         fetchedSalahData,
         setUserPreferences,
       );
+      if (fetchedSalahData.length > 0) {
+        checkAndGenerateTrendNotifications(
+          dbConnection,
+          userPreferences,
+          fetchedSalahData,
+          setUserPreferences,
+        );
+      }
     }
   }, [isDatabaseInitialised, fetchedSalahData.length]);
 

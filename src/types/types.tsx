@@ -88,6 +88,9 @@ export interface userPreferencesType {
   lastTrendWeeklyDelivered: string;
   lastTrendMonthlyDelivered: string;
   lastTrendYearlyDelivered: string;
+  weeklyReflectionNotification: binaryValue;
+  lastWeeklyReflectionDelivered: string;
+  lastWeeklyReflectionId: string;
   fajrAdhanMode: AdhanSchedulingMode;
   dhuhrAdhanMode: AdhanSchedulingMode;
   asrAdhanMode: AdhanSchedulingMode;

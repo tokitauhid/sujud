@@ -32,7 +32,7 @@ export interface QuickLogModalProps {
   fetchedSalahData?: SalahRecordsArrayType;
   userPreferences: userPreferencesType;
   userLocations?: LocationsDataObjTypeArr;
-  onRefreshSchedule?: () => Promise<nextSalahTimeType | undefined>;
+  onRefreshSchedule?: () => Promise<any>;
 }
 
 const salahNames: SalahNamesType[] = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
@@ -159,7 +159,7 @@ const QuickLogModal = ({
             ? existingRecord?.salahs?.Asar || existingRecord?.salahs?.Asr
             : existingRecord?.salahs?.[freshSlot];
 
-        if (existingStatus && existingStatus !== "") {
+        if (Boolean(existingStatus)) {
           setSelectedStatus(existingStatus as SalahStatusType);
         } else {
           setSelectedStatus(defaultOnTimeStatus);
@@ -198,7 +198,7 @@ const QuickLogModal = ({
     selectedSalah === "Asr"
       ? todayRecord?.salahs?.Asar || todayRecord?.salahs?.Asr
       : todayRecord?.salahs?.[selectedSalah];
-  const isAlreadyLogged = Boolean(alreadyLoggedStatus && alreadyLoggedStatus !== "");
+  const isAlreadyLogged = Boolean(alreadyLoggedStatus);
 
   const handleSave = async () => {
     if (!dbConnection.current || !selectedStatus || isSubmitting) return;
@@ -369,7 +369,7 @@ const QuickLogModal = ({
                     name === "Asr"
                       ? existingRecord?.salahs?.Asar || existingRecord?.salahs?.Asr
                       : existingRecord?.salahs?.[name];
-                  if (existingStatus && existingStatus !== "") {
+                  if (Boolean(existingStatus)) {
                     setSelectedStatus(existingStatus as SalahStatusType);
                   }
                 }}

@@ -158,8 +158,8 @@ describe("TrendAnalysisView Component", () => {
     expect(screen.getByText(/WEEKLY REPORT HISTORY/i)).toBeInTheDocument();
   });
 
-  describe("Hadith Reflection Card (Phase 4)", () => {
-    it("renders reflection section with collection, reference, and external link when reflection is available", () => {
+  describe("Reflection Card Removal (Bug 4)", () => {
+    it("never renders reflection section in TrendAnalysisView even when prayer data is available", () => {
       render(
         <TrendAnalysisView
           dbConnection={mockdbConnection}
@@ -168,13 +168,8 @@ describe("TrendAnalysisView Component", () => {
         />,
       );
 
-      // The live summary with mockSalahData selects a reflection from the bundled dataset
-      const reflectionHeader = screen.queryByText("REFLECTION");
-      if (reflectionHeader) {
-        expect(reflectionHeader).toBeInTheDocument();
-        expect(screen.getByText(/Sahih al-Bukhari/i)).toBeInTheDocument();
-        expect(screen.getByRole("link", { name: /view source/i })).toBeInTheDocument();
-      }
+      expect(screen.queryByText("REFLECTION")).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: /view source/i })).not.toBeInTheDocument();
     });
 
     it("does not render reflection section when prayer data is completely empty", () => {

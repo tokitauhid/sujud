@@ -37,6 +37,9 @@ export const BottomSheetTrendSettings: React.FC<BottomSheetTrendSettingsProps> =
   const [yearlyToggle, setYearlyToggle] = useState<boolean>(
     userPreferences.trendYearlyNotification === "1",
   );
+  const [reflectionToggle, setReflectionToggle] = useState<boolean>(
+    userPreferences.weeklyReflectionNotification !== "0",
+  );
   const [deliveryTime, setDeliveryTime] = useState<string>(
     userPreferences.trendNotificationDeliveryTime || "18:00",
   );
@@ -128,6 +131,24 @@ export const BottomSheetTrendSettings: React.FC<BottomSheetTrendSettingsProps> =
                 checked={weeklyToggle}
                 onIonChange={() =>
                   handleToggle("trendWeeklyNotification", weeklyToggle, setWeeklyToggle)
+                }
+              />
+            </div>
+
+            {/* Weekly Reflection Toggle */}
+            <div className="p-3 flex items-center justify-between">
+              <div>
+                <div className="text-xs font-bold text-white">Weekly Reflection</div>
+                <div className="text-[10px] text-[#71717A] mt-0.5">
+                  Delivered once per week with a selected Hadith
+                </div>
+              </div>
+              <IonToggle
+                mode="md"
+                style={{ "--track-background": "#333", "--track-background-checked": "#10B981" }}
+                checked={reflectionToggle}
+                onIonChange={() =>
+                  handleToggle("weeklyReflectionNotification", reflectionToggle, setReflectionToggle)
                 }
               />
             </div>
