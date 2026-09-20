@@ -50,6 +50,43 @@ describe("TrendAnalysisView Component", () => {
     expect(monthlyBtn).toHaveClass("text-white");
   });
 
+  it("displays months on the chart X-axis when Yearly period is selected", async () => {
+    render(
+      <TrendAnalysisView
+        dbConnection={mockdbConnection}
+        userPreferences={mockUserPrefs}
+        fetchedSalahData={mockSalahData}
+      />,
+    );
+
+    const yearlyBtn = screen.getByRole("button", { name: /yearly/i });
+    await userEvent.click(yearlyBtn);
+
+    expect(yearlyBtn).toHaveClass("text-white");
+
+    // All 12 months should be rendered on the X-axis
+    expect(screen.getByText("Jan")).toBeInTheDocument();
+    expect(screen.getByText("Feb")).toBeInTheDocument();
+    expect(screen.getByText("Mar")).toBeInTheDocument();
+    expect(screen.getByText("Apr")).toBeInTheDocument();
+    expect(screen.getByText("May")).toBeInTheDocument();
+    expect(screen.getByText("Jun")).toBeInTheDocument();
+    expect(screen.getByText("Jul")).toBeInTheDocument();
+    expect(screen.getByText("Aug")).toBeInTheDocument();
+    expect(screen.getByText("Sep")).toBeInTheDocument();
+    expect(screen.getByText("Oct")).toBeInTheDocument();
+    expect(screen.getByText("Nov")).toBeInTheDocument();
+    expect(screen.getByText("Dec")).toBeInTheDocument();
+
+    // Chart header should reflect monthly completion
+    expect(screen.getByText(/Monthly Completion — 12 Months/i)).toBeInTheDocument();
+
+    // Switching back to Weekly displays weekdays instead of months
+    const weeklyBtn = screen.getByRole("button", { name: /weekly/i });
+    await userEvent.click(weeklyBtn);
+    expect(screen.getByText(/Daily Completion — 7 Days/i)).toBeInTheDocument();
+  });
+
   it("renders completion percentage and steadfastness streak cards", () => {
     render(
       <TrendAnalysisView

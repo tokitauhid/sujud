@@ -4,7 +4,7 @@ import { format, isSameDay } from "date-fns";
 import { GoInfo } from "react-icons/go";
 import { Dialog } from "@capacitor/dialog";
 import BottomSheetStreaksHistory from "../BottomSheets/BottomSheetStreaksHistory";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Flame } from "lucide-react";
 import {
   selectStableHadith,
@@ -20,12 +20,14 @@ interface StreakCounterProps {
   streakDatesObjectsArr: streakDatesObjType[];
   activeStreakCount: number;
   userGender: string;
+  currentDate?: Date | string;
 }
 
 const StreakCounter = ({
   streakDatesObjectsArr,
   activeStreakCount,
   userGender,
+  currentDate,
 }: StreakCounterProps) => {
   const [showStreakHistorySheet, setShowStreakHistorySheet] = useState(false);
   const activeStreakObj = streakDatesObjectsArr.filter(
@@ -37,11 +39,34 @@ const StreakCounter = ({
     activeStreakCount,
   );
 
+  const resolveDateStr = (d?: Date | string): string => {
+    if (!d) return format(new Date(), "yyyy-MM-dd");
+    if (typeof d === "string") {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+      return format(new Date(d), "yyyy-MM-dd");
+    }
+    return format(d, "yyyy-MM-dd");
+  };
+
+  const [todayStr, setTodayStr] = useState(() => resolveDateStr(currentDate));
+
+  useEffect(() => {
+    if (currentDate) {
+      setTodayStr(resolveDateStr(currentDate));
+      return;
+    }
+    const updateToday = () => {
+      const current = format(new Date(), "yyyy-MM-dd");
+      setTodayStr((prev) => (prev !== current ? current : prev));
+    };
+    updateToday();
+    const interval = setInterval(updateToday, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [currentDate]);
+
   const hadithReflection: SelectedHadithReflection | null = useMemo(() => {
     if (activeStreakCount <= 0) return null;
-    const periodKey = activeStreakObj
-      ? `streak_${format(activeStreakObj.startDate, "yyyy-MM-dd")}_${activeStreakCount}`
-      : `streak_${activeStreakCount}`;
+    const periodKey = `streak_daily_${todayStr}`;
     const selected = selectStableHadith(
       "consistency",
       periodKey,
@@ -50,7 +75,7 @@ const StreakCounter = ({
     return selected
       ? formatSelectedHadithReflection(selected, "consistency")
       : null;
-  }, [activeStreakCount, activeStreakObj]);
+  }, [activeStreakCount, todayStr]);
 
   const getMotivationalMessage = (count: number) => {
     if (count === 0) {

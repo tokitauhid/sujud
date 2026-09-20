@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { DayTrendItem } from "../../../types/types";
+import { aggregateYearlyMonths } from "../../../utils/trendAnalysis";
 
 interface TrendBarChartProps {
   days: DayTrendItem[];
@@ -14,14 +15,21 @@ export const TrendBarChart: React.FC<TrendBarChartProps> = ({
 }) => {
   const [selectedDay, setSelectedDay] = useState<DayTrendItem | null>(null);
 
-  // For monthly view with ~30 bars, allow responsive compact bars or scrolling
+  const isYearly = periodType === "yearly";
   const isMonthly = periodType === "monthly";
+
+  const chartItems = useMemo(() => {
+    if (isYearly) {
+      return aggregateYearlyMonths(days);
+    }
+    return days;
+  }, [days, isYearly]);
 
   return (
     <div
       className="w-full bg-[var(--app-card-bg)] border border-[var(--app-border)] p-4 text-white font-mono"
       role="region"
-      aria-label="Daily prayer trend chart"
+      aria-label={isYearly ? "Monthly prayer trend chart" : "Daily prayer trend chart"}
     >
       <div className="flex items-center justify-between mb-3">
         <div>
@@ -29,14 +37,19 @@ export const TrendBarChart: React.FC<TrendBarChartProps> = ({
             PRAYER CONSISTENCY & JAMAAH
           </h3>
           <p className="text-[11px] text-[#94A3B8]">
-            {isWeeklyOrYearlyLabel(periodType, days.length)}
+            {isWeeklyOrYearlyLabel(periodType, chartItems.length)}
           </p>
         </div>
-        {/* Selected day pill */}
+        {/* Selected day / month pill */}
         {selectedDay && (
           <div className="text-[11px] text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 border border-[#10B981]/30">
-            {selectedDay.dayLabel} {selectedDay.date.slice(5)}: {selectedDay.completed}/5
-            {isMaleMode && ` (${selectedDay.inJamaah} Jamaah)`}
+            {isYearly
+              ? `${selectedDay.dayLabel}: ${selectedDay.completed}/${selectedDay.totalExpected} (${selectedDay.percentage}%)${
+                  isMaleMode ? ` (${selectedDay.inJamaah} Jamaah)` : ""
+                }`
+              : `${selectedDay.dayLabel} ${selectedDay.date.slice(5)}: ${selectedDay.completed}/5${
+                  isMaleMode ? ` (${selectedDay.inJamaah} Jamaah)` : ""
+                }`}
           </div>
         )}
       </div>
@@ -66,7 +79,7 @@ export const TrendBarChart: React.FC<TrendBarChartProps> = ({
 
             {/* Individual Bars */}
             <div className="flex items-end justify-between w-full h-full gap-1 z-10">
-              {days.map((day) => {
+              {chartItems.map((day) => {
                 const heightPct = Math.max(day.percentage, 3);
                 const hasJamaah = isMaleMode && day.inJamaah > 0;
                 const isPerfect = day.isAllCompleted;
@@ -77,14 +90,14 @@ export const TrendBarChart: React.FC<TrendBarChartProps> = ({
                     onClick={() => setSelectedDay(day)}
                     onMouseEnter={() => setSelectedDay(day)}
                     className="flex-1 flex flex-col items-center justify-end h-full group cursor-pointer"
-                    style={{ minWidth: isMonthly ? "7px" : "18px" }}
+                    style={{ minWidth: isMonthly ? "7px" : isYearly ? "14px" : "18px" }}
                     role="button"
                     tabIndex={0}
-                    aria-label={`${day.date}: ${day.completed} of 5 prayers completed (${day.percentage}%)${
+                    aria-label={`${isYearly ? day.dayLabel : day.date}: ${day.completed} of ${day.totalExpected} prayers completed (${day.percentage}%)${
                       hasJamaah ? `, ${day.inJamaah} in Jamaah` : ""
                     }`}
                   >
-                    {/* Top percentage label (only shown on weekly or hover) */}
+                    {/* Top percentage label (only shown on weekly or yearly view) */}
                     {!isMonthly && (
                       <span
                         className={`text-[8px] font-mono tabular-nums mb-1 leading-none ${
@@ -140,10 +153,10 @@ export const TrendBarChart: React.FC<TrendBarChartProps> = ({
 
         {/* X Axis Labels */}
         <div className="flex w-full pl-8 pr-1 pt-1.5">
-          {days.map((day, idx) => {
+          {chartItems.map((day, idx) => {
             // In monthly mode, display every 5th label to prevent clutter
             const showLabel =
-              !isMonthly || idx === 0 || idx % 5 === 0 || idx === days.length - 1;
+              !isMonthly || idx === 0 || idx % 5 === 0 || idx === chartItems.length - 1;
 
             return (
               <div
@@ -189,7 +202,7 @@ function isWeeklyOrYearlyLabel(periodType: string, count: number) {
   if (periodType === "monthly") {
     return `Daily Completion — ${count} Days`;
   }
-  return `Daily Completion — ${count} Days`;
+  return "Monthly Completion — 12 Months";
 }
 
 export default TrendBarChart;

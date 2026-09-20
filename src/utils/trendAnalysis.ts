@@ -86,6 +86,104 @@ export const getYearlyPeriodRange = (
   return { start: startStr, end: endStr, label };
 };
 
+export const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+/**
+ * Aggregates daily trend items into 12 calendar months (Jan..Dec) for the Year view.
+ */
+export const aggregateYearlyMonths = (
+  days: DayTrendItem[],
+  targetYear?: number,
+): DayTrendItem[] => {
+  let year = targetYear;
+  if (!year) {
+    if (days.length > 0 && days[0].date) {
+      const parsedYear = parseInt(days[0].date.slice(0, 4), 10);
+      if (!isNaN(parsedYear)) {
+        year = parsedYear;
+      }
+    }
+    if (!year) {
+      year = new Date().getFullYear();
+    }
+  }
+
+  const monthlyBuckets: {
+    completed: number;
+    inJamaah: number;
+    alone: number;
+    late: number;
+    missed: number;
+    excused: number;
+    totalExpected: number;
+  }[] = Array.from({ length: 12 }, () => ({
+    completed: 0,
+    inJamaah: 0,
+    alone: 0,
+    late: 0,
+    missed: 0,
+    excused: 0,
+    totalExpected: 0,
+  }));
+
+  for (const day of days) {
+    if (!day.date) continue;
+    const parts = day.date.split("-");
+    if (parts.length >= 2) {
+      const dayYear = parseInt(parts[0], 10);
+      const dayMonth = parseInt(parts[1], 10) - 1;
+      if (dayYear === year && dayMonth >= 0 && dayMonth < 12) {
+        const bucket = monthlyBuckets[dayMonth];
+        bucket.completed += day.completed;
+        bucket.inJamaah += day.inJamaah;
+        bucket.alone += day.alone;
+        bucket.late += day.late;
+        bucket.missed += day.missed;
+        bucket.excused += day.excused;
+        bucket.totalExpected += day.totalExpected;
+      }
+    }
+  }
+
+  return MONTH_LABELS.map((label, idx) => {
+    const bucket = monthlyBuckets[idx];
+    const monthNumberStr = String(idx + 1).padStart(2, "0");
+    const date = `${year}-${monthNumberStr}`;
+    const daysInMonth = new Date(year, idx + 1, 0).getDate();
+    const expected = bucket.totalExpected > 0 ? bucket.totalExpected : daysInMonth * 5;
+    const percentage =
+      expected > 0 ? Math.round((bucket.completed / expected) * 100) : 0;
+    const isAllCompleted = expected > 0 && bucket.completed === expected;
+
+    return {
+      date,
+      dayLabel: label,
+      totalExpected: expected,
+      completed: bucket.completed,
+      inJamaah: bucket.inJamaah,
+      alone: bucket.alone,
+      late: bucket.late,
+      missed: bucket.missed,
+      excused: bucket.excused,
+      percentage,
+      isAllCompleted,
+    };
+  });
+};
+
 export const getPeriodRange = (
   periodType: TrendPeriodType,
   referenceDate: Date,

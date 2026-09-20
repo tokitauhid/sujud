@@ -5,6 +5,8 @@ import {
   getYearlyPeriodRange,
   getPreviousPeriod,
   getNextPeriod,
+  aggregateYearlyMonths,
+  MONTH_LABELS,
   computeSourceDataHash,
   calculateTrendAnalysis,
   calculateTrendAnalysisWithComparison,
@@ -73,6 +75,100 @@ describe("Trend Analysis Calculation Engine", () => {
       const nextMonth = getNextPeriod("monthly", "2025-12-01");
       expect(nextMonth.start).toBe("2026-01-01");
       expect(nextMonth.end).toBe("2026-01-31");
+    });
+  });
+
+  describe("Year View Month Aggregation (aggregateYearlyMonths)", () => {
+    it("returns 12 months with correct month labels from Jan through Dec", () => {
+      const result = aggregateYearlyMonths([], 2026);
+      expect(result).toHaveLength(12);
+      expect(result.map((m) => m.dayLabel)).toEqual([
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+      ]);
+      expect(result[0].date).toBe("2026-01");
+      expect(result[11].date).toBe("2026-12");
+    });
+
+    it("correctly groups and aggregates data by month", () => {
+      const sampleDays = [
+        // Jan 1st
+        {
+          date: "2026-01-01",
+          dayLabel: "Thu",
+          totalExpected: 5,
+          completed: 5,
+          inJamaah: 3,
+          alone: 2,
+          late: 0,
+          missed: 0,
+          excused: 0,
+          percentage: 100,
+          isAllCompleted: true,
+        },
+        // Jan 2nd
+        {
+          date: "2026-01-02",
+          dayLabel: "Fri",
+          totalExpected: 5,
+          completed: 4,
+          inJamaah: 2,
+          alone: 2,
+          late: 0,
+          missed: 1,
+          excused: 0,
+          percentage: 80,
+          isAllCompleted: false,
+        },
+        // Feb 15th
+        {
+          date: "2026-02-15",
+          dayLabel: "Sun",
+          totalExpected: 5,
+          completed: 5,
+          inJamaah: 5,
+          alone: 0,
+          late: 0,
+          missed: 0,
+          excused: 0,
+          percentage: 100,
+          isAllCompleted: true,
+        },
+      ];
+
+      const result = aggregateYearlyMonths(sampleDays, 2026);
+
+      // January (index 0)
+      expect(result[0].dayLabel).toBe("Jan");
+      expect(result[0].completed).toBe(9);
+      expect(result[0].inJamaah).toBe(5);
+      expect(result[0].alone).toBe(4);
+      expect(result[0].missed).toBe(1);
+      expect(result[0].totalExpected).toBe(10);
+      expect(result[0].percentage).toBe(90);
+
+      // February (index 1)
+      expect(result[1].dayLabel).toBe("Feb");
+      expect(result[1].completed).toBe(5);
+      expect(result[1].inJamaah).toBe(5);
+      expect(result[1].totalExpected).toBe(5);
+      expect(result[1].percentage).toBe(100);
+
+      // March (index 2 - no logged days in sample, default expected = 31 * 5 = 155)
+      expect(result[2].dayLabel).toBe("Mar");
+      expect(result[2].completed).toBe(0);
+      expect(result[2].totalExpected).toBe(155);
+      expect(result[2].percentage).toBe(0);
+    });
+
+    it("correctly handles leap year February days in expected calculation when empty", () => {
+      const leap2024 = aggregateYearlyMonths([], 2024);
+      // Feb 2024 had 29 days * 5 = 145
+      expect(leap2024[1].totalExpected).toBe(145);
+
+      const nonLeap2026 = aggregateYearlyMonths([], 2026);
+      // Feb 2026 has 28 days * 5 = 140
+      expect(nonLeap2026[1].totalExpected).toBe(140);
     });
   });
 
