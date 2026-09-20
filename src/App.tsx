@@ -262,7 +262,7 @@ const AppContent = () => {
                   // );
                 }
 
-                // await getNextSalahDetails();
+                await getNextSalahDetails();
 
                 await updateUserPrefs(
                   dbConnection,
@@ -282,6 +282,13 @@ const AppContent = () => {
           setIsAppActive(isActive);
         },
       );
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === "visible") {
+          getNextSalahDetails().catch(() => {});
+        }
+      };
+      document.addEventListener("visibilitychange", handleVisibilityChange);
     })();
 
     return () => {
@@ -1288,7 +1295,10 @@ const AppContent = () => {
           dbConnection={dbConnection}
           nextSalahNameAndTime={nextSalahNameAndTime}
           setFetchedSalahData={setFetchedSalahData}
+          fetchedSalahData={fetchedSalahData}
           userPreferences={userPreferences}
+          userLocations={userLocations}
+          onRefreshSchedule={getNextSalahDetails}
         />
         <Route exact path="/" render={() => <Redirect to="/HomePage" />} />
       </IonReactRouter>

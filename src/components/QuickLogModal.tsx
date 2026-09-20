@@ -11,6 +11,7 @@ import {
 } from "ionicons/icons";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import {
+  LocationsDataObjTypeArr,
   nextSalahTimeType,
   SalahNamesType,
   SalahRecordType,
@@ -20,15 +21,18 @@ import {
 } from "../types/types";
 import { syncSalahLogToCloud } from "../firebase/syncService";
 import { defaultReasons } from "../utils/constants";
-import { showToast } from "../utils/helpers";
+import { getNextSalah, showToast } from "../utils/helpers";
 
-interface QuickLogModalProps {
+export interface QuickLogModalProps {
   isOpen: boolean;
   onClose: () => void;
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
   nextSalahNameAndTime?: nextSalahTimeType;
   setFetchedSalahData: React.Dispatch<React.SetStateAction<SalahRecordsArrayType>>;
+  fetchedSalahData?: SalahRecordsArrayType;
   userPreferences: userPreferencesType;
+  userLocations?: LocationsDataObjTypeArr;
+  onRefreshSchedule?: () => Promise<nextSalahTimeType | undefined>;
 }
 
 const salahNames: SalahNamesType[] = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
@@ -38,7 +42,6 @@ const mapToSalahName = (name?: string): SalahNamesType | null => {
   const lower = name.toLowerCase();
   switch (lower) {
     case "fajr":
-      return "Fajr";
     case "sunrise":
       return "Fajr";
     case "dhuhr":
@@ -55,7 +58,7 @@ const mapToSalahName = (name?: string): SalahNamesType | null => {
   }
 };
 
-const resolveCurrentOrNextSalah = (
+export const resolveCurrentOrNextSalah = (
   nextSalahObj?: nextSalahTimeType
 ): SalahNamesType => {
   if (nextSalahObj) {
@@ -85,8 +88,12 @@ const QuickLogModal = ({
   dbConnection,
   nextSalahNameAndTime,
   setFetchedSalahData,
+  fetchedSalahData,
   userPreferences,
+  userLocations,
+  onRefreshSchedule,
 }: QuickLogModalProps) => {
+  const [userManuallySelectedPrayer, setUserManuallySelectedPrayer] = useState(false);
   const [selectedSalah, setSelectedSalah] = useState<SalahNamesType>(() =>
     resolveCurrentOrNextSalah(nextSalahNameAndTime)
   );
@@ -105,15 +112,75 @@ const QuickLogModal = ({
     ? (userPreferences.reasons as string).split(",").filter(Boolean)
     : defaultReasons.split(",").filter(Boolean);
 
-  // Automatically default to current or upcoming prayer and reset inputs on open
+  // Automatically default to current prayer, refresh schedule, and pre-select status if already logged
   useEffect(() => {
-    if (isOpen) {
-      setSelectedSalah(resolveCurrentOrNextSalah(nextSalahNameAndTime));
-      setSelectedStatus(defaultOnTimeStatus);
-      setSelectedReasons([]);
-      setNotes("");
+    if (!isOpen) return;
+
+    setUserManuallySelectedPrayer(false);
+    setSelectedReasons([]);
+    setNotes("");
+
+    let isMounted = true;
+
+    const refreshSlotOnOpen = async () => {
+      let freshSlot: SalahNamesType | null = null;
+      if (onRefreshSchedule) {
+        try {
+          const fresh = await onRefreshSchedule();
+          if (fresh && isMounted) {
+            freshSlot = resolveCurrentOrNextSalah(fresh);
+          }
+        } catch (e) {
+          console.warn("Could not refresh schedule on open:", e);
+        }
+      } else if (userLocations && userPreferences) {
+        try {
+          const fresh = await getNextSalah(userLocations, userPreferences);
+          if (fresh && isMounted) {
+            freshSlot = resolveCurrentOrNextSalah(fresh);
+          }
+        } catch (e) {
+          console.warn("Could not recalculate prayer times on open:", e);
+        }
+      }
+
+      if (!freshSlot) {
+        freshSlot = resolveCurrentOrNextSalah(nextSalahNameAndTime);
+      }
+
+      if (isMounted) {
+        setSelectedSalah(freshSlot);
+
+        // Check if this prayer is already logged today and pre-select its status if so
+        const today = format(new Date(), "yyyy-MM-dd");
+        const existingRecord = fetchedSalahData?.find((r) => r.date === today);
+        const existingStatus =
+          freshSlot === "Asr"
+            ? existingRecord?.salahs?.Asar || existingRecord?.salahs?.Asr
+            : existingRecord?.salahs?.[freshSlot];
+
+        if (existingStatus && existingStatus !== "") {
+          setSelectedStatus(existingStatus as SalahStatusType);
+        } else {
+          setSelectedStatus(defaultOnTimeStatus);
+        }
+      }
+    };
+
+    refreshSlotOnOpen();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, defaultOnTimeStatus]);
+
+  // Keep slot in sync with nextSalahNameAndTime if prayer changed while modal was open and user didn't manually pick
+  useEffect(() => {
+    if (isOpen && !userManuallySelectedPrayer && nextSalahNameAndTime) {
+      const current = resolveCurrentOrNextSalah(nextSalahNameAndTime);
+      setSelectedSalah(current);
     }
-  }, [isOpen, nextSalahNameAndTime, defaultOnTimeStatus]);
+  }, [nextSalahNameAndTime, isOpen, userManuallySelectedPrayer]);
 
   const toggleReason = (reason: string) => {
     triggerHaptic();
@@ -124,6 +191,15 @@ const QuickLogModal = ({
     );
   };
 
+  // Check if currently selected prayer is already logged for today
+  const today = format(new Date(), "yyyy-MM-dd");
+  const todayRecord = fetchedSalahData?.find((r) => r.date === today);
+  const alreadyLoggedStatus =
+    selectedSalah === "Asr"
+      ? todayRecord?.salahs?.Asar || todayRecord?.salahs?.Asr
+      : todayRecord?.salahs?.[selectedSalah];
+  const isAlreadyLogged = Boolean(alreadyLoggedStatus && alreadyLoggedStatus !== "");
+
   const handleSave = async () => {
     if (!dbConnection.current || !selectedStatus || isSubmitting) return;
 
@@ -131,74 +207,112 @@ const QuickLogModal = ({
       setIsSubmitting(true);
       triggerHaptic();
 
-      const today = format(new Date(), "yyyy-MM-dd");
+      // Refresh/revalidate current prayer schedule before saving
+      if (onRefreshSchedule) {
+        try {
+          await onRefreshSchedule();
+        } catch (e) {
+          console.warn("Could not refresh schedule before saving:", e);
+        }
+      }
+
+      const saveToday = format(new Date(), "yyyy-MM-dd");
       const now = Date.now();
       const dbSalahName = selectedSalah === "Asr" ? "Asar" : selectedSalah;
       const reasonsToInsert = selectedReasons.join(",");
 
-      const query = `INSERT INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(date, salahName) DO UPDATE SET
-          salahStatus = excluded.salahStatus,
-          reasons = excluded.reasons,
-          notes = excluded.notes,
-          updatedAt = excluded.updatedAt,
-          deleted = 0`;
+      // Query database for existing record for today and prayer
+      const existingRows = await dbConnection.current.query(
+        `SELECT id, salahStatus, reasons, notes, createdAt FROM salahDataTable WHERE date = ? AND (salahName = ? OR salahName = ?) AND (deleted = 0 OR deleted IS NULL)`,
+        [saveToday, dbSalahName, selectedSalah]
+      );
 
-      await dbConnection.current.run(query, [
-        today,
-        dbSalahName,
-        selectedStatus,
-        reasonsToInsert,
-        notes,
-        now,
-        now,
-        0,
-      ]);
+      const existingRecord =
+        existingRows.values && existingRows.values.length > 0
+          ? existingRows.values[0]
+          : null;
+
+      // Problem A: If prayer is already saved with identical status & details, treat as idempotent success
+      if (
+        existingRecord &&
+        existingRecord.salahStatus === selectedStatus &&
+        (existingRecord.reasons || "") === reasonsToInsert &&
+        (existingRecord.notes || "") === notes
+      ) {
+        showToast(`${selectedSalah} is already logged`, "short");
+        onClose();
+        return;
+      }
+
+      // If existing record exists with different status/details, update it by primary key ID
+      if (existingRecord && existingRecord.id) {
+        await dbConnection.current.run(
+          `UPDATE salahDataTable SET salahStatus = ?, reasons = ?, notes = ?, updatedAt = ?, deleted = 0 WHERE id = ?`,
+          [selectedStatus, reasonsToInsert, notes, now, existingRecord.id]
+        );
+      } else {
+        // Otherwise insert with INSERT OR REPLACE (safe and idempotent across all SQLite versions)
+        const query = `INSERT OR REPLACE INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 0)`;
+        await dbConnection.current.run(query, [
+          saveToday,
+          dbSalahName,
+          selectedStatus,
+          reasonsToInsert,
+          notes,
+          now,
+          now,
+        ]);
+      }
 
       // Sync to cloud fire-and-forget
       syncSalahLogToCloud({
-        date: today,
+        date: saveToday,
         salahName: dbSalahName,
         salahStatus: selectedStatus,
         reasons: reasonsToInsert,
         notes,
-        createdAt: now,
+        createdAt: existingRecord?.createdAt || now,
         updatedAt: now,
         deleted: 0,
       });
 
       // Update local in-memory records
       setFetchedSalahData((prev) => {
-        const existingIdx = prev.findIndex((r) => r.date === today);
+        const existingIdx = prev.findIndex((r) => r.date === saveToday);
         if (existingIdx !== -1) {
           const updated = [...prev];
           const record = { ...updated[existingIdx] };
           const salahs = { ...record.salahs };
           salahs[selectedSalah] = selectedStatus;
-          if (selectedSalah === "Asr") salahs.Asar = selectedStatus;
+          if (selectedSalah === "Asr") {
+            salahs.Asar = selectedStatus;
+            salahs.Asr = selectedStatus;
+          }
           record.salahs = salahs;
           updated[existingIdx] = record;
           return updated;
         } else {
           const newRecord: SalahRecordType = {
-            date: today,
+            date: saveToday,
             salahs: {
               Fajr: "",
               Dhuhr: "",
-              Asar: "",
-              Asr: "",
+              Asar: selectedSalah === "Asr" ? selectedStatus : "",
+              Asr: selectedSalah === "Asr" ? selectedStatus : "",
               Maghrib: "",
               Isha: "",
               [selectedSalah]: selectedStatus,
-              ...(selectedSalah === "Asr" ? { Asar: selectedStatus } : {}),
             },
           };
           return [newRecord, ...prev];
         }
       });
 
-      showToast(`Saved ${selectedSalah}`, "short");
+      showToast(
+        existingRecord ? `Updated ${selectedSalah}` : `Saved ${selectedSalah}`,
+        "short"
+      );
       onClose();
     } catch (err) {
       console.error("Failed to quick log salah:", err);
@@ -247,7 +361,17 @@ const QuickLogModal = ({
                 key={name}
                 onClick={() => {
                   triggerHaptic();
+                  setUserManuallySelectedPrayer(true);
                   setSelectedSalah(name);
+                  const saveToday = format(new Date(), "yyyy-MM-dd");
+                  const existingRecord = fetchedSalahData?.find((r) => r.date === saveToday);
+                  const existingStatus =
+                    name === "Asr"
+                      ? existingRecord?.salahs?.Asar || existingRecord?.salahs?.Asr
+                      : existingRecord?.salahs?.[name];
+                  if (existingStatus && existingStatus !== "") {
+                    setSelectedStatus(existingStatus as SalahStatusType);
+                  }
                 }}
                 className={`py-2 px-1 rounded-none text-center text-[10px] uppercase tracking-wider transition-all border ${
                   isSelected
@@ -260,6 +384,26 @@ const QuickLogModal = ({
             );
           })}
         </div>
+
+        {/* Already logged indicator */}
+        {isAlreadyLogged && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#10B981]/15 border border-[#10B981]/30 text-[#10B981] text-[11px] mb-3 font-mono">
+            <IonIcon icon={checkmarkCircle} className="text-sm shrink-0" />
+            <span>
+              Already logged for today (
+              <strong className="capitalize">
+                {alreadyLoggedStatus === "group"
+                  ? "In Jamaah"
+                  : alreadyLoggedStatus === "male-alone"
+                  ? "Alone"
+                  : alreadyLoggedStatus === "female-alone"
+                  ? "Prayed"
+                  : alreadyLoggedStatus}
+              </strong>
+              ).
+            </span>
+          </div>
+        )}
 
         {/* Status Selection Buttons */}
         <div className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] mb-1.5">
@@ -467,7 +611,11 @@ const QuickLogModal = ({
             color: selectedStatus ? "#000000" : "#71717A",
           }}
         >
-          {isSubmitting ? "Saving..." : `Save ${selectedSalah}`}
+          {isSubmitting
+            ? "Saving..."
+            : isAlreadyLogged
+            ? `Update ${selectedSalah}`
+            : `Save ${selectedSalah}`}
         </button>
       </div>
     </IonModal>
