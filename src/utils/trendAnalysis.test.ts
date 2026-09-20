@@ -1034,6 +1034,12 @@ describe("Trend Analysis Calculation Engine", () => {
       expect(fajr?.expected).toBe(7);
       expect(fajr?.completed).toBe(7);
       expect(fajr?.completionRate).toBe(100);
+
+      // Daily completion bar for Sunday shows 2 of 5 completed (40%) because 3 prayers are still left today
+      const sundayDay = metrics.days.find((d) => d.date === sundayDate);
+      expect(sundayDay?.completed).toBe(2);
+      expect(sundayDay?.totalExpected).toBe(5);
+      expect(sundayDay?.percentage).toBe(40);
     });
 
     it("breaks active streak and evaluates 7 days if a miss occurs on an in-progress Sunday", () => {

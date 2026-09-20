@@ -458,8 +458,7 @@ export const calculateTrendAnalysis = (
     totalLate += dayLate;
     totalMissed += dayMissed;
 
-    const dayPct =
-      dayExpected > 0 ? Math.round((dayCompleted / dayExpected) * 100) : 0;
+    const dayPct = Math.round((dayCompleted / 5) * 100);
     days.push({
       date: dateStr,
       dayLabel,
@@ -504,7 +503,11 @@ export const calculateTrendAnalysis = (
           percentage: d.percentage,
         };
       }
-      if (d.completed < minComp) {
+
+      // Do not consider an unblemished in-progress day as the weakest day
+      const isUnblemishedInProgressDay =
+        isInProgress && d.date === todayStr && d.completed < 5 && d.missed === 0;
+      if (!isUnblemishedInProgressDay && d.completed < minComp) {
         minComp = d.completed;
         weakestDay = {
           date: d.date,
