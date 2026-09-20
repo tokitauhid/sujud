@@ -979,6 +979,94 @@ describe("Trend Analysis Calculation Engine", () => {
       expect(metrics.previousCompletionPercentage).toBe(97);
     });
 
+    it("handles in-progress Sunday afternoon with only Fajr and Dhuhr logged (no false decline, keeps active streak, maintains steadfastness)", () => {
+      const sundayDate = "2026-09-20";
+      // Monday to Saturday perfect (30 prayers), Sunday has Fajr and Dhuhr in Jamaah (2 prayers)
+      const inProgressSundayRecords: SalahRecordsArrayType = [
+        ...prevWeekFullRecords, // Prev week has 34 prayers (97% Mon-Sun, 9/10 Mon-Tue, 5 Mon, 5 Tue-missed Maghrib, etc.)
+        { date: "2026-09-14", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // Mon 5
+        { date: "2026-09-15", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // Tue 5
+        { date: "2026-09-16", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // Wed 5
+        { date: "2026-09-17", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // Thu 5
+        { date: "2026-09-18", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // Fri 5
+        { date: "2026-09-19", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } }, // Sat 5
+        { date: "2026-09-20", salahs: { Fajr: "group", Dhuhr: "group" } }, // Sun (today afternoon): Fajr & Dhuhr only
+      ];
+
+      const metrics = calculateTrendAnalysisWithComparison(
+        "weekly",
+        "2026-09-14",
+        "2026-09-20",
+        inProgressSundayRecords,
+        true,
+        sundayDate,
+      );
+
+      // Expected prayers so far: 6 concluded days * 5 + 2 today = 32
+      expect(metrics.totalExpected).toBe(32);
+      expect(metrics.completed).toBe(32);
+      expect(metrics.completionPercentage).toBe(100);
+
+      // Previous week had 30 Mon-Sat + 2 on Sun (Fajr and Dhuhr group) = 31 / 32 (or 32/32 since prev week Tue had 1 miss: 31/32 = 97%)
+      expect(metrics.previousCompletionPercentage).toBe(97);
+      expect(metrics.completionPercentageChange).toBe(3); // +3% improvement vs prev week! No false decline!
+
+      // Active streak must be preserved as 6 days (not broken to 0!)
+      expect(metrics.currentStreak).toBe(6);
+      expect(metrics.longestStreak).toBe(6);
+
+      // Steadfastness: perfect on 6 of 6 evaluated concluded days (not 6 of 7!)
+      expect(metrics.perfectDaysCount).toBe(6);
+      expect(metrics.totalDays).toBe(6);
+
+      // Prayers that haven't happened yet today (Asr, Maghrib, Isha) only expect 6
+      const asr = metrics.prayersBreakdown.find((p) => p.name === "Asr");
+      expect(asr?.expected).toBe(6);
+      expect(asr?.completed).toBe(6);
+      expect(asr?.completionRate).toBe(100);
+
+      const isha = metrics.prayersBreakdown.find((p) => p.name === "Isha");
+      expect(isha?.expected).toBe(6);
+      expect(isha?.completed).toBe(6);
+      expect(isha?.completionRate).toBe(100);
+
+      const fajr = metrics.prayersBreakdown.find((p) => p.name === "Fajr");
+      expect(fajr?.expected).toBe(7);
+      expect(fajr?.completed).toBe(7);
+      expect(fajr?.completionRate).toBe(100);
+    });
+
+    it("breaks active streak and evaluates 7 days if a miss occurs on an in-progress Sunday", () => {
+      const sundayDate = "2026-09-20";
+      const sundayMissedRecords: SalahRecordsArrayType = [
+        ...prevWeekFullRecords,
+        { date: "2026-09-14", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2026-09-15", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2026-09-16", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2026-09-17", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2026-09-18", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2026-09-19", salahs: { Fajr: "group", Dhuhr: "group", Asar: "group", Maghrib: "group", Isha: "group" } },
+        { date: "2026-09-20", salahs: { Fajr: "missed", Dhuhr: "group" } }, // Missed Fajr today
+      ];
+
+      const metrics = calculateTrendAnalysisWithComparison(
+        "weekly",
+        "2026-09-14",
+        "2026-09-20",
+        sundayMissedRecords,
+        true,
+        sundayDate,
+      );
+
+      // Streak is broken by today's missed Fajr
+      expect(metrics.currentStreak).toBe(0);
+      expect(metrics.longestStreak).toBe(6);
+
+      // Since today is imperfect with a miss, steadfastness evaluates all 7 elapsed days
+      expect(metrics.perfectDaysCount).toBe(6);
+      expect(metrics.totalDays).toBe(7);
+    });
+
     it("handles new year boundary crossings seamlessly", () => {
       // Current week spans across year boundary: 2025-12-29 (Mon) to 2026-01-04 (Sun)
       // Reference date is Friday 2026-01-02 (5 elapsed days: Dec 29, 30, 31, Jan 1, Jan 2)

@@ -300,6 +300,7 @@ export const calculateTrendAnalysis = (
   isMaleMode: boolean,
   previousMetrics?: TrendMetrics | null,
   referenceDate?: Date | string,
+  partialLastDayPrayersCount?: number,
 ): TrendMetrics => {
   const startDate = parseISO(periodStart);
   const endDate = parseISO(periodEnd);
@@ -312,7 +313,7 @@ export const calculateTrendAnalysis = (
         : referenceDate
       : new Date();
   const todayStr = format(refDate, "yyyy-MM-dd");
-  const isInProgress = periodStart <= todayStr && todayStr < periodEnd;
+  const isInProgress = periodStart <= todayStr && todayStr <= periodEnd;
   const elapsedDaysCount = isInProgress
     ? Math.max(1, differenceInCalendarDays(parseISO(todayStr), startDate) + 1)
     : intervalDays.length;
@@ -322,6 +323,29 @@ export const calculateTrendAnalysis = (
     recordMap.set(record.date, record);
   }
 
+  // Find how many prayers have been reached/logged today if in progress
+  const todayRecord = recordMap.get(todayStr);
+  let maxTodayPrayerIndex = -1;
+  if (isInProgress) {
+    for (let idx = 0; idx < PRAYER_NAMES.length; idx++) {
+      const pName = PRAYER_NAMES[idx];
+      const status =
+        pName === "Asr"
+          ? todayRecord?.salahs?.Asar || todayRecord?.salahs?.Asr || ""
+          : todayRecord?.salahs?.[pName] || "";
+      if (status !== "") {
+        maxTodayPrayerIndex = Math.max(maxTodayPrayerIndex, idx);
+      }
+    }
+  }
+
+  const concludedDaysCount = isInProgress ? Math.max(0, elapsedDaysCount - 1) : 0;
+  const todayExpectedPrayers = isInProgress
+    ? maxTodayPrayerIndex >= 0
+      ? maxTodayPrayerIndex + 1
+      : 0
+    : 5;
+
   const days: DayTrendItem[] = [];
   let totalCompleted = 0;
   let totalMissed = 0;
@@ -329,6 +353,8 @@ export const calculateTrendAnalysis = (
   let totalAlone = 0;
   let totalInJamaah = 0;
   let perfectDaysCount = 0;
+  let todayCompletedCount = 0;
+  let todayMissedCount = 0;
 
   const prayerCounts: Record<
     "Fajr" | "Dhuhr" | "Asr" | "Maghrib" | "Isha",
@@ -352,6 +378,10 @@ export const calculateTrendAnalysis = (
     const dateStr = format(day, "yyyy-MM-dd");
     const dayLabel = format(day, "EEE");
     const record = recordMap.get(dateStr);
+    const isToday = isInProgress && dateStr === todayStr;
+    const isFuture = isInProgress && dateStr > todayStr;
+    const isLastDayPartial =
+      partialLastDayPrayersCount !== undefined && dateStr === periodEnd;
 
     let dayCompleted = 0;
     let dayInJamaah = 0;
@@ -360,7 +390,27 @@ export const calculateTrendAnalysis = (
     let dayMissed = 0;
     let dayExcused = 0;
 
-    for (const pName of PRAYER_NAMES) {
+    let dayExpected = 5;
+    if (isFuture) {
+      dayExpected = 0;
+    } else if (isToday) {
+      dayExpected = todayExpectedPrayers;
+    } else if (isLastDayPartial) {
+      dayExpected = partialLastDayPrayersCount;
+    }
+
+    for (let pIdx = 0; pIdx < PRAYER_NAMES.length; pIdx++) {
+      const pName = PRAYER_NAMES[pIdx];
+
+      // Skip unreached prayers for in-progress days or partial elapsed cutoffs
+      if (isFuture) continue;
+      if (isToday && (maxTodayPrayerIndex === -1 || pIdx > maxTodayPrayerIndex)) {
+        continue;
+      }
+      if (isLastDayPartial && pIdx >= partialLastDayPrayersCount) {
+        continue;
+      }
+
       const status =
         pName === "Asr"
           ? record?.salahs?.Asar || record?.salahs?.Asr || ""
@@ -392,7 +442,12 @@ export const calculateTrendAnalysis = (
       }
     }
 
-    const isAllCompleted = dayCompleted === 5;
+    if (isToday) {
+      todayCompletedCount = dayCompleted;
+      todayMissedCount = dayMissed;
+    }
+
+    const isAllCompleted = dayExpected === 5 && dayCompleted === 5;
     if (isAllCompleted) {
       perfectDaysCount++;
     }
@@ -403,7 +458,8 @@ export const calculateTrendAnalysis = (
     totalLate += dayLate;
     totalMissed += dayMissed;
 
-    const dayPct = Math.round((dayCompleted / 5) * 100);
+    const dayPct =
+      dayExpected > 0 ? Math.round((dayCompleted / dayExpected) * 100) : 0;
     days.push({
       date: dateStr,
       dayLabel,
@@ -419,7 +475,13 @@ export const calculateTrendAnalysis = (
     });
   }
 
-  const totalExpected = (isInProgress ? elapsedDaysCount : intervalDays.length) * 5;
+  let totalExpected = intervalDays.length * 5;
+  if (isInProgress) {
+    totalExpected = concludedDaysCount * 5 + todayExpectedPrayers;
+  } else if (partialLastDayPrayersCount !== undefined) {
+    totalExpected = (intervalDays.length - 1) * 5 + partialLastDayPrayersCount;
+  }
+
   const completionPercentage =
     totalExpected > 0 ? Math.round((totalCompleted / totalExpected) * 100) : 0;
 
@@ -431,6 +493,7 @@ export const calculateTrendAnalysis = (
     let maxComp = -1;
     let minComp = 999;
     for (const d of days) {
+      if (isInProgress && d.date > todayStr) continue;
       if (d.completed > maxComp) {
         maxComp = d.completed;
         bestDay = {
@@ -461,6 +524,7 @@ export const calculateTrendAnalysis = (
 
   for (let i = 0; i < days.length; i++) {
     const d = days[i];
+    if (isInProgress && d.date > todayStr) break;
     const isStreakDay = d.completed === 5 && d.missed === 0 && d.late === 0;
     if (isStreakDay) {
       tempStreak++;
@@ -472,9 +536,25 @@ export const calculateTrendAnalysis = (
     }
   }
 
-  // Count backwards from end of period for active streak at period end
-  for (let i = days.length - 1; i >= 0; i--) {
+  // Count backwards from current active day for active streak
+  const todayIdx = days.findIndex((d) => d.date === todayStr);
+  const startIdx = isInProgress && todayIdx !== -1 ? todayIdx : days.length - 1;
+
+  for (let i = startIdx; i >= 0; i--) {
     const d = days[i];
+    if (isInProgress && d.date === todayStr) {
+      // If today has late or missed prayers, streak is broken today
+      if (d.missed > 0 || d.late > 0) {
+        break;
+      }
+      // If today has completed all 5 on time, count today in active streak
+      if (d.completed === 5) {
+        currentStreak++;
+      }
+      // If today is in progress with 0 missed and 0 late, continue to count active streak from previous days
+      continue;
+    }
+
     const isStreakDay = d.completed === 5 && d.missed === 0 && d.late === 0;
     if (isStreakDay) {
       currentStreak++;
@@ -483,10 +563,26 @@ export const calculateTrendAnalysis = (
     }
   }
 
+  // Steadfastness: evaluated days count
+  const isTodayConcludedOrImperfect =
+    !isInProgress ||
+    todayCompletedCount === 5 ||
+    todayMissedCount > 0;
+  const effectiveTotalDays = isInProgress
+    ? isTodayConcludedOrImperfect
+      ? elapsedDaysCount
+      : Math.max(1, elapsedDaysCount - 1)
+    : intervalDays.length;
+
   // Prayer-by-prayer breakdown
-  const prayersBreakdown: PrayerTrendBreakdownItem[] = PRAYER_NAMES.map((name) => {
+  const prayersBreakdown: PrayerTrendBreakdownItem[] = PRAYER_NAMES.map((name, idx) => {
     const counts = prayerCounts[name];
-    const expected = isInProgress ? elapsedDaysCount : intervalDays.length;
+    let expected = intervalDays.length;
+    if (isInProgress) {
+      expected = concludedDaysCount + (maxTodayPrayerIndex >= idx ? 1 : 0);
+    } else if (partialLastDayPrayersCount !== undefined) {
+      expected = intervalDays.length - 1 + (idx < partialLastDayPrayersCount ? 1 : 0);
+    }
     const rate = expected > 0 ? Math.round((counts.completed / expected) * 100) : 0;
     let changeVsPreviousRate: number | null = null;
 
@@ -604,7 +700,7 @@ export const calculateTrendAnalysis = (
     currentStreak,
     longestStreak,
     perfectDaysCount,
-    totalDays: intervalDays.length,
+    totalDays: effectiveTotalDays,
     mostFrequentlyMissedPrayer,
     mostImprovedPrayer,
     days,
@@ -637,7 +733,7 @@ export const calculateTrendAnalysisWithComparison = (
         : referenceDate
       : new Date();
   const todayStr = format(refDate, "yyyy-MM-dd");
-  const isInProgress = periodStart <= todayStr && todayStr < periodEnd;
+  const isInProgress = periodStart <= todayStr && todayStr <= periodEnd;
   const prevPeriod = getPreviousPeriod(periodType, periodStart);
 
   let prevMetrics: TrendMetrics;
@@ -652,7 +748,23 @@ export const calculateTrendAnalysisWithComparison = (
       "yyyy-MM-dd",
     );
 
-    // Evaluate equivalent elapsed days in the previous period
+    // Find how many prayers have been reached/logged today
+    const todayRecord = salahRecords.find((r) => r.date === todayStr);
+    let maxTodayPrayerIndex = -1;
+    for (let idx = 0; idx < PRAYER_NAMES.length; idx++) {
+      const pName = PRAYER_NAMES[idx];
+      const status =
+        pName === "Asr"
+          ? todayRecord?.salahs?.Asar || todayRecord?.salahs?.Asr || ""
+          : todayRecord?.salahs?.[pName] || "";
+      if (status !== "") {
+        maxTodayPrayerIndex = Math.max(maxTodayPrayerIndex, idx);
+      }
+    }
+    const todayPrayerCount =
+      maxTodayPrayerIndex >= 0 ? maxTodayPrayerIndex + 1 : 0;
+
+    // Evaluate equivalent elapsed days in the previous period up to equivalent today's prayer count
     prevMetrics = calculateTrendAnalysis(
       periodType,
       prevPeriod.start,
@@ -660,7 +772,8 @@ export const calculateTrendAnalysisWithComparison = (
       salahRecords,
       isMaleMode,
       null,
-      prevElapsedEnd,
+      refDate,
+      todayPrayerCount,
     );
   } else {
     // For fully completed (or past) periods, compare full period vs full period
