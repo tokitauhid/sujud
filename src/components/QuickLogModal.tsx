@@ -22,6 +22,7 @@ import {
 import { syncSalahLogToCloud } from "../firebase/syncService";
 import { defaultReasons } from "../utils/constants";
 import { getNextSalah, showToast } from "../utils/helpers";
+import { withDB } from "../utils/dbUtils";
 
 export interface QuickLogModalProps {
   isOpen: boolean;
@@ -221,48 +222,62 @@ const QuickLogModal = ({
       const dbSalahName = selectedSalah === "Asr" ? "Asar" : selectedSalah;
       const reasonsToInsert = selectedReasons.join(",");
 
-      // Query database for existing record for today and prayer
-      const existingRows = await dbConnection.current.query(
-        `SELECT id, salahStatus, reasons, notes, createdAt FROM salahDataTable WHERE date = ? AND (salahName = ? OR salahName = ?) AND (deleted = 0 OR deleted IS NULL)`,
-        [saveToday, dbSalahName, selectedSalah]
-      );
+      let isDuplicate = false;
+      let existingCreatedAt = now;
 
-      const existingRecord =
-        existingRows.values && existingRows.values.length > 0
-          ? existingRows.values[0]
-          : null;
+      await withDB(dbConnection, async (db) => {
+        // Query database for existing record for today and prayer
+        const existingRows = await db.query(
+          `SELECT id, salahStatus, reasons, notes, createdAt FROM salahDataTable WHERE date = ? AND (salahName = ? OR salahName = ?) AND (deleted = 0 OR deleted IS NULL)`,
+          [saveToday, dbSalahName, selectedSalah]
+        );
 
-      // Problem A: If prayer is already saved with identical status & details, treat as idempotent success
-      if (
-        existingRecord &&
-        existingRecord.salahStatus === selectedStatus &&
-        (existingRecord.reasons || "") === reasonsToInsert &&
-        (existingRecord.notes || "") === notes
-      ) {
+        const existingRecord =
+          existingRows.values && existingRows.values.length > 0
+            ? existingRows.values[0]
+            : null;
+
+        if (existingRecord?.createdAt) {
+          existingCreatedAt = existingRecord.createdAt;
+        }
+
+        // Problem A: If prayer is already saved with identical status & details, treat as idempotent success
+        if (
+          existingRecord &&
+          existingRecord.salahStatus === selectedStatus &&
+          (existingRecord.reasons || "") === reasonsToInsert &&
+          (existingRecord.notes || "") === notes
+        ) {
+          isDuplicate = true;
+          return;
+        }
+
+        // If existing record exists with different status/details, update it by primary key ID
+        if (existingRecord && existingRecord.id) {
+          await db.run(
+            `UPDATE salahDataTable SET salahStatus = ?, reasons = ?, notes = ?, updatedAt = ?, deleted = 0 WHERE id = ?`,
+            [selectedStatus, reasonsToInsert, notes, now, existingRecord.id]
+          );
+        } else {
+          // Otherwise insert with INSERT OR REPLACE (safe and idempotent across all SQLite versions)
+          const query = `INSERT OR REPLACE INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0)`;
+          await db.run(query, [
+            saveToday,
+            dbSalahName,
+            selectedStatus,
+            reasonsToInsert,
+            notes,
+            now,
+            now,
+          ]);
+        }
+      });
+
+      if (isDuplicate) {
         showToast(`${selectedSalah} is already logged`, "short");
         onClose();
         return;
-      }
-
-      // If existing record exists with different status/details, update it by primary key ID
-      if (existingRecord && existingRecord.id) {
-        await dbConnection.current.run(
-          `UPDATE salahDataTable SET salahStatus = ?, reasons = ?, notes = ?, updatedAt = ?, deleted = 0 WHERE id = ?`,
-          [selectedStatus, reasonsToInsert, notes, now, existingRecord.id]
-        );
-      } else {
-        // Otherwise insert with INSERT OR REPLACE (safe and idempotent across all SQLite versions)
-        const query = `INSERT OR REPLACE INTO salahDataTable(date, salahName, salahStatus, reasons, notes, createdAt, updatedAt, deleted)
-          VALUES (?, ?, ?, ?, ?, ?, ?, 0)`;
-        await dbConnection.current.run(query, [
-          saveToday,
-          dbSalahName,
-          selectedStatus,
-          reasonsToInsert,
-          notes,
-          now,
-          now,
-        ]);
       }
 
       // Sync to cloud fire-and-forget
@@ -272,7 +287,7 @@ const QuickLogModal = ({
         salahStatus: selectedStatus,
         reasons: reasonsToInsert,
         notes,
-        createdAt: existingRecord?.createdAt || now,
+        createdAt: existingCreatedAt,
         updatedAt: now,
         deleted: 0,
       });
@@ -310,7 +325,7 @@ const QuickLogModal = ({
       });
 
       showToast(
-        existingRecord ? `Updated ${selectedSalah}` : `Saved ${selectedSalah}`,
+        existingCreatedAt !== now ? `Updated ${selectedSalah}` : `Saved ${selectedSalah}`,
         "short"
       );
       onClose();

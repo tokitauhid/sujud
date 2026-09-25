@@ -18,6 +18,7 @@ import {
   getCompletedPeriod,
 } from "./trendAnalysis";
 import { checkNotificationPermissions, updateUserPrefs } from "./helpers";
+import { withDB } from "./dbUtils";
 
 /**
  * Returns the calendar week starting date (Monday) as the period key.
@@ -64,7 +65,30 @@ export const checkAndGenerateWeeklyReflectionNotification = async (
   options?: CheckWeeklyReflectionOptions,
 ): Promise<boolean> => {
   try {
-    if (userPreferences.weeklyReflectionNotification === "0") {
+    let enabled = userPreferences.weeklyReflectionNotification;
+    let lastDelivered = userPreferences.lastWeeklyReflectionDelivered;
+    let lastId = userPreferences.lastWeeklyReflectionId;
+
+    if (dbConnection?.current) {
+      try {
+        await withDB(dbConnection, async (db) => {
+          const rows = await db.query(
+            `SELECT preferenceName, preferenceValue FROM userPreferencesTable WHERE preferenceName IN ('weeklyReflectionNotification', 'lastWeeklyReflectionDelivered', 'lastWeeklyReflectionId')`
+          );
+          if (rows?.values) {
+            for (const r of rows.values) {
+              if (r.preferenceName === "weeklyReflectionNotification") enabled = r.preferenceValue;
+              if (r.preferenceName === "lastWeeklyReflectionDelivered") lastDelivered = r.preferenceValue;
+              if (r.preferenceName === "lastWeeklyReflectionId") lastId = r.preferenceValue;
+            }
+          }
+        });
+      } catch (e) {
+        // Fall back to passed userPreferences
+      }
+    }
+
+    if (enabled === "0") {
       return false;
     }
 
@@ -75,10 +99,32 @@ export const checkAndGenerateWeeklyReflectionNotification = async (
 
     const refDate = options?.referenceDate ?? new Date();
     const currentWeekStart = getWeeklyReflectionPeriodKey(refDate);
+    const notificationId =
+      generateDeterministicReflectionNotificationId(currentWeekStart);
 
     // One-and-done: strictly verify we have not already delivered for this week
-    if (userPreferences.lastWeeklyReflectionDelivered === currentWeekStart) {
+    if (lastDelivered === currentWeekStart) {
       return false;
+    }
+
+    // Check if already active/delivered in device notifications
+    if (typeof LocalNotifications.getDeliveredNotifications === "function") {
+      try {
+        const delivered = await LocalNotifications.getDeliveredNotifications();
+        if (delivered?.notifications?.some((n) => n.id === notificationId)) {
+          if (setUserPreferences) {
+            await updateUserPrefs(
+              dbConnection,
+              "lastWeeklyReflectionDelivered",
+              currentWeekStart,
+              setUserPreferences,
+            );
+          }
+          return false;
+        }
+      } catch (e) {
+        // Ignore check error
+      }
     }
 
     const isMaleMode = userPreferences.userGender === "male";
@@ -101,7 +147,7 @@ export const checkAndGenerateWeeklyReflectionNotification = async (
     const contentPool =
       options?.content ?? (bundledIslamicContent as IslamicContentRecord[]);
     const periodKey = `weekly_reflection_${currentWeekStart}`;
-    const previousHadithId = userPreferences.lastWeeklyReflectionId || null;
+    const previousHadithId = lastId || userPreferences.lastWeeklyReflectionId || null;
 
     const selectedHadith = selectStableHadith(
       topic,
@@ -114,8 +160,6 @@ export const checkAndGenerateWeeklyReflectionNotification = async (
       return false;
     }
 
-    const notificationId =
-      generateDeterministicReflectionNotificationId(currentWeekStart);
 
     const citation = selectedHadith.reference
       ? `${selectedHadith.collection} (${selectedHadith.reference})`

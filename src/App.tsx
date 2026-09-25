@@ -155,6 +155,7 @@ const AppContent = () => {
 
   const [isAppActive, setIsAppActive] = useState(true);
   const [showQuickLogModal, setShowQuickLogModal] = useState(false);
+  const [isDataLoadedFromDB, setIsDataLoadedFromDB] = useState(false);
 
   // -----------------------------------------------------------------------
   // Real-time cloud sync: replaces the old AutomaticSync component
@@ -373,11 +374,11 @@ const AppContent = () => {
         await updateUserPrefs(
           dbConnection,
           "lastLaunchDate",
-          // new Date().toISOString(),
-          new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          new Date().toISOString(),
           setUserPreferences,
         );
 
+        setIsDataLoadedFromDB(true);
       }
     };
 
@@ -486,7 +487,7 @@ const AppContent = () => {
   }, []);
 
   useEffect(() => {
-    if (isDatabaseInitialised) {
+    if (isDatabaseInitialised && isDataLoadedFromDB) {
       checkAndGenerateWeeklyReflectionNotification(
         dbConnection,
         userPreferences,
@@ -502,7 +503,7 @@ const AppContent = () => {
         );
       }
     }
-  }, [isDatabaseInitialised, fetchedSalahData.length]);
+  }, [isDatabaseInitialised, isDataLoadedFromDB]);
 
   useEffect(() => {
     handleTheme(userPreferences.theme);

@@ -54,9 +54,11 @@ export async function ensureDBOpen(
   if (!dbConnection.current) {
     throw new Error("dbConnection.current is not available");
   }
-  const isDatabaseOpen = await dbConnection.current.isDBOpen();
-  if (!isDatabaseOpen.result) {
-    await dbConnection.current.open();
+  if (typeof dbConnection.current.isDBOpen === "function") {
+    const isDatabaseOpen = await dbConnection.current.isDBOpen();
+    if (!isDatabaseOpen.result && typeof dbConnection.current.open === "function") {
+      await dbConnection.current.open();
+    }
   }
 }
 
@@ -69,44 +71,18 @@ export async function toggleDBConnection(
 
   try {
     if (!dbConnection || !dbConnection.current) {
-      throw new Error(
-        `Database connection not initialised within toggleDBConnection, dbConnection is ${dbConnection} and dbConnection.current is ${dbConnection.current}`,
-      );
-    }
-
-    const isDatabaseOpen = await dbConnection.current.isDBOpen();
-    // console.log("isDatabaseOpen: ", isDatabaseOpen.result);
-
-    if (
-      (action === "open" && isDatabaseOpen.result === true) ||
-      (action === "close" && isDatabaseOpen.result === false)
-    ) {
-      // console.log(
-      //   "NO FURTHER ACTION REQUIRED AS DB ALREADY: ",
-      //   action,
-      //   isDatabaseOpen.result,
-      // );
-
       return;
     }
 
-    if (isDatabaseOpen.result === undefined) {
-      throw new Error(
-        "isDatabaseOpen.result is undefined within toggleDBConnection",
-      );
-    } else if (action === "open" && isDatabaseOpen.result === false) {
-      await dbConnection.current.open();
-      // console.log("DB CONNECTION OPENED");
-    } else if (action === "close" && isDatabaseOpen.result === true) {
-      await dbConnection.current.close();
-      // console.log("DB CONNECTION CLOSED");
-    } else {
-      throw new Error(
-        `Database is: ${isDatabaseOpen.result}, unable to ${action} database connection`,
-      );
+    if (action === "close") {
+      // Keep DB open during app lifecycle to prevent "database not opened" errors
+      // across concurrent queries, background sync, and Quick Log.
+      return;
     }
+
+    await ensureDBOpen(dbConnection);
   } catch (error) {
-    throw new Error(`toggleDBConnection(${action}) failed: ${error}`);
+    console.error(`toggleDBConnection(${action}) failed:`, error);
   }
 }
 
@@ -120,9 +96,11 @@ export const fetchAllLocations = async (
       throw new Error("dbConnection / dbconnection.current does not exist");
     }
 
-    const res = await dbConnection.current.query(
-      "SELECT * from userLocationsTable WHERE deleted = 0",
-    );
+    const res = await withDB(dbConnection, async (db) => {
+      return await db.query(
+        "SELECT * from userLocationsTable WHERE deleted = 0",
+      );
+    });
 
     if (!res || !res.values) {
       throw new Error("Failed to obtain data from userLocationsTable");
@@ -153,16 +131,18 @@ export const addUserLocation = async (
     throw new Error("dbConnection / dbconnection.current does not exist");
   }
 
-  if (isDefaultLocationCheckBoxChecked && isSelected === 1) {
-    await dbConnection.current.run(
-      `UPDATE userLocationsTable SET isSelected = 0`,
-    );
-  }
-
   const now = Date.now();
   const syncId = generateUUID();
   const params = [syncId, locationName, latitude, longitude, isSelected, now, now, 0];
-  const lastId = await dbConnection.current.run(stmnt, params);
+
+  const lastId = await withDB(dbConnection, async (db) => {
+    if (isDefaultLocationCheckBoxChecked && isSelected === 1) {
+      await db.run(
+        `UPDATE userLocationsTable SET isSelected = 0`,
+      );
+    }
+    return await db.run(stmnt, params);
+  });
 
   // Push to cloud (fire-and-forget)
   syncLocationToCloud({

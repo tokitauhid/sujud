@@ -1195,7 +1195,42 @@ export const checkAndGenerateTrendNotifications = async (
   setUserPreferences?: React.Dispatch<React.SetStateAction<userPreferencesType>>,
 ): Promise<boolean> => {
   try {
-    if (userPreferences.trendNotificationEnabled !== "1") {
+    let enabled = userPreferences.trendNotificationEnabled;
+    let weeklyNotification = userPreferences.trendWeeklyNotification;
+    let monthlyNotification = userPreferences.trendMonthlyNotification;
+    let yearlyNotification = userPreferences.trendYearlyNotification;
+    let lastTrendWeekly = userPreferences.lastTrendWeeklyDelivered;
+    let lastTrendMonthly = userPreferences.lastTrendMonthlyDelivered;
+    let lastTrendYearly = userPreferences.lastTrendYearlyDelivered;
+
+    if (dbConnection?.current) {
+      try {
+        await withDB(dbConnection, async (db) => {
+          const rows = await db.query(
+            `SELECT preferenceName, preferenceValue FROM userPreferencesTable WHERE preferenceName IN (
+              'trendNotificationEnabled', 'trendWeeklyNotification', 'trendMonthlyNotification',
+              'trendYearlyNotification', 'lastTrendWeeklyDelivered', 'lastTrendMonthlyDelivered',
+              'lastTrendYearlyDelivered'
+            )`
+          );
+          if (rows?.values) {
+            for (const r of rows.values) {
+              if (r.preferenceName === "trendNotificationEnabled") enabled = r.preferenceValue;
+              if (r.preferenceName === "trendWeeklyNotification") weeklyNotification = r.preferenceValue;
+              if (r.preferenceName === "trendMonthlyNotification") monthlyNotification = r.preferenceValue;
+              if (r.preferenceName === "trendYearlyNotification") yearlyNotification = r.preferenceValue;
+              if (r.preferenceName === "lastTrendWeeklyDelivered") lastTrendWeekly = r.preferenceValue;
+              if (r.preferenceName === "lastTrendMonthlyDelivered") lastTrendMonthly = r.preferenceValue;
+              if (r.preferenceName === "lastTrendYearlyDelivered") lastTrendYearly = r.preferenceValue;
+            }
+          }
+        });
+      } catch (e) {
+        // Fall back to passed userPreferences
+      }
+    }
+
+    if (enabled !== "1") {
       return false;
     }
 
@@ -1208,10 +1243,10 @@ export const checkAndGenerateTrendNotifications = async (
     const isMaleMode = userPreferences.userGender === "male";
 
     // 1. Check Weekly Summary (Mandatory First Milestone)
-    if (userPreferences.trendWeeklyNotification === "1") {
+    if (weeklyNotification === "1") {
       const completedWeek = getCompletedPeriod("weekly", now);
       // Ensure we haven't already sent for this completed week
-      if (userPreferences.lastTrendWeeklyDelivered !== completedWeek.start) {
+      if (lastTrendWeekly !== completedWeek.start) {
         const dataHash = computeSourceDataHash(
           salahRecords,
           completedWeek.start,
@@ -1304,9 +1339,9 @@ export const checkAndGenerateTrendNotifications = async (
     }
 
     // 2. Check Monthly Summary (Secondary Milestone)
-    if (userPreferences.trendMonthlyNotification === "1") {
+    if (monthlyNotification === "1") {
       const completedMonth = getCompletedPeriod("monthly", now);
-      if (userPreferences.lastTrendMonthlyDelivered !== completedMonth.start) {
+      if (lastTrendMonthly !== completedMonth.start) {
         const dataHash = computeSourceDataHash(
           salahRecords,
           completedMonth.start,
@@ -1397,9 +1432,9 @@ export const checkAndGenerateTrendNotifications = async (
     }
 
     // 3. Check Yearly Summary
-    if (userPreferences.trendYearlyNotification === "1") {
+    if (yearlyNotification === "1") {
       const completedYear = getCompletedPeriod("yearly", now);
-      if (userPreferences.lastTrendYearlyDelivered !== completedYear.start) {
+      if (lastTrendYearly !== completedYear.start) {
         const dataHash = computeSourceDataHash(
           salahRecords,
           completedYear.start,

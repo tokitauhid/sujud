@@ -270,21 +270,7 @@ const useSQLiteDB = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      try {
-        if (!dbConnection.current) {
-          console.error(
-            `Unable to close connection within initialiseTables, dbConnection.current is undefined`,
-          );
-        } else {
-          const isDatabaseOpen = await dbConnection.current.isDBOpen();
-          if (isDatabaseOpen.result) {
-            await toggleDBConnection(dbConnection, "close");
-          }
-        }
-        // console.log("Table initialisation complete");
-      } catch (error) {
-        console.error(error);
-      }
+      // Database remains open during the app lifecycle for immediate usage.
     }
   };
 
