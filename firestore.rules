@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    // Verify whether the incoming request is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Verify whether the authenticated user owns the document path
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // -------------------------------------------------------------------------
+    // Global Default Rule
+    // -------------------------------------------------------------------------
+    // Deny read and write access to all collections by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // User Namespace & Sync Collections
+    // -------------------------------------------------------------------------
+    // All sync data in Sujud is strictly isolated per user under /users/{userId}.
+    // Users can only read, create, update, or delete their own documents.
+    match /users/{userId} {
+      // User metadata document (e.g., lastSyncedAt)
+      allow read, write: if isOwner(userId);
+
+      // User preferences: /users/{userId}/preferences/{docId}
+      // Typically docId == 'data'
+      match /preferences/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // User salah logs: /users/{userId}/salahLogs/{logId}
+      // docId format: ${record.date}_${record.salahName} (e.g. 2026-09-28_fajr)
+      match /salahLogs/{logId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // User saved locations: /users/{userId}/locations/{locationId}
+      // docId format: record.syncId
+      match /locations/{locationId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+  }
+}
