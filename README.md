@@ -48,10 +48,10 @@ Sujud is a data-driven, data-dense Salah tracker that helps you log your daily p
 - 📊 **Trend Analysis & Reflections** — Weekly, monthly, and yearly analytical reports with visual charts, Jamaah breakdowns, historical snapshots, and authentic hadith reflections deterministically tailored to worship trends.
 - 🔔 **Smart Notifications** — Adhan alerts, gentle post-prayer reminders, and Screen Time-style weekly completion summaries with reflection references.
 - 🌐 **Cloud Sync** — Seamlessly sync across all your devices using Google Sign-In and Firebase.
+- 📅 **Hijri Calendar** — Browse and reflect on your prayer history by Islamic date.
 
 ### 🚧 Coming Soon
 - 🗒️ **Notes** — Attach personal reminders for du'as and adhkar to any prayer.
-- 📅 **Hijri Calendar** — Browse and reflect on your prayer history by Islamic date.
 
 ---
 
