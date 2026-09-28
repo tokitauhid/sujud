@@ -312,16 +312,6 @@ const SalahTimesPage = ({
             </div>
 
             <div className="salah-times-timetable-col font-mono">
-              <PrayerTimesCalendar
-                selectedDate={dateToShow}
-                onSelectDate={handleDateSelect}
-              />
-
-              <EventInformation
-                event={eventForSelectedDate}
-                hijriDate={hijriDateForSelected}
-              />
-
               <section
                 className={` ${
                   userLocations?.length === 0 ||
@@ -393,6 +383,11 @@ const SalahTimesPage = ({
                   />
                 </button>
               </section>
+
+              <EventInformation
+                event={eventForSelectedDate}
+                hijriDate={hijriDateForSelected}
+              />
 
               <section
                 className={`border border-[#242424] rounded-none bg-[#121212] overflow-hidden ${
@@ -517,6 +512,12 @@ const SalahTimesPage = ({
                   );
                 })}
               </section>
+
+              <PrayerTimesCalendar
+                selectedDate={dateToShow}
+                onSelectDate={handleDateSelect}
+                className="mt-4"
+              />
             </div>
           </div>
         </section>

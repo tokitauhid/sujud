@@ -43,10 +43,9 @@ describe("PrayerTimesCalendar Component", () => {
     expect(dayButton).toBeInTheDocument();
     expect(dayButton).toHaveTextContent("28");
 
-    // Hijri date for 2026-09-28 is 17 Rabi' al-Thani (Rab II)
+    // Hijri date for 2026-09-28 is 17 Rabi' al-Thani
     const hijri = getHijriDate(testDate);
     expect(dayButton).toHaveTextContent(String(hijri.day));
-    expect(dayButton).toHaveTextContent(hijri.monthNameShort);
   });
 
   it("calls onSelectDate when a day cell is clicked", () => {

@@ -27,7 +27,6 @@ const CalendarDay = ({
   const event = useMemo(() => getIslamicEventForDate(hijriDate), [hijriDate]);
 
   const gregorianDay = day.getDate();
-  const hijriLabel = `${hijriDate.day} ${hijriDate.monthNameShort}`;
 
   const accessibleLabel = `${format(day, "EEEE, MMMM d, yyyy")}. Hijri date: ${hijriDate.formatted}.${
     event ? ` Event: ${event.title}.` : ""
@@ -76,10 +75,10 @@ const CalendarDay = ({
         )}
       </div>
 
-      {/* Middle row: Hijri day and short month */}
+      {/* Middle row: Hijri day number */}
       <div className="w-full text-center my-0.5">
         <span
-          className={`text-[9px] sm:text-[10px] font-mono leading-none block truncate ${
+          className={`text-[9px] sm:text-[10px] font-mono leading-none block ${
             isSelected
               ? "text-[#34D399] font-medium"
               : isToday
@@ -88,9 +87,9 @@ const CalendarDay = ({
                   ? "text-[#8E8E93]"
                   : "text-[#3F3F46]"
           }`}
-          title={`${hijriDate.day} ${hijriDate.monthName}`}
+          title={`Hijri: ${hijriDate.day} ${hijriDate.monthName}`}
         >
-          {hijriLabel}
+          {hijriDate.day}
         </span>
       </div>
 
