@@ -3,9 +3,14 @@ import { IslamicEvent, HijriDate } from "../../utils/hijriCalendar";
 interface EventInformationProps {
   event: IslamicEvent | null;
   hijriDate?: HijriDate;
+  className?: string;
 }
 
-const EventInformation = ({ event, hijriDate }: EventInformationProps) => {
+const EventInformation = ({
+  event,
+  hijriDate,
+  className = "",
+}: EventInformationProps) => {
   // If there is no event, render nothing (do not show an empty event section)
   if (!event) {
     return null;
@@ -23,7 +28,7 @@ const EventInformation = ({ event, hijriDate }: EventInformationProps) => {
     <section
       aria-label="Islamic Event Details"
       data-testid="event-information-card"
-      className="p-3 border border-[#242424] bg-[#161616] mb-3 transition-all"
+      className={`p-3 border border-[#242424] bg-[#161616] mb-3 transition-all ${className}`}
     >
       <div className="flex items-center justify-between gap-2">
         <span

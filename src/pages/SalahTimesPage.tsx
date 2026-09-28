@@ -292,23 +292,6 @@ const SalahTimesPage = ({
                   onboardingMode={onboardingMode}
                 />
               </section>
-              {userPreferences.prayerCalculationMethod !== "" &&
-                userLocations?.length > 0 && (
-                  <p className="mx-2 my-4 text-xs text-center opacity-50 text-[var(--ion-text-color)]">
-                    Note: These times have been calculated using the
-                    <span className="font-bold">
-                      {" "}
-                      {
-                        prayerCalculationMethodLabels[
-                          userPreferences.prayerCalculationMethod
-                        ]
-                      }{" "}
-                    </span>
-                    method with Fajr Angle {userPreferences.fajrAngle}° and Isha
-                    Angle {userPreferences.ishaAngle}°, your local mosque times may
-                    differ.
-                  </p>
-                )}
             </div>
 
             <div className="salah-times-timetable-col font-mono">
@@ -383,11 +366,6 @@ const SalahTimesPage = ({
                   />
                 </button>
               </section>
-
-              <EventInformation
-                event={eventForSelectedDate}
-                hijriDate={hijriDateForSelected}
-              />
 
               <section
                 className={`border border-[#242424] rounded-none bg-[#121212] overflow-hidden ${
@@ -513,10 +491,33 @@ const SalahTimesPage = ({
                 })}
               </section>
 
+              {userPreferences.prayerCalculationMethod !== "" &&
+                userLocations?.length > 0 && (
+                  <p className="mx-2 my-3 text-xs text-center opacity-50 text-[var(--ion-text-color)]">
+                    Note: These times have been calculated using the
+                    <span className="font-bold">
+                      {" "}
+                      {
+                        prayerCalculationMethodLabels[
+                          userPreferences.prayerCalculationMethod
+                        ]
+                      }{" "}
+                    </span>
+                    method with Fajr Angle {userPreferences.fajrAngle}° and Isha
+                    Angle {userPreferences.ishaAngle}°, your local mosque times may
+                    differ.
+                  </p>
+                )}
+
               <PrayerTimesCalendar
                 selectedDate={dateToShow}
                 onSelectDate={handleDateSelect}
-                className="mt-4"
+                className="mt-2"
+              />
+
+              <EventInformation
+                event={eventForSelectedDate}
+                hijriDate={hijriDateForSelected}
               />
             </div>
           </div>
