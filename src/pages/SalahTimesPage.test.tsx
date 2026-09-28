@@ -236,3 +236,89 @@ describe("Interactive Hijri Calendar integration in SalahTimesPage", () => {
   });
 });
 
+describe("Prayer Timeline - Distinct Prayer Windows and Sunrise-Dhuhr Gap in SalahTimesPage", () => {
+  it("highlights Fajr as Current during Fajr time window before sunrise", () => {
+    render(
+      <SalahTimesPage
+        dbConnection={mockdbConnection}
+        setUserPreferences={mockUserPrefsState}
+        userPreferences={{
+          ...mockUserPrefs,
+          prayerCalculationMethod: "MuslimWorldLeague",
+        }}
+        setUserLocations={mockSetUserLocations}
+        userLocations={mockUserLocations}
+        nextSalahNameAndTime={{
+          currentSalah: "fajr",
+          nextSalah: "sunrise",
+          nextSalahTime: new Date(),
+          hoursRemaining: 1,
+          minsRemaining: 0,
+        }}
+      />
+    );
+
+    // During Fajr: "Current" badge is present on Fajr
+    const currentBadges = screen.getAllByText(/Current/i);
+    expect(currentBadges.length).toBeGreaterThanOrEqual(1);
+
+    // Upcoming should not be on sunrise (since sunrise is an astronomical marker, not a prayer)
+    expect(screen.queryByText(/Upcoming/i)).not.toBeInTheDocument();
+  });
+
+  it("does NOT show Fajr as current after sunrise, correctly treating sunrise to Dhuhr as a non-salah gap", () => {
+    render(
+      <SalahTimesPage
+        dbConnection={mockdbConnection}
+        setUserPreferences={mockUserPrefsState}
+        userPreferences={{
+          ...mockUserPrefs,
+          prayerCalculationMethod: "MuslimWorldLeague",
+        }}
+        setUserLocations={mockSetUserLocations}
+        userLocations={mockUserLocations}
+        nextSalahNameAndTime={{
+          currentSalah: "sunrise",
+          nextSalah: "dhuhr",
+          nextSalahTime: new Date(),
+          hoursRemaining: 3,
+          minsRemaining: 45,
+        }}
+      />
+    );
+
+    // In the post-sunrise morning window before Dhuhr:
+    // 1. NO prayer should have the "Current" badge
+    expect(screen.queryByText("Current")).not.toBeInTheDocument();
+
+    // 2. Dhuhr must be shown as "Upcoming"
+    expect(screen.getByText("Upcoming")).toBeInTheDocument();
+  });
+
+  it("highlights Dhuhr as Current when its calculated start time arrives", () => {
+    render(
+      <SalahTimesPage
+        dbConnection={mockdbConnection}
+        setUserPreferences={mockUserPrefsState}
+        userPreferences={{
+          ...mockUserPrefs,
+          prayerCalculationMethod: "MuslimWorldLeague",
+        }}
+        setUserLocations={mockSetUserLocations}
+        userLocations={mockUserLocations}
+        nextSalahNameAndTime={{
+          currentSalah: "dhuhr",
+          nextSalah: "asr",
+          nextSalahTime: new Date(),
+          hoursRemaining: 3,
+          minsRemaining: 0,
+        }}
+      />
+    );
+
+    // Dhuhr has "Current", Asr has "Upcoming"
+    expect(screen.getByText("Current")).toBeInTheDocument();
+    expect(screen.getByText("Upcoming")).toBeInTheDocument();
+  });
+});
+

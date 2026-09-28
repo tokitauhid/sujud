@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { setAdhanLibraryDefaults } from "./helpers";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { setAdhanLibraryDefaults, getNextSalah } from "./helpers";
 import { syncMultiplePreferencesToCloud } from "../firebase/syncService";
 import { dictPreferencesDefaultValues } from "./constants";
 import { LocationsDataObjTypeArr } from "../types/types";
@@ -97,3 +97,59 @@ describe("setAdhanLibraryDefaults", () => {
     expect(syncMultiplePreferencesToCloud).not.toHaveBeenCalled();
   });
 });
+
+describe("getNextSalah - Distinct Prayer Windows and Sunrise-Dhuhr Gap", () => {
+  const mockUserPreferences = {
+    ...dictPreferencesDefaultValues,
+    prayerCalculationMethod: "MuslimWorldLeague",
+  };
+
+  const mockLocations: LocationsDataObjTypeArr = [
+    {
+      id: 1,
+      locationName: "London",
+      latitude: 51.5074,
+      longitude: -0.1278,
+      isSelected: 1,
+      createdAt: 0,
+      updatedAt: 0,
+      deleted: 0,
+    },
+  ];
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("identifies Fajr as current prayer during Fajr (before sunrise)", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(Date.UTC(2026, 8, 29, 5, 0)));
+
+    const result = await getNextSalah(mockLocations, mockUserPreferences);
+    expect(result).toBeDefined();
+    expect(result?.currentSalah).toBe("fajr");
+    expect(result?.nextSalah).toBe("sunrise");
+  });
+
+  it("ends Fajr at sunrise and reports sunrise/dhuhr non-salah gap (post-sunrise period)", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(Date.UTC(2026, 8, 29, 8, 0)));
+
+    const result = await getNextSalah(mockLocations, mockUserPreferences);
+    expect(result).toBeDefined();
+    expect(result?.currentSalah).not.toBe("fajr");
+    expect(result?.currentSalah).toBe("sunrise");
+    expect(result?.nextSalah).toBe("dhuhr");
+  });
+
+  it("activates Dhuhr at its calculated start time", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(Date.UTC(2026, 8, 29, 12, 30)));
+
+    const result = await getNextSalah(mockLocations, mockUserPreferences);
+    expect(result).toBeDefined();
+    expect(result?.currentSalah).toBe("dhuhr");
+    expect(result?.nextSalah).toBe("asr");
+  });
+});
+
