@@ -29,7 +29,7 @@ import {
   notificationsOff,
 } from "ionicons/icons";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Toast from "../components/Toast";
 import {
   getSalahTimes,
@@ -48,6 +48,9 @@ import {
 import Onboarding from "../components/Onboarding";
 import CalculationMethodOptions from "../components/CalculationMethodOptions";
 import NextSalahTimeWidget from "../components/NextSalahTimeWidget";
+import PrayerTimesCalendar from "../components/PrayerTimesCalendar/PrayerTimesCalendar";
+import EventInformation from "../components/PrayerTimesCalendar/EventInformation";
+import { getHijriDate, getIslamicEventForDate } from "../utils/hijriCalendar";
 
 interface SalahTimesPageProps {
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
@@ -120,8 +123,48 @@ const SalahTimesPage = ({
     "country",
   );
 
+  const hijriDateForSelected = useMemo(
+    () => getHijriDate(dateToShow),
+    [dateToShow],
+  );
+
+  const eventForSelectedDate = useMemo(
+    () => getIslamicEventForDate(hijriDateForSelected),
+    [hijriDateForSelected],
+  );
+
+  const handleDateSelect = async (newDate: Date) => {
+    if (isSameDay(newDate, dateToShow)) {
+      return;
+    }
+    setDateToShow(newDate);
+
+    if (
+      !userLocations ||
+      userLocations.length === 0 ||
+      userPreferences.prayerCalculationMethod === ""
+    ) {
+      return;
+    }
+
+    await getSalahTimes(
+      userLocations,
+      newDate,
+      userPreferences,
+      setSalahtimes,
+    );
+  };
+
   useIonViewWillLeave(() => {
-    setDateToShow(new Date());
+    const today = new Date();
+    setDateToShow(today);
+    if (
+      userLocations &&
+      userLocations.length > 0 &&
+      userPreferences.prayerCalculationMethod !== ""
+    ) {
+      getSalahTimes(userLocations, today, userPreferences, setSalahtimes);
+    }
   });
 
   return (
@@ -269,6 +312,16 @@ const SalahTimesPage = ({
             </div>
 
             <div className="salah-times-timetable-col font-mono">
+              <PrayerTimesCalendar
+                selectedDate={dateToShow}
+                onSelectDate={handleDateSelect}
+              />
+
+              <EventInformation
+                event={eventForSelectedDate}
+                hijriDate={hijriDateForSelected}
+              />
+
               <section
                 className={` ${
                   userLocations?.length === 0 ||
@@ -301,15 +354,20 @@ const SalahTimesPage = ({
                     icon={chevronBackOutline}
                   />
                 </button>
-                <p className="text-xs font-semibold text-white tracking-wider uppercase">
-                  {isSameDay(dateToShow, new Date())
-                    ? "Today"
-                    : isSameDay(addDays(new Date(), -1), dateToShow)
-                      ? "Yesterday"
-                      : isSameDay(addDays(new Date(), 1), dateToShow)
-                        ? "Tomorrow"
-                        : format(dateToShow, "EEE, MMM d")}
-                </p>
+                <div className="text-center">
+                  <p className="text-xs font-semibold text-white tracking-wider uppercase">
+                    {isSameDay(dateToShow, new Date())
+                      ? "Today"
+                      : isSameDay(addDays(new Date(), -1), dateToShow)
+                        ? "Yesterday"
+                        : isSameDay(addDays(new Date(), 1), dateToShow)
+                          ? "Tomorrow"
+                          : format(dateToShow, "EEE, MMM d")}
+                  </p>
+                  <p className="text-[10px] text-[#8E8E93] font-mono tracking-wide mt-0.5">
+                    {hijriDateForSelected.formatted}
+                  </p>
+                </div>
                 <button
                   className="p-1 rounded-none border border-[#242424] bg-[#161616] hover:border-[#3F3F46] text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
                   onClick={async () => {
@@ -355,10 +413,15 @@ const SalahTimesPage = ({
                     maghrib: "المغرب",
                     isha: "العشاء",
                   };
+                  const isToday = isSameDay(dateToShow, new Date());
                   const isCurrentPrayer =
-                    name === nextSalahNameAndTime.currentSalah && name !== "sunrise";
+                    isToday &&
+                    name === nextSalahNameAndTime.currentSalah &&
+                    name !== "sunrise";
                   const isNextPrayer =
-                    name === nextSalahNameAndTime.nextSalah && name !== "sunrise";
+                    isToday &&
+                    name === nextSalahNameAndTime.nextSalah &&
+                    name !== "sunrise";
                   const isLast = idx === arr.length - 1;
 
                   return (
