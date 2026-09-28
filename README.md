@@ -51,7 +51,6 @@ Sujud is a data-driven, data-dense Salah tracker that helps you log your daily p
 
 ### 🚧 Coming Soon
 - 🗒️ **Notes** — Attach personal reminders for du'as and adhkar to any prayer.
-- 🎨 **Themes** — Multiple colour themes, including a pure OLED black mode.
 - 📅 **Hijri Calendar** — Browse and reflect on your prayer history by Islamic date.
 
 ---
