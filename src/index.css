@@ -729,6 +729,13 @@ td {
   display: none;
 }
 
+/* --- Salah Times page: mobile stack --- */
+.salah-times-tablet-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 @media (min-width: 768px) {
   /* --- Onboarding modal: constrain on tablet --- */
   .onboarding-modal {
@@ -994,7 +1001,7 @@ td {
   }
 
   .salah-times-tablet-grid {
-    grid-template-columns: 1fr 1.2fr;
+    grid-template-columns: 1fr 1fr;
     gap: 2.5rem;
   }
 

@@ -194,9 +194,8 @@ const SalahTimesPage = ({
       <IonContent>
         {/* bg-[var(--card-bg-color)]  */}
         <section className="salah-times-page-components-wrap">
-          <div className="salah-times-tablet-grid">
-            <div className="salah-times-hero-col">
-              <NextSalahTimeWidget
+          <div className="salah-times-hero-col w-full max-w-xl mx-auto mb-4 md:mb-6">
+            <NextSalahTimeWidget
                 userPreferences={userPreferences}
                 userLocations={userLocations}
                 nextSalahNameAndTime={nextSalahNameAndTime}
@@ -294,7 +293,20 @@ const SalahTimesPage = ({
               </section>
             </div>
 
-            <div className="salah-times-timetable-col font-mono">
+            <div className="salah-times-tablet-grid">
+              <div className="salah-times-calendar-col order-2 md:order-1 font-mono">
+                <PrayerTimesCalendar
+                  selectedDate={dateToShow}
+                  onSelectDate={handleDateSelect}
+                />
+
+                <EventInformation
+                  event={eventForSelectedDate}
+                  hijriDate={hijriDateForSelected}
+                />
+              </div>
+
+              <div className="salah-times-timetable-col order-1 md:order-2 font-mono">
               <section
                 className={` ${
                   userLocations?.length === 0 ||
@@ -508,17 +520,6 @@ const SalahTimesPage = ({
                     differ.
                   </p>
                 )}
-
-              <PrayerTimesCalendar
-                selectedDate={dateToShow}
-                onSelectDate={handleDateSelect}
-                className="mt-2"
-              />
-
-              <EventInformation
-                event={eventForSelectedDate}
-                hijriDate={hijriDateForSelected}
-              />
             </div>
           </div>
         </section>
