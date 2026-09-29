@@ -62,7 +62,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
   }, []);
 
   const [currentFrameIndex, setCurrentFrameIndex] = useState<number>(0);
-  const [prevFrameIndex, setPrevFrameIndex] = useState<number | null>(null);
   const [isLogoPhase, setIsLogoPhase] = useState<boolean>(prefersReducedMotion);
   const [minAnimationComplete, setMinAnimationComplete] = useState<boolean>(false);
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
@@ -97,7 +96,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
       if (idx < SPRITE_FRAMES.length - 1) {
         const nextIdx = idx + 1;
         timeoutId = setTimeout(() => {
-          setPrevFrameIndex(idx);
           setCurrentFrameIndex(nextIdx);
           stepToNext(nextIdx);
         }, FRAME_DURATIONS[nextIdx]);
@@ -161,38 +159,21 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
         backgroundColor: "var(--app-bg, #0B0D11)",
       }}
     >
-      <style>{`
-        @keyframes sujudFrameFadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
-
-      {/* Animation Stage Container */}
-      <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center rounded-none overflow-hidden">
+      {/* Animation Stage Container with single unified drop shadow */}
+      <div
+        className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center rounded-none overflow-hidden"
+        style={{
+          filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.38))",
+        }}
+      >
         {/* Animated Sprite Sequence (Frames 1..12) */}
         {!prefersReducedMotion && (
           <div
             className={`absolute inset-0 w-full h-full flex items-center justify-center transition-opacity duration-700 ease-in-out ${
-              isLogoPhase ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
+              isLogoPhase ? "opacity-0 pointer-events-none" : "opacity-100"
             }`}
           >
-            {/* Background previous frame to eliminate any hard cuts / gaps */}
-            {prevFrameIndex !== null && (
-              <img
-                src={SPRITE_FRAMES[prevFrameIndex]}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 w-full h-full object-contain rounded-none opacity-100"
-                style={{
-                  filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.35))",
-                }}
-              />
-            )}
-
-            {/* Current active frame with smooth optical fade-in easing */}
             <img
-              key={currentFrameIndex}
               src={SPRITE_FRAMES[currentFrameIndex]}
               onError={(e) => {
                 if (e.currentTarget.src.endsWith(".webp")) {
@@ -200,19 +181,15 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
                 }
               }}
               alt="Sujud animation"
-              className="absolute inset-0 w-full h-full object-contain rounded-none"
-              style={{
-                animation: "sujudFrameFadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
-                filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.35))",
-              }}
+              className="absolute inset-0 w-full h-full object-contain rounded-none select-none"
             />
           </div>
         )}
 
         {/* Official Sujud Logo Phase (Emblem + SUJUD title) */}
         <div
-          className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center transition-all duration-700 ease-in-out ${
-            isLogoPhase ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+          className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out ${
+            isLogoPhase ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
           <img
@@ -223,10 +200,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
               }
             }}
             alt="Sujud Logo"
-            className="w-full h-full object-contain rounded-none"
-            style={{
-              filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.4))",
-            }}
+            className="w-full h-full object-contain rounded-none select-none"
           />
         </div>
       </div>
