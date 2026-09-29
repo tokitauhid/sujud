@@ -11,8 +11,32 @@
     <meta name="description" content="Sujud — Track your daily Salah, streaks, and prayer times. Open-source, ad-free, and privacy-first." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>Sujud</title>
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem("sujud_theme");
+          if (!t) {
+            t = "dark";
+          }
+          var resolved = t;
+          if (t === "system") {
+            resolved = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (resolved === "oled") {
+            document.documentElement.classList.add("dark", "oled");
+            if (meta) meta.setAttribute("content", "#000000");
+          } else if (resolved === "dark") {
+            document.documentElement.classList.add("dark");
+            if (meta) meta.setAttribute("content", "#121315");
+          } else if (resolved === "light") {
+            document.documentElement.classList.add("light");
+            if (meta) meta.setAttribute("content", "#FAF7F4");
+          }
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

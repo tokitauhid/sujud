@@ -119,6 +119,14 @@ export const updateUserPrefs = async (
       ? preferenceValue.join(",")
       : String(preferenceValue);
 
+    if (preferenceName === "theme") {
+      try {
+        localStorage.setItem("sujud_theme", valToStore);
+      } catch {
+        // ignore
+      }
+    }
+
     await withDB(dbConnection, async (db) => {
       if (preferenceName === "reasons") {
         const query = `UPDATE userPreferencesTable SET preferenceValue = ?, updatedAt = ? WHERE preferenceName = ?`;

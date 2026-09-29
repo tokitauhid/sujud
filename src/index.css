@@ -202,6 +202,349 @@ body.dark {
   --excused-status-color: var(--status-excused);
 }
 
+/* ==========================================================================
+   LIGHT MODE (WARM ALABASTER & BRONZE) DESIGN TOKENS & OVERRIDES
+   ========================================================================== */
+body.light {
+  --app-bg: #FAF7F4;
+  --app-surface: #F0EBE6;
+  --app-card-bg: #FFFFFF;
+  --app-border: rgba(181, 135, 110, 0.18);
+  --app-border-subtle: rgba(181, 135, 110, 0.12);
+
+  --text-primary: #1F1D1B;
+  --text-secondary: #78736E;
+  --text-muted: #A8A29E;
+
+  --accent-primary: #B5876E;
+  --accent-primary-hover: #CC9374;
+  --accent-primary-subtle: rgba(181, 135, 110, 0.15);
+
+  --status-jamaah: #4A9E76;
+  --status-jamaah-highlight: #D97241;
+  --streak-color: #D97241;
+  --status-alone: #C99B42;
+  --status-female-alone: #4A9E76;
+  --status-late: #D97241;
+  --status-missed: #C84646;
+  --status-excused: #8C5FB8;
+  --status-empty: #EDE8E3;
+
+  --primary-color: var(--app-bg);
+  --secondary-color: var(--app-surface);
+  --ion-text-color: var(--text-primary);
+  --text-secondary: var(--text-secondary);
+  --card-bg-color: var(--app-card-bg);
+  --sheet-option-bg: var(--app-surface);
+  --card-shadow-color: rgba(181, 135, 110, 0.08);
+  --app-border-color: var(--app-border);
+  --toast-bg-color: #24201E;
+  --toast-text-color: #F3F3F4;
+  --table-row-border-color: var(--app-border-subtle);
+  --nav-tab-color: var(--text-secondary);
+  --nav-active-tab-color: var(--accent-primary);
+  --segment-bg-color: #EDE8E3;
+  --segment-active-color: #FFFFFF;
+  --table-dot-icon-color: rgba(120, 115, 110, 0.5);
+  --textarea-bg-color: var(--app-surface);
+  --missed-salah-sheet-btn-color: #EDE8E3;
+  --wreath-color: #725A4C;
+  --reasons-bg-color-status-sheet: var(--app-surface);
+  --reasons-bg-active-color-status-sheet: var(--accent-primary);
+  --calendar-arrow-btn-color: #EDE8E3;
+  --reasons-bar-bg: #C4BBB3;
+  --scrollbar-track: #D4CEC8;
+  --scrollbar-thumb: #A69E96;
+  --ion-background-color: #FAF7F4;
+
+  --accent-color: var(--accent-primary);
+  --accent-color-hover: var(--accent-primary-hover);
+  --accent-color-muted: var(--accent-primary-subtle);
+
+  --missed-status-color: var(--status-missed);
+  --jamaah-status-color: var(--status-jamaah);
+  --late-status-color: var(--status-late);
+  --alone-male-status-color: var(--status-alone);
+  --alone-female-status-color: var(--status-female-alone);
+  --excused-status-color: var(--status-excused);
+}
+
+body.light,
+body.light html,
+body.light #root,
+body.light ion-app,
+body.light ion-page,
+body.light ion-content,
+body.light ion-content::part(background),
+body.light ion-content::part(scroll),
+body.light ion-toolbar,
+body.light ion-header,
+body.light ion-footer,
+body.light .page-header-toolbar {
+  --background: #FAF7F4 !important;
+  background: #FAF7F4 !important;
+  --ion-background-color: #FAF7F4 !important;
+  color: #1F1D1B !important;
+}
+
+body.light ion-tab-bar {
+  --background: #FAF7F4 !important;
+  background: #FAF7F4 !important;
+  border-top-color: rgba(181, 135, 110, 0.18) !important;
+}
+
+body.light ion-tab-button {
+  --background: #FAF7F4 !important;
+  background: #FAF7F4 !important;
+}
+
+body.light ion-modal,
+body.light ion-modal::part(content) {
+  --background: #FAF7F4 !important;
+  background: #FAF7F4 !important;
+  color: #1F1D1B !important;
+}
+
+body.light ion-item,
+body.light ion-list {
+  --background: #FFFFFF !important;
+  background: #FFFFFF !important;
+}
+
+body.light .bg-\[\#121212\],
+body.light .bg-\[\#13161D\],
+body.light .bg-\[\#11141A\] {
+  background-color: #FFFFFF !important;
+}
+
+body.light .bg-\[\#161616\],
+body.light .bg-\[\#141414\] {
+  background-color: #F5F0EB !important;
+}
+
+body.light .bg-\[\#181818\] {
+  background-color: #EDE8E3 !important;
+}
+
+body.light .bg-\[\#1E1E1E\] {
+  background-color: #F0EBE6 !important;
+}
+
+body.light .bg-\[\#202020\],
+body.light .bg-\[\#242424\] {
+  background-color: #E8E2DC !important;
+}
+
+body.light .border-\[\#242424\],
+body.light .border-\[\#2A2A2A\],
+body.light .border-\[\#1E232F\],
+body.light .border-\[\#181C25\] {
+  border-color: rgba(181, 135, 110, 0.18) !important;
+}
+
+body.light .border-\[\#1A1A1A\] {
+  border-color: rgba(181, 135, 110, 0.12) !important;
+}
+
+/* ==========================================================================
+   OLED PURE BLACK DESIGN TOKENS & OVERRIDES
+   ========================================================================== */
+body.oled {
+  --app-bg: #000000;
+  --app-surface: #000000;
+  --app-card-bg: #000000;
+  --app-border: #1F1F1F;
+  --app-border-subtle: #141414;
+
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+
+  --accent-primary: #10B981;
+  --accent-primary-hover: #059669;
+  --accent-primary-subtle: rgba(16, 185, 129, 0.12);
+
+  --status-jamaah: #10B981;
+  --status-jamaah-highlight: #F59E0B;
+  --streak-color: #F59E0B;
+  --status-alone: #3B82A0;
+  --status-female-alone: #10B981;
+  --status-late: #D97706;
+  --status-missed: #C2414B;
+  --status-excused: #64748B;
+  --status-empty: #121212;
+
+  --primary-color: var(--app-bg);
+  --secondary-color: var(--app-surface);
+  --ion-text-color: var(--text-primary);
+  --text-secondary: var(--text-secondary);
+  --card-bg-color: var(--app-card-bg);
+  --sheet-option-bg: var(--app-surface);
+  --card-shadow-color: transparent;
+  --app-border-color: var(--app-border);
+  --toast-bg-color: #0A0A0A;
+  --toast-text-color: var(--text-primary);
+  --table-row-border-color: var(--app-border-subtle);
+  --nav-tab-color: var(--text-muted);
+  --nav-active-tab-color: var(--text-primary);
+  --segment-bg-color: var(--app-surface);
+  --segment-active-color: #171717;
+  --table-dot-icon-color: var(--app-border);
+  --textarea-bg-color: var(--app-surface);
+  --missed-salah-sheet-btn-color: var(--app-surface);
+  --wreath-color: var(--text-muted);
+  --reasons-bg-color-status-sheet: var(--app-surface);
+  --reasons-bg-active-color-status-sheet: #171717;
+  --calendar-arrow-btn-color: var(--app-surface);
+  --reasons-bar-bg: var(--app-border);
+  --scrollbar-track: var(--app-bg);
+  --scrollbar-thumb: var(--app-border);
+  --ion-color-step-850: var(--text-primary);
+  --ion-text-color-step-150: var(--text-primary);
+  --ion-background-color: #000000;
+
+  --accent-color: var(--accent-primary);
+  --accent-color-hover: var(--accent-primary-hover);
+  --accent-color-muted: var(--accent-primary-subtle);
+
+  --missed-status-color: var(--status-missed);
+  --jamaah-status-color: var(--status-jamaah);
+  --late-status-color: var(--status-late);
+  --alone-male-status-color: var(--status-alone);
+  --alone-female-status-color: var(--status-female-alone);
+  --excused-status-color: var(--status-excused);
+}
+
+/* 1. Base / Root / Container Pure Black Backgrounds */
+body.oled,
+body.oled html,
+body.oled #root,
+body.oled ion-app,
+body.oled ion-page,
+body.oled ion-content,
+body.oled ion-content::part(background),
+body.oled ion-content::part(scroll),
+body.oled ion-toolbar,
+body.oled ion-header,
+body.oled ion-footer,
+body.oled .page-header-toolbar {
+  --background: #000000 !important;
+  background: #000000 !important;
+  --ion-background-color: #000000 !important;
+}
+
+/* 2. Bottom Navigation Tab Bar & Tabs */
+body.oled ion-tab-bar {
+  --background: #000000 !important;
+  background: #000000 !important;
+  border-top-color: #1F1F1F !important;
+}
+
+body.oled ion-tab-button {
+  --background: #000000 !important;
+  background: #000000 !important;
+}
+
+/* 3. Modals, Bottom Sheets & Popups */
+body.oled ion-modal,
+body.oled ion-modal::part(content) {
+  --background: #000000 !important;
+  background: #000000 !important;
+}
+
+body.oled ion-alert {
+  --background: #000000 !important;
+}
+
+body.oled ion-item,
+body.oled ion-list {
+  --background: #000000 !important;
+  background: #000000 !important;
+}
+
+/* 4. Large Surface Mappings (Cards, Sections, Panels) to Pure Black */
+body.oled .bg-\[\#121212\],
+body.oled .bg-\[\#13161D\],
+body.oled .bg-\[\#11141A\] {
+  background-color: #000000 !important;
+}
+
+/* 5. Sub-surfaces / Inner list rows / items */
+body.oled .bg-\[\#161616\],
+body.oled .bg-\[\#141414\] {
+  background-color: #080808 !important;
+}
+
+/* 6. Active row highlights / secondary action buttons */
+body.oled .bg-\[\#181818\] {
+  background-color: #111111 !important;
+}
+
+body.oled .bg-\[\#1E1E1E\] {
+  background-color: #141414 !important;
+}
+
+body.oled .bg-\[\#202020\],
+body.oled .bg-\[\#242424\] {
+  background-color: #171717 !important;
+}
+
+/* 7. Subtle Borders and Dividers */
+body.oled .border-\[\#242424\],
+body.oled .border-\[\#2A2A2A\],
+body.oled .border-\[\#1E232F\],
+body.oled .border-\[\#181C25\] {
+  border-color: #1F1F1F !important;
+}
+
+body.oled .border-\[\#1A1A1A\] {
+  border-color: #141414 !important;
+}
+
+body.oled .divide-\[\#242424\] > :not([hidden]) ~ :not([hidden]),
+body.oled .divide-\[\#1E232F\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1F1F1F !important;
+}
+
+body.oled .border-\[\#383838\],
+body.oled .border-\[\#3F3F46\] {
+  border-color: #282828 !important;
+}
+
+/* 8. Hover states */
+body.oled .hover\:bg-\[\#161616\]:hover {
+  background-color: #0C0C0C !important;
+}
+
+body.oled .hover\:bg-\[\#181818\]:hover {
+  background-color: #141414 !important;
+}
+
+body.oled .hover\:bg-\[\#202020\]:hover,
+body.oled .hover\:bg-\[\#2A2A2A\]:hover {
+  background-color: #1C1C1C !important;
+}
+
+/* 9. Tablet Side Navigation */
+body.oled .tablet-side-nav {
+  background: #000000 !important;
+  border-right-color: #1F1F1F !important;
+}
+
+body.oled .tablet-side-nav-btn:hover {
+  background: #141414 !important;
+}
+
+body.oled .tablet-side-nav-btn.active {
+  background: #0A0A0A !important;
+  border-color: #222222 !important;
+}
+
+/* 10. Calendar cells out of current month */
+body.oled .bg-\[\#0C0C0C\] {
+  background-color: #000000 !important;
+}
+
 * {
   user-select: none;
   box-shadow: none !important;

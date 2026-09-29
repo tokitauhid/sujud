@@ -55,7 +55,7 @@ export interface userPreferencesType {
   appLaunchCount: string;
   saveButtonTapCount: string;
   haptics: binaryValue;
-  theme: "dark" | "light" | "system";
+  theme: "dark" | "light" | "oled" | "system";
   timeFormat: "12hr" | "24hr";
   prayerCalculationMethod: CalculationMethodsType;
   madhab: "hanafi" | "shafi";
@@ -133,7 +133,7 @@ export type LocationsDataObjType = {
 
 export type LocationsDataObjTypeArr = LocationsDataObjType[];
 
-export type themeType = "light" | "dark" | "system";
+export type themeType = "light" | "dark" | "oled" | "system";
 
 export type SalahStatusType =
   | "group"

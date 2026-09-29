@@ -125,9 +125,25 @@ const AppContent = () => {
   const [fetchedSalahData, setFetchedSalahData] =
     useState<SalahRecordsArrayType>([]);
 
-  const [userPreferences, setUserPreferences] = useState<userPreferencesType>(
-    dictPreferencesDefaultValues,
-  );
+  const [userPreferences, setUserPreferences] = useState<userPreferencesType>(() => {
+    try {
+      const cached = localStorage.getItem("sujud_theme");
+      if (
+        cached === "light" ||
+        cached === "dark" ||
+        cached === "oled" ||
+        cached === "system"
+      ) {
+        return {
+          ...dictPreferencesDefaultValues,
+          theme: cached as themeType,
+        };
+      }
+    } catch {
+      // ignore
+    }
+    return dictPreferencesDefaultValues;
+  });
   const [showLocationFailureToast, setShowLocationFailureToast] =
     useState<boolean>(false);
   const [showLocationAddedToast, setShowLocationAddedToast] =
@@ -328,6 +344,12 @@ const AppContent = () => {
     let themeColor = theme ? theme : userPreferences.theme;
 
     setTheme(themeColor);
+    try {
+      localStorage.setItem("sujud_theme", themeColor);
+    } catch {
+      // ignore in non-browser/restricted environments
+    }
+
     let statusBarThemeColor: string = "#242424";
 
     if (themeColor === "system") {
@@ -335,13 +357,26 @@ const AppContent = () => {
       themeColor = media.matches ? "dark" : "light";
     }
 
-    if (themeColor === "dark") {
+    if (themeColor === "oled") {
+      statusBarThemeColor = "#000000";
+      document.body.classList.add("dark");
+      document.body.classList.add("oled");
+      document.body.classList.remove("light");
+    } else if (themeColor === "dark") {
       statusBarThemeColor = "#121315";
       document.body.classList.add("dark");
+      document.body.classList.remove("oled");
+      document.body.classList.remove("light");
     } else if (themeColor === "light") {
       statusBarThemeColor = "#FAF7F4";
       document.body.classList.remove("dark");
+      document.body.classList.remove("oled");
+      document.body.classList.add("light");
     }
+
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", statusBarThemeColor);
 
     if (Capacitor.isNativePlatform()) {
       const statusBarIconsColor =
@@ -507,6 +542,13 @@ const AppContent = () => {
 
   useEffect(() => {
     handleTheme(userPreferences.theme);
+
+    if (userPreferences.theme === "system" && typeof window !== "undefined" && window.matchMedia) {
+      const media = window.matchMedia("(prefers-color-scheme: dark)");
+      const listener = () => handleTheme("system");
+      media.addEventListener?.("change", listener);
+      return () => media.removeEventListener?.("change", listener);
+    }
   }, [userPreferences.theme]);
 
   const scheduleAllSalahNotifications = async () => {
@@ -797,10 +839,24 @@ const AppContent = () => {
       }
 
       if (DBResultPreferencesValues.length === 0) {
-        const params = Object.keys(dictPreferencesDefaultValues)
+        let initialPrefs = { ...dictPreferencesDefaultValues };
+        try {
+          const cachedTheme = localStorage.getItem("sujud_theme");
+          if (
+            cachedTheme === "light" ||
+            cachedTheme === "dark" ||
+            cachedTheme === "oled" ||
+            cachedTheme === "system"
+          ) {
+            initialPrefs.theme = cachedTheme as themeType;
+          }
+        } catch {
+          // ignore
+        }
+        const params = Object.keys(initialPrefs)
           .map((key) => {
             const value =
-              dictPreferencesDefaultValues[key as keyof userPreferencesType];
+              initialPrefs[key as keyof userPreferencesType];
             return [key, Array.isArray(value) ? value.join(",") : value];
           })
           .flat();
@@ -859,7 +915,22 @@ const AppContent = () => {
 
       if (preferenceQuery) {
         const prefName = preferenceQuery.preferenceName;
-        const prefValue = preferenceQuery.preferenceValue;
+        let prefValue = preferenceQuery.preferenceValue;
+        if (prefName === "theme") {
+          try {
+            const cached = localStorage.getItem("sujud_theme");
+            if (
+              cached === "light" ||
+              cached === "dark" ||
+              cached === "oled" ||
+              cached === "system"
+            ) {
+              prefValue = cached;
+            }
+          } catch {
+            // ignore
+          }
+        }
         (batchedPrefs as any)[prefName] =
           prefName === "reasons"
             ? (typeof prefValue === "string" ? prefValue.split(",").filter(Boolean) : (Array.isArray(prefValue) ? prefValue : []))
@@ -871,14 +942,30 @@ const AppContent = () => {
 
     // Insert missing preferences into DB (rare — first run or import)
     for (const pref of missingPrefs) {
+      let prefVal = dictPreferencesDefaultValues[pref];
+      if (pref === "theme") {
+        try {
+          const cached = localStorage.getItem("sujud_theme");
+          if (
+            cached === "light" ||
+            cached === "dark" ||
+            cached === "oled" ||
+            cached === "system"
+          ) {
+            prefVal = cached as themeType;
+          }
+        } catch {
+          // ignore
+        }
+      }
       await updateUserPrefs(
         dbConnection,
         pref,
-        dictPreferencesDefaultValues[pref],
+        prefVal,
         setUserPreferences,
       );
       // Also add to our batch so the final state is complete
-      (batchedPrefs as any)[pref] = dictPreferencesDefaultValues[pref];
+      (batchedPrefs as any)[pref] = prefVal;
     }
 
     // Single setState call for all preferences

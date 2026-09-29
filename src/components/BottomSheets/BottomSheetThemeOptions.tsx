@@ -33,12 +33,12 @@ const BottomSheetThemeOptions = ({
     >
       <section className="py-10 theme-sheet-content-wrap">
         {/* <h1 className="modal-header-text">Themes</h1> */}
-        <ul className="mx-2 my-5 rounded-none border border-[var(--app-border-color)] bg-[var(--card-bg-color)] notification-ul-wrap overflow-hidden">
-          {/* // TODO: May need to add aria-pressed to each button */}
-          <li className="flex justify-between p-3 border-b border-[var(--table-row-border-color)]">
+        <ul className="mx-2 my-5 rounded-none border border-[var(--app-border-color)] bg-[var(--card-bg-color)] notification-ul-wrap overflow-hidden font-mono text-sm">
+          {/* Light */}
+          <li className="flex justify-between items-center p-3 border-b border-[var(--table-row-border-color)]">
             <button
               aria-pressed={theme === "light"}
-              className="w-full text-left"
+              className="w-full text-left cursor-pointer"
               onClick={async () => {
                 await updateUserPrefs(
                   dbConnection,
@@ -50,9 +50,11 @@ const BottomSheetThemeOptions = ({
             >
               Light
             </button>
-            {theme === "light" && <MdCheck style={{ color: 'var(--accent-color)' }} />}
+            {theme === "light" && <MdCheck style={{ color: "var(--accent-color)" }} />}
           </li>
-          <li className="flex justify-between p-3 border-b border-[var(--table-row-border-color)]">
+
+          {/* Dark */}
+          <li className="flex justify-between items-center p-3 border-b border-[var(--table-row-border-color)]">
             <button
               aria-pressed={theme === "dark"}
               onClick={async () => {
@@ -63,13 +65,34 @@ const BottomSheetThemeOptions = ({
                   setUserPreferences,
                 );
               }}
-              className="w-full text-left"
+              className="w-full text-left cursor-pointer"
             >
               Dark
             </button>
-            {theme === "dark" && <MdCheck style={{ color: 'var(--accent-color)' }} />}
+            {theme === "dark" && <MdCheck style={{ color: "var(--accent-color)" }} />}
           </li>
-          <li className="flex justify-between p-3 ">
+
+          {/* OLED Black */}
+          <li className="flex justify-between items-center p-3 border-b border-[var(--table-row-border-color)]">
+            <button
+              aria-pressed={theme === "oled"}
+              onClick={async () => {
+                await updateUserPrefs(
+                  dbConnection,
+                  "theme",
+                  "oled",
+                  setUserPreferences,
+                );
+              }}
+              className="w-full text-left cursor-pointer"
+            >
+              OLED Black
+            </button>
+            {theme === "oled" && <MdCheck style={{ color: "var(--accent-color)" }} />}
+          </li>
+
+          {/* System */}
+          <li className="flex justify-between items-center p-3">
             <button
               aria-pressed={theme === "system"}
               onClick={async () => {
@@ -80,11 +103,11 @@ const BottomSheetThemeOptions = ({
                   setUserPreferences,
                 );
               }}
-              className="w-full text-left"
+              className="w-full text-left cursor-pointer"
             >
               System
             </button>
-            {theme === "system" && <MdCheck style={{ color: 'var(--accent-color)' }} />}
+            {theme === "system" && <MdCheck style={{ color: "var(--accent-color)" }} />}
           </li>
         </ul>
       </section>

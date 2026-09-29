@@ -268,6 +268,7 @@ const SettingsPage = ({
     }
 
     const updateStateAndDB = async () => {
+      if (!dbConnection?.current) return;
       if (isMissedSalahCounterOptionChecked) {
         await updateUserPrefs(
           dbConnection,
@@ -391,12 +392,19 @@ const SettingsPage = ({
                 PREFERENCES & DISPLAY
               </div>
               <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
-                {/* Theme selector hidden for now; will use later */}
-                {/* <SettingIndividual
+                <SettingIndividual
                   id="open-theme-options-sheet"
                   headingText="Theme"
-                  subText="Matte Charcoal / System Theme"
-                /> */}
+                  subText={
+                    theme === "oled"
+                      ? "OLED Pure Black"
+                      : theme === "dark"
+                      ? "Dark"
+                      : theme === "light"
+                      ? "Light"
+                      : "System"
+                  }
+                />
                 <SettingIndividual
                   onClick={() => {
                     if (userLocations.length === 0) {
