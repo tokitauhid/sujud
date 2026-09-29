@@ -16,19 +16,18 @@ const SPRITE_FRAMES = [
   "/assets/loading_sprites/frame-007.webp",
   "/assets/loading_sprites/frame-008.webp",
   "/assets/loading_sprites/frame-009.webp",
-  "/assets/loading_sprites/frame-010.webp",
   "/assets/loading_sprites/frame-011.webp",
   "/assets/loading_sprites/frame-012.webp",
 ];
 
 const LOGO_SRC = "/assets/loading_sprites/sujud-logo.webp";
 
-// Calibrated serene timings per specifications:
+// Calibrated serene timings:
 // Qiyam: ~700ms
-// Qiyam -> Ruku: ~700ms (Frames 1..3: 200ms, 200ms, 300ms)
-// Ruku -> Sujood: ~900ms (Frames 4..6: 250ms, 250ms, 400ms)
-// Cat walking: ~1200ms (Frames 7..9: 400ms, 400ms, 400ms)
-// Cat curling: ~700ms (Frames 10..11: 350ms, 350ms)
+// Qiyam -> Ruku: ~700ms (Frames 2..4: 200ms, 200ms, 300ms)
+// Ruku -> Sujood: ~900ms (Frames 5..7: 250ms, 250ms, 400ms)
+// Cat walking: ~1000ms (Frames 8..9: 500ms, 500ms)
+// Cat curling: ~700ms (Frames 11..12: 350ms, 350ms)
 // Person + cat hold: ~900ms
 // Logo transformation: ~700ms
 // Final logo hold: minimum 1800ms
@@ -40,11 +39,10 @@ const FRAME_DURATIONS = [
   250, // 4: Frame 5 (Ruku -> Sujood drop)
   250, // 5: Frame 6 (Descend to mat)
   400, // 6: Frame 7 (Full Sujood hold)
-  400, // 7: Frame 8 (Cat walks in)
-  400, // 8: Frame 9 (Cat steps closer)
-  400, // 9: Frame 10 (Cat reaches arch)
-  350, // 10: Frame 11 (Cat curls under)
-  350, // 11: Frame 12 (Cat curled up composition)
+  500, // 7: Frame 8 (Cat walks in)
+  500, // 8: Frame 9 (Cat steps toward worshipper)
+  350, // 9: Frame 11 (Cat curls under prayer arch)
+  350, // 10: Frame 12 (Cat curled up composition)
 ];
 
 const COMPOSITION_HOLD_DURATION = 900; // Person + cat hold before logo morph
