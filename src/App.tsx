@@ -175,6 +175,13 @@ const AppContent = () => {
   const [isDataLoadedFromDB, setIsDataLoadedFromDB] = useState(false);
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
 
+  // Immediately dismiss native splash screen so the animated loading screen is the first visible UI
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      SplashScreen.hide({ fadeOutDuration: 150 }).catch(() => {});
+    }
+  }, []);
+
   // -----------------------------------------------------------------------
   // Real-time cloud sync: replaces the old AutomaticSync component
   // -----------------------------------------------------------------------
@@ -401,12 +408,6 @@ const AppContent = () => {
       // await SplashScreen.hide({ fadeOutDuration: 250 });
       if (isDatabaseInitialised === true) {
         await fetchDataFromDB();
-
-        if (Capacitor.isNativePlatform()) {
-          setTimeout(async () => {
-            await SplashScreen.hide({ fadeOutDuration: 250 });
-          }, 500);
-        }
 
         await updateUserPrefs(
           dbConnection,

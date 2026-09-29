@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
 interface LoadingScreenProps {
   isAppReady: boolean;
@@ -23,21 +23,34 @@ const SPRITE_FRAMES = [
 
 const LOGO_SRC = "/assets/loading_sprites/sujud-logo.webp";
 
-// Pacing timings (ms) for each keyframe in the serene prayer sequence
+// Calibrated serene timings per specifications:
+// Qiyam: ~700ms
+// Qiyam -> Ruku: ~700ms (Frames 1..3: 200ms, 200ms, 300ms)
+// Ruku -> Sujood: ~900ms (Frames 4..6: 250ms, 250ms, 400ms)
+// Cat walking: ~1200ms (Frames 7..9: 400ms, 400ms, 400ms)
+// Cat curling: ~700ms (Frames 10..11: 350ms, 350ms)
+// Person + cat hold: ~900ms
+// Logo transformation: ~700ms
+// Final logo hold: minimum 1800ms
 const FRAME_DURATIONS = [
-  600, // 0: Frame 1 (Qiyam - standing posture)
-  150, // 1: Frame 2 (Begin Ruku)
-  150, // 2: Frame 3 (Mid Ruku)
-  320, // 3: Frame 4 (Hold full Ruku)
-  180, // 4: Frame 5 (Drop to knees/hands)
-  180, // 5: Frame 6 (Descend to Sujood)
-  350, // 6: Frame 7 (Deep Sujood prostration)
-  220, // 7: Frame 8 (Cat enters on left)
-  220, // 8: Frame 9 (Cat steps closer)
-  220, // 9: Frame 10 (Cat tucks under)
-  220, // 10: Frame 11 (Cat curls up)
-  550, // 11: Frame 12 (Composition complete hold)
+  700, // 0: Frame 1 (Qiyam hold)
+  200, // 1: Frame 2 (Qiyam -> Ruku start)
+  200, // 2: Frame 3 (Qiyam -> Ruku mid)
+  300, // 3: Frame 4 (Full Ruku hold)
+  250, // 4: Frame 5 (Ruku -> Sujood drop)
+  250, // 5: Frame 6 (Descend to mat)
+  400, // 6: Frame 7 (Full Sujood hold)
+  400, // 7: Frame 8 (Cat walks in)
+  400, // 8: Frame 9 (Cat steps closer)
+  400, // 9: Frame 10 (Cat reaches arch)
+  350, // 10: Frame 11 (Cat curls under)
+  350, // 11: Frame 12 (Cat curled up composition)
 ];
+
+const COMPOSITION_HOLD_DURATION = 900; // Person + cat hold before logo morph
+const LOGO_MORPH_DURATION = 700; // Morph from composition into Sujud logo
+const MIN_LOGO_HOLD_DURATION = 1800; // Minimum peaceful logo hold
+const EXIT_FADE_DURATION = 500; // Smooth fade transition into the app
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) => {
   // Check prefers-reduced-motion
@@ -49,12 +62,11 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
   }, []);
 
   const [currentFrameIndex, setCurrentFrameIndex] = useState<number>(0);
+  const [prevFrameIndex, setPrevFrameIndex] = useState<number | null>(null);
   const [isLogoPhase, setIsLogoPhase] = useState<boolean>(prefersReducedMotion);
+  const [minAnimationComplete, setMinAnimationComplete] = useState<boolean>(false);
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
   const [isCompletelyFinished, setIsCompletelyFinished] = useState<boolean>(false);
-
-  const isAppReadyRef = useRef(isAppReady);
-  isAppReadyRef.current = isAppReady;
 
   // Preload all sprite images on mount
   useEffect(() => {
@@ -71,30 +83,38 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
   // Main animation stepping sequence
   useEffect(() => {
     if (prefersReducedMotion) {
-      // Reduced motion: directly jump to logo phase
+      // Reduced motion: directly jump to logo phase and hold minimum 1800ms
       setIsLogoPhase(true);
-      return;
+      const reducedMotionTimer = setTimeout(() => {
+        setMinAnimationComplete(true);
+      }, MIN_LOGO_HOLD_DURATION);
+      return () => clearTimeout(reducedMotionTimer);
     }
 
     let timeoutId: NodeJS.Timeout;
 
     const stepToNext = (idx: number) => {
       if (idx < SPRITE_FRAMES.length - 1) {
-        // Next sprite frame
         const nextIdx = idx + 1;
         timeoutId = setTimeout(() => {
+          setPrevFrameIndex(idx);
           setCurrentFrameIndex(nextIdx);
           stepToNext(nextIdx);
         }, FRAME_DURATIONS[nextIdx]);
       } else {
-        // Completed Frame 12 hold -> Morph into Sujud Logo
+        // Completed Frame 12 (person + cat composition) -> Hold composition for 900ms
         timeoutId = setTimeout(() => {
           setIsLogoPhase(true);
-        }, FRAME_DURATIONS[11]);
+
+          // Morph (700ms) + Final logo hold (min 1800ms) = 2500ms
+          timeoutId = setTimeout(() => {
+            setMinAnimationComplete(true);
+          }, LOGO_MORPH_DURATION + MIN_LOGO_HOLD_DURATION);
+        }, COMPOSITION_HOLD_DURATION);
       }
     };
 
-    // Begin from Frame 1
+    // Begin from Frame 1 (Qiyam)
     timeoutId = setTimeout(() => {
       stepToNext(0);
     }, FRAME_DURATIONS[0]);
@@ -104,29 +124,26 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
     };
   }, [prefersReducedMotion]);
 
-  // Transition into app when both logo phase is reached and app initialization is ready
+  // Transition into app only when BOTH conditions are met:
+  // 1. Minimum animation & logo hold completed (minAnimationComplete === true)
+  // 2. Real app database initialization is ready (isAppReady === true)
+  const isReadyToExit = minAnimationComplete && isAppReady;
+
   useEffect(() => {
-    if (!isLogoPhase) return;
+    if (!isReadyToExit) return;
 
-    let exitTimeout: NodeJS.Timeout;
+    // Begin smooth 500ms fade transition into the app
+    setIsFadingOut(true);
 
-    if (isAppReady) {
-      // If app is ready, hold briefly on the brand logo for polish (~400ms), then fade out
-      const holdDuration = prefersReducedMotion ? 200 : 400;
-      exitTimeout = setTimeout(() => {
-        setIsFadingOut(true);
-        // Complete fade-out after 400ms transition
-        setTimeout(() => {
-          setIsCompletelyFinished(true);
-          onFinish?.();
-        }, 400);
-      }, holdDuration);
-    }
+    const exitTimer = setTimeout(() => {
+      setIsCompletelyFinished(true);
+      onFinish?.();
+    }, EXIT_FADE_DURATION);
 
     return () => {
-      clearTimeout(exitTimeout);
+      clearTimeout(exitTimer);
     };
-  }, [isLogoPhase, isAppReady, prefersReducedMotion, onFinish]);
+  }, [isReadyToExit, onFinish]);
 
   if (isCompletelyFinished) {
     return null;
@@ -137,38 +154,64 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
       id="sujud-loading-screen"
       role="status"
       aria-label="Loading Sujud"
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center select-none rounded-none transition-opacity duration-400 ease-out ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center select-none rounded-none transition-opacity duration-500 ease-out ${
         isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
       }`}
       style={{
         backgroundColor: "var(--app-bg, #0B0D11)",
       }}
     >
+      <style>{`
+        @keyframes sujudFrameFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
+
       {/* Animation Stage Container */}
       <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center rounded-none overflow-hidden">
         {/* Animated Sprite Sequence (Frames 1..12) */}
         {!prefersReducedMotion && (
-          <img
-            key={currentFrameIndex}
-            src={SPRITE_FRAMES[currentFrameIndex]}
-            onError={(e) => {
-              if (e.currentTarget.src.endsWith(".webp")) {
-                e.currentTarget.src = e.currentTarget.src.replace(".webp", ".png");
-              }
-            }}
-            alt="Sujud animation"
-            className={`absolute inset-0 w-full h-full object-contain rounded-none transition-opacity duration-300 ${
-              isLogoPhase ? "opacity-0 scale-95" : "opacity-100 scale-100"
+          <div
+            className={`absolute inset-0 w-full h-full flex items-center justify-center transition-opacity duration-700 ease-in-out ${
+              isLogoPhase ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
             }`}
-            style={{
-              filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.35))",
-            }}
-          />
+          >
+            {/* Background previous frame to eliminate any hard cuts / gaps */}
+            {prevFrameIndex !== null && (
+              <img
+                src={SPRITE_FRAMES[prevFrameIndex]}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-contain rounded-none opacity-100"
+                style={{
+                  filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.35))",
+                }}
+              />
+            )}
+
+            {/* Current active frame with smooth optical fade-in easing */}
+            <img
+              key={currentFrameIndex}
+              src={SPRITE_FRAMES[currentFrameIndex]}
+              onError={(e) => {
+                if (e.currentTarget.src.endsWith(".webp")) {
+                  e.currentTarget.src = e.currentTarget.src.replace(".webp", ".png");
+                }
+              }}
+              alt="Sujud animation"
+              className="absolute inset-0 w-full h-full object-contain rounded-none"
+              style={{
+                animation: "sujudFrameFadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+                filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.35))",
+              }}
+            />
+          </div>
         )}
 
         {/* Official Sujud Logo Phase (Emblem + SUJUD title) */}
         <div
-          className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center transition-all duration-500 ease-out ${
+          className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center transition-all duration-700 ease-in-out ${
             isLogoPhase ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
           }`}
         >

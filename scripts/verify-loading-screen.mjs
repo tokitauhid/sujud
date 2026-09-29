@@ -71,19 +71,19 @@ async function run() {
     const qiyamPath = path.join(ARTIFACTS_DIR, `01_qiyam_${theme}.png`);
     await page.screenshot({ path: qiyamPath });
 
-    // Advance to Sujood + Cat
-    await page.waitForTimeout(2000);
+    // Advance to Sujood + Cat (t ~ 3600ms)
+    await page.waitForTimeout(3200);
     const sujoodPath = path.join(ARTIFACTS_DIR, `02_sujood_cat_${theme}.png`);
     await page.screenshot({ path: sujoodPath });
 
-    // Advance to Logo phase
-    await page.waitForTimeout(1600);
+    // Advance to Logo phase (t ~ 6200ms)
+    await page.waitForTimeout(2600);
     const logoPath = path.join(ARTIFACTS_DIR, `03_logo_${theme}.png`);
     await page.screenshot({ path: logoPath });
 
     let isRemoved = false;
     try {
-      await page.waitForSelector("#sujud-loading-screen", { state: "detached", timeout: 6000 });
+      await page.waitForSelector("#sujud-loading-screen", { state: "detached", timeout: 8000 });
       isRemoved = true;
     } catch {
       const count = await page.locator("#sujud-loading-screen").count();
@@ -126,8 +126,8 @@ async function run() {
   console.log(`Static logo present in reduced motion: ${hasStaticLogo > 0}`);
   results.reducedMotion = hasAnimationSprite === 0 && hasStaticLogo > 0;
 
-  // Wait for transition into app
-  await motionPage.waitForTimeout(1000);
+  // Wait for 1800ms minimum hold + 500ms fade transition into app
+  await motionPage.waitForTimeout(2500);
   const appInReducedMotion = await motionPage.locator("#nav-bar").count();
   console.log(`App visible after reduced motion: ${appInReducedMotion > 0}`);
 

@@ -49,11 +49,18 @@ try {
   // ignore
 }
 
+import { SplashScreen } from "@capacitor/splash-screen";
+
 setupIonicReact();
 
-window.addEventListener("DOMContentLoaded", async () => {
+const startApp = async () => {
   try {
     const platform = Capacitor.getPlatform();
+
+    // Dismiss native splash as early as possible so web loading screen is first visible UI
+    if (Capacitor.isNativePlatform()) {
+      SplashScreen.hide({ fadeOutDuration: 100 }).catch(() => {});
+    }
 
     // WEB SPECIFIC FUNCTIONALITY
     if (platform === "web") {
@@ -78,4 +85,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   } catch (e) {
     console.error(e);
   }
-});
+};
+
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded", startApp);
+} else {
+  startApp();
+}
