@@ -7,11 +7,29 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=0"
     />
-    <meta name="theme-color" content="#121315" />
+    <meta name="theme-color" content="#0B0D11" />
     <meta name="description" content="Sujud — Track your daily Salah, streaks, and prayer times. Open-source, ad-free, and privacy-first." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <title>Sujud</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #0B0D11;
+      }
+      html.dark, html.dark body {
+        background-color: #0B0D11 !important;
+      }
+      html.dark.oled, html.dark.oled body {
+        background-color: #000000 !important;
+      }
+      html.light, html.light body {
+        background-color: #FAF7F4 !important;
+      }
+    </style>
     <script>
       (function() {
         try {
@@ -29,7 +47,7 @@
             if (meta) meta.setAttribute("content", "#000000");
           } else if (resolved === "dark") {
             document.documentElement.classList.add("dark");
-            if (meta) meta.setAttribute("content", "#121315");
+            if (meta) meta.setAttribute("content", "#0B0D11");
           } else if (resolved === "light") {
             document.documentElement.classList.add("light");
             if (meta) meta.setAttribute("content", "#FAF7F4");

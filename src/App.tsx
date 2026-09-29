@@ -91,6 +91,7 @@ import { initRealtimeSync, initialSyncOnSignIn } from "./firebase/syncService";
 import { markInitialSettingsSetupCompleted, resetInitialSettingsSetup } from "./utils/deviceSettings";
 import { checkAndGenerateTrendNotifications } from "./utils/trendAnalysis";
 import { checkAndGenerateWeeklyReflectionNotification } from "./utils/weeklyReflection";
+import LoadingScreen from "./components/LoadingScreen";
 
 
 const AppContent = () => {
@@ -172,6 +173,7 @@ const AppContent = () => {
   const [isAppActive, setIsAppActive] = useState(true);
   const [showQuickLogModal, setShowQuickLogModal] = useState(false);
   const [isDataLoadedFromDB, setIsDataLoadedFromDB] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
 
   // -----------------------------------------------------------------------
   // Real-time cloud sync: replaces the old AutomaticSync component
@@ -1225,6 +1227,12 @@ const AppContent = () => {
 
   return (
     <IonApp>
+      {showLoadingScreen && (
+        <LoadingScreen
+          isAppReady={isDatabaseInitialised && isDataLoadedFromDB}
+          onFinish={() => setShowLoadingScreen(false)}
+        />
+      )}
       <IonReactRouter>
         <IonTabs className="app">
           <IonRouterOutlet

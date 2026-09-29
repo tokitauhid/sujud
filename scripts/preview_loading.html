@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sujud App Loading Animation Preview</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #0B0D11;
+      color: #E2E8F0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      color: #CC9374;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 14px;
+      color: #94A3B8;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 32px;
+      max-width: 1000px;
+      width: 100%;
+    }
+    .card {
+      background: #12151B;
+      border: 1px solid #1E232E;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #CC9374;
+      margin-bottom: 4px;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #64748B;
+      margin-bottom: 20px;
+    }
+    .animation-box {
+      width: 320px;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0B0D11;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .animation-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .sequence-steps {
+      margin-top: 36px;
+      max-width: 800px;
+      width: 100%;
+      background: #12151B;
+      border: 1px solid #1E232E;
+      padding: 24px;
+    }
+    .sequence-steps h2 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #CC9374;
+      margin-bottom: 16px;
+    }
+    .steps-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 13px;
+      color: #94A3B8;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      background: #1E232E;
+      color: #CC9374;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Sujud Loading Animation</h1>
+    <p>Seamless transition from Qiyam &rarr; Ruku &rarr; Sujood &rarr; Cat curl &rarr; Hold &rarr; Sujud Logo brand mark</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Version A: Smooth Glide & Morph</div>
+      <div class="card-subtitle">Emblem smoothly centers as bronze wordmark reveals</div>
+      <div class="animation-box">
+        <img src="file:///home/tokit/Projects/sujud/assets/loading_preview/sujud_loading_glide.gif" alt="Glide loading animation" />
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Version B: Cross-Dissolve Fade</div>
+      <div class="card-subtitle">Direct cross-fade between frame 12 and Sujud brand logo</div>
+      <div class="animation-box">
+        <img src="file:///home/tokit/Projects/sujud/assets/loading_preview/sujud_loading_fade.gif" alt="Fade loading animation" />
+      </div>
+    </div>
+  </div>
+
+  <div class="sequence-steps">
+    <h2>Animation Sequence Breakdown</h2>
+    <div class="steps-list">
+      <div class="step-item"><span class="step-num">1</span> Person in Qiyam (standing prayer posture)</div>
+      <div class="step-item"><span class="step-num">2</span> Graceful bow through Ruku</div>
+      <div class="step-item"><span class="step-num">3</span> Kneeling down into Sujood (prostration)</div>
+      <div class="step-item"><span class="step-num">4</span> Deep prostration held serenely</div>
+      <div class="step-item"><span class="step-num">5</span> Cat steps peacefully toward the person</div>
+      <div class="step-item"><span class="step-num">6</span> Cat curls up comfortably under the person</div>
+      <div class="step-item"><span class="step-num">7</span> Brief hold of completed composition</div>
+      <div class="step-item"><span class="step-num">8</span> Morph / fade into the official Sujud logo</div>
+    </div>
+  </div>
+</body>
+</html>
