@@ -126,8 +126,14 @@ if ! command -v java >/dev/null 2>&1; then
   exit 1
 fi
 
-# Resolve JAVA_HOME if not explicitly set
-if [ -z "$JAVA_HOME" ]; then
+# Resolve JAVA_HOME - prefer JDK 21 if available for Android Gradle plugin source release 21
+if [ -d "/usr/lib/jvm/java-21-openjdk" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
+  export PATH="$JAVA_HOME/bin:$PATH"
+elif [ -d "$HOME/.local/share/mise/installs/java/21.0.2" ]; then
+  export JAVA_HOME="$HOME/.local/share/mise/installs/java/21.0.2"
+  export PATH="$JAVA_HOME/bin:$PATH"
+elif [ -z "$JAVA_HOME" ]; then
   JAVA_BIN=$(which java 2>/dev/null || true)
   if [ -n "$JAVA_BIN" ]; then
     REAL_JAVA=$(readlink -f "$JAVA_BIN" 2>/dev/null || true)

@@ -24,6 +24,9 @@ const config: CapacitorConfig = {
     },
     SplashScreen: {
       launchAutoHide: false,
+      backgroundColor: "#000000",
+      splashFullScreen: true,
+      splashImmersive: true,
     },
     CapacitorSQLite: {
       androidIsEncryption: false,
