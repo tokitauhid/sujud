@@ -1298,6 +1298,7 @@ const AppContent = () => {
                   }
                   showSalahTimesSettingsSheet={showSalahTimesSettingsSheet}
                   userLocations={userLocations}
+                  setOnboardingMode={setOnboardingMode}
                 />
               )}
             />

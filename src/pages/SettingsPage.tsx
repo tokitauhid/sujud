@@ -8,6 +8,7 @@ import {
   LocationsDataObjTypeArr,
   themeType,
   userPreferencesType,
+  OnboardingMode,
 } from "../types/types";
 import { Filesystem, Encoding, Directory } from "@capacitor/filesystem";
 import { MdOutlineChevronRight } from "react-icons/md";
@@ -58,6 +59,7 @@ interface SettingsPageProps {
   showSalahTimesSettingsSheet: boolean;
   userPreferences: userPreferencesType;
   userLocations: LocationsDataObjTypeArr;
+  setOnboardingMode?: React.Dispatch<React.SetStateAction<OnboardingMode>>;
 }
 
 const SettingsPage = ({
@@ -73,6 +75,7 @@ const SettingsPage = ({
   showSalahTimesSettingsSheet,
   userPreferences,
   userLocations,
+  setOnboardingMode,
 }: SettingsPageProps) => {
   const importDBRef = useRef<HTMLInputElement | null>(null);
   const diaglogElement = useRef<HTMLDialogElement | null>(null);
@@ -572,6 +575,7 @@ const SettingsPage = ({
                   localStorage.removeItem("sujud_developer_mode");
                   showToast("Developer options disabled", "short");
                 }}
+                onTriggerOnboarding={setOnboardingMode ? (mode) => setOnboardingMode(mode) : undefined}
               />
             )}
 

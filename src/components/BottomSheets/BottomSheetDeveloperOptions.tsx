@@ -9,14 +9,18 @@ import {
   MODAL_BREAKPOINTS,
 } from "../../utils/constants";
 
+import { OnboardingMode } from "../../types/types";
+
 interface BottomSheetDeveloperOptionsProps {
   triggerId: string;
   onDisableDeveloperMode: () => void;
+  onTriggerOnboarding?: (mode: OnboardingMode) => void;
 }
 
 const BottomSheetDeveloperOptions = ({
   triggerId,
   onDisableDeveloperMode,
+  onTriggerOnboarding,
 }: BottomSheetDeveloperOptionsProps) => {
   const [deviceStatus, setDeviceStatus] = useState<DeviceStatus | null>(null);
   const [activeTimerMsg, setActiveTimerMsg] = useState<string | null>(null);
@@ -466,7 +470,46 @@ const BottomSheetDeveloperOptions = ({
           </div>
         </div>
 
-        {/* 5. DISABLE DEVELOPER OPTIONS */}
+        {/* 5. ONBOARDING TRIGGER */}
+        <div className="mb-5 p-3.5 bg-[#141414] border border-[#242424] rounded-none">
+          <p className="text-xs font-mono font-medium text-white mb-1 uppercase tracking-wider">
+            5. Onboarding Testing
+          </p>
+          <p className="text-[11px] font-mono text-[#71717A] mb-3 leading-relaxed">
+            Trigger onboarding flows without resetting the app. The flow runs as normal but dismissing it won't permanently mark you as an existing user again.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <IonButton
+              size="small"
+              fill="solid"
+              onClick={async () => {
+                if (onTriggerOnboarding) {
+                  onTriggerOnboarding("newUser");
+                  await showToast("Opening full onboarding (newUser mode)", "short");
+                }
+              }}
+            >
+              Full Onboarding
+            </IonButton>
+            <IonButton
+              size="small"
+              fill="outline"
+              onClick={async () => {
+                if (onTriggerOnboarding) {
+                  onTriggerOnboarding("salahTimes");
+                  await showToast("Opening salah times setup", "short");
+                }
+              }}
+            >
+              Salah Times Setup
+            </IonButton>
+          </div>
+          <p className="text-[10px] font-mono text-[#52525B] mt-2">
+            Note: Your existing user status and data are preserved after dismissal.
+          </p>
+        </div>
+
+        {/* 6. DISABLE DEVELOPER OPTIONS */}
         <div className="pt-2 border-t border-[#242424] flex justify-center">
           <IonButton
             size="small"
