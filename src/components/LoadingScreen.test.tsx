@@ -1,7 +1,19 @@
 import React from "react";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen, act, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import LoadingScreen from "./LoadingScreen";
+
+// jsdom doesn't implement HTMLVideoElement.play/load, so we stub them
+beforeEach(() => {
+  Object.defineProperty(HTMLVideoElement.prototype, "play", {
+    configurable: true,
+    value: vi.fn().mockResolvedValue(undefined),
+  });
+  Object.defineProperty(HTMLVideoElement.prototype, "load", {
+    configurable: true,
+    value: vi.fn(),
+  });
+});
 
 describe("LoadingScreen Component", () => {
   beforeEach(() => {
@@ -12,123 +24,72 @@ describe("LoadingScreen Component", () => {
     vi.useRealTimers();
   });
 
-  it("renders with initial frame 1 (Qiyam) and accessible status role", () => {
+  it("renders the video element and accessible status role", () => {
     render(<LoadingScreen isAppReady={false} />);
-    const statusEl = screen.getByRole("status");
-    expect(statusEl).toBeDefined();
-
-    const img = screen.getByAltText("Sujud animation") as HTMLImageElement;
-    expect(img).toBeDefined();
-    expect(img.src).toContain("frame-001.webp");
+    expect(screen.getByRole("status")).toBeDefined();
+    const video = document.querySelector("video") as HTMLVideoElement;
+    expect(video).not.toBeNull();
+    expect(video.src).toContain("onboarding_intro.mp4");
+    expect(video.autoplay).toBe(true);
+    expect(video.muted).toBe(true);
   });
 
-  it("progresses through the prayer sequence and transitions into the logo phase", async () => {
-    render(<LoadingScreen isAppReady={false} />);
-
-    // Fast-forward past all 12 keyframes and composition hold (~5200ms)
-    act(() => {
-      vi.advanceTimersByTime(5200);
-    });
-
-    const logoImg = screen.getByAltText("Sujud Logo") as HTMLImageElement;
-    expect(logoImg).toBeDefined();
-    expect(logoImg.src).toContain("sujud-logo.webp");
-  });
-
-  it("HOLDS logo for at least 1800ms even if isAppReady is already true from start", () => {
+  it("does NOT exit while video is still playing, even if app is ready", () => {
     const onFinishMock = vi.fn();
     render(<LoadingScreen isAppReady={true} onFinish={onFinishMock} />);
 
-    // Fast-forward to when logo phase just begins (~5200ms)
-    act(() => {
-      vi.advanceTimersByTime(5200);
-    });
-
-    // Logo is visible but must hold for at least 1800ms + 700ms morph
+    // App is ready but video hasn't ended yet — must not exit
+    act(() => { vi.advanceTimersByTime(9000); });
     expect(onFinishMock).not.toHaveBeenCalled();
-
-    // Advance 1500ms into logo phase: still holding! (Total 6700ms)
-    act(() => {
-      vi.advanceTimersByTime(1500);
-    });
-    expect(onFinishMock).not.toHaveBeenCalled();
-
-    // Advance remaining logo hold to complete minimum animation hold (Total 7700ms)
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-    expect(onFinishMock).not.toHaveBeenCalled(); // Exit fade is underway (500ms)
-
-    // Advance exit fade (500ms)
-    act(() => {
-      vi.advanceTimersByTime(550);
-    });
-
-    // Now it should have smoothly completed
-    expect(onFinishMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("status")).toBeDefined();
   });
 
-  it("keeps holding logo indefinitely if database initialization takes longer, exiting only when isAppReady becomes true", () => {
+  it("does NOT exit when video ends but app is NOT ready", () => {
+    const onFinishMock = vi.fn();
+    render(<LoadingScreen isAppReady={false} onFinish={onFinishMock} />);
+
+    // Fire the video ended event
+    const video = document.querySelector("video") as HTMLVideoElement;
+    act(() => { fireEvent(video, new Event("ended")); });
+
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(onFinishMock).not.toHaveBeenCalled();
+  });
+
+  it("exits with fade after video ends AND app becomes ready", () => {
     const onFinishMock = vi.fn();
     const { rerender } = render(<LoadingScreen isAppReady={false} onFinish={onFinishMock} />);
 
-    // Fast-forward past entire animation and minimum hold (10,000ms)
-    act(() => {
-      vi.advanceTimersByTime(10000);
-    });
+    // Fire video ended
+    const video = document.querySelector("video") as HTMLVideoElement;
+    act(() => { fireEvent(video, new Event("ended")); });
 
-    // Still must NOT exit because isAppReady is false!
+    // App not ready yet
+    act(() => { vi.advanceTimersByTime(500); });
     expect(onFinishMock).not.toHaveBeenCalled();
 
-    // Now database initialization completes!
+    // App becomes ready
     rerender(<LoadingScreen isAppReady={true} onFinish={onFinishMock} />);
 
-    // Advance exit fade (500ms)
-    act(() => {
-      vi.advanceTimersByTime(550);
-    });
-
+    // Advance past 500ms exit fade
+    act(() => { vi.advanceTimersByTime(550); });
     expect(onFinishMock).toHaveBeenCalledTimes(1);
   });
 
-  it("respects prefers-reduced-motion with static logo and minimum hold", () => {
-    // Mock matchMedia for prefers-reduced-motion
-    window.matchMedia = vi.fn().mockImplementation((query) => ({
-      matches: query.includes("prefers-reduced-motion: reduce"),
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }));
-
+  it("exits with fade when app is already ready and video ends", () => {
     const onFinishMock = vi.fn();
     render(<LoadingScreen isAppReady={true} onFinish={onFinishMock} />);
 
-    // In reduced motion, sprite animation is skipped; logo is shown directly
-    expect(screen.queryByAltText("Sujud animation")).toBeNull();
-    const logoImg = screen.getByAltText("Sujud Logo");
-    expect(logoImg).toBeDefined();
+    // Fire video ended — both conditions now met
+    const video = document.querySelector("video") as HTMLVideoElement;
+    act(() => { fireEvent(video, new Event("ended")); });
 
-    // Must hold logo for minimum 1800ms
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
+    // Not yet — fade is 500ms
+    act(() => { vi.advanceTimersByTime(400); });
     expect(onFinishMock).not.toHaveBeenCalled();
 
-    // Complete the 1800ms minimum hold
-    act(() => {
-      vi.advanceTimersByTime(850);
-    });
-    expect(onFinishMock).not.toHaveBeenCalled(); // Exit fade is underway (500ms)
-
-    // Advance exit fade (500ms)
-    act(() => {
-      vi.advanceTimersByTime(550);
-    });
-
+    // Complete the fade
+    act(() => { vi.advanceTimersByTime(150); });
     expect(onFinishMock).toHaveBeenCalledTimes(1);
   });
 });
