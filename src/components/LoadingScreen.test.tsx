@@ -29,9 +29,28 @@ describe("LoadingScreen Component", () => {
     expect(screen.getByRole("status")).toBeDefined();
     const video = document.querySelector("video") as HTMLVideoElement;
     expect(video).not.toBeNull();
-    expect(video.src).toContain("onboarding_intro.mp4");
+    expect(video.src).toContain("onboarding_intro");
     expect(video.autoplay).toBe(true);
     expect(video.muted).toBe(false);
+  });
+
+  it("selects video and background color matching theme: OLED, Dark, and Light", () => {
+    const { unmount: unmountOled } = render(<LoadingScreen isAppReady={false} themeOverride="oled" />);
+    let video = document.querySelector("video") as HTMLVideoElement;
+    expect(video.src).toContain("onboarding_intro_oled.mp4");
+    expect(video.style.backgroundColor).toBe("rgb(0, 0, 0)");
+    unmountOled();
+
+    const { unmount: unmountDark } = render(<LoadingScreen isAppReady={false} themeOverride="dark" />);
+    video = document.querySelector("video") as HTMLVideoElement;
+    expect(video.src).toContain("onboarding_intro_dark.mp4");
+    expect(video.style.backgroundColor).toBe("rgb(11, 13, 17)");
+    unmountDark();
+
+    render(<LoadingScreen isAppReady={false} themeOverride="light" />);
+    video = document.querySelector("video") as HTMLVideoElement;
+    expect(video.src).toContain("onboarding_intro_light.mp4");
+    expect(video.style.backgroundColor).toBe("rgb(250, 247, 244)");
   });
 
   it("does NOT exit while video is still playing, even if app is ready", () => {
@@ -109,7 +128,7 @@ describe("LoadingScreen Component", () => {
   });
 
   it("hides all media player UI and sets inline playback attributes", () => {
-    render(<LoadingScreen isAppReady={false} />);
+    render(<LoadingScreen isAppReady={false} themeOverride="oled" />);
     const video = document.querySelector("video") as HTMLVideoElement;
     expect(video).not.toBeNull();
 

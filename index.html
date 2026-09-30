@@ -12,7 +12,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <title>Sujud</title>
-    <link rel="preload" as="video" href="/assets/onboarding_intro.mp4" type="video/mp4" />
     <style>
       :root {
         --app-bg: #0B0D11;
@@ -23,11 +22,11 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
-        background-color: #000000;
+        background-color: #0B0D11;
       }
       html.dark, html.dark body, body.dark {
         --app-bg: #0B0D11;
-        background-color: #000000;
+        background-color: #0B0D11;
       }
       html.dark.oled, html.dark.oled body, body.dark.oled, body.oled {
         --app-bg: #000000;
@@ -40,7 +39,10 @@
       #root {
         width: 100%;
         height: 100%;
-        background-color: #000000;
+        background-color: #0B0D11;
+      }
+      html.dark.oled #root, body.oled #root {
+        background-color: #000000 !important;
       }
       html.light #root, body.light #root {
         background-color: #FAF7F4 !important;
@@ -52,12 +54,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #000000;
+        background-color: #0B0D11;
         user-select: none;
         -webkit-user-select: none;
       }
-      html.oled #sujud-initial-shell, body.oled #sujud-initial-shell {
+      html.dark.oled #sujud-initial-shell, html.oled #sujud-initial-shell, body.oled #sujud-initial-shell {
         background-color: #000000;
+      }
+      html.light #sujud-initial-shell, body.light #sujud-initial-shell {
+        background-color: #FAF7F4;
       }
       /* Prevent native video player controls and playback icon flash */
       video::-webkit-media-controls,
@@ -88,20 +93,32 @@
           }
           var meta = document.querySelector('meta[name="theme-color"]');
           var bg = "#0B0D11";
+          var videoSrc = "/assets/onboarding_intro_dark.mp4";
           if (resolved === "oled") {
             bg = "#000000";
+            videoSrc = "/assets/onboarding_intro_oled.mp4";
             document.documentElement.className = "dark oled";
             if (meta) meta.setAttribute("content", "#000000");
           } else if (resolved === "light") {
             bg = "#FAF7F4";
+            videoSrc = "/assets/onboarding_intro_light.mp4";
             document.documentElement.className = "light";
             if (meta) meta.setAttribute("content", "#FAF7F4");
           } else {
             bg = "#0B0D11";
+            videoSrc = "/assets/onboarding_intro_dark.mp4";
             document.documentElement.className = "dark";
             if (meta) meta.setAttribute("content", "#0B0D11");
           }
           document.documentElement.style.setProperty("--app-bg", bg);
+
+          // Preload the theme-matching video
+          var link = document.createElement("link");
+          link.rel = "preload";
+          link.as = "video";
+          link.href = videoSrc;
+          link.type = "video/mp4";
+          document.head.appendChild(link);
         } catch(e) {}
       })();
     </script>

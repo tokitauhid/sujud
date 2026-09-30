@@ -3,15 +3,48 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 interface LoadingScreenProps {
   isAppReady: boolean;
   onFinish?: () => void;
+  themeOverride?: "oled" | "light" | "dark";
 }
 
-const VIDEO_SRC = "/assets/onboarding_intro.mp4";
+export const THEME_VIDEO_CONFIG: Record<
+  "oled" | "light" | "dark",
+  { src: string; bg: string }
+> = {
+  oled: {
+    src: "/assets/onboarding_intro_oled.mp4",
+    bg: "#000000",
+  },
+  dark: {
+    src: "/assets/onboarding_intro_dark.mp4",
+    bg: "#0B0D11",
+  },
+  light: {
+    src: "/assets/onboarding_intro_light.mp4",
+    bg: "#FAF7F4",
+  },
+};
+
+export function getResolvedLoadingTheme(): "oled" | "light" | "dark" {
+  try {
+    const cached = localStorage.getItem("sujud_theme");
+    if (cached === "oled") return "oled";
+    if (cached === "light") return "light";
+    if (cached === "dark") return "dark";
+    if (cached === "system") {
+      return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+  } catch {}
+  return "dark";
+}
+
 // 1x1 transparent PNG poster to prevent Android WebView from rendering its default circular play poster
 const TRANSPARENT_POSTER =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 const EXIT_FADE_DURATION = 500; // ms — smooth fade out after video ends + app ready
 
-const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) => {
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, themeOverride }) => {
+  const activeTheme = themeOverride || getResolvedLoadingTheme();
+  const themeConfig = THEME_VIDEO_CONFIG[activeTheme] || THEME_VIDEO_CONFIG.dark;
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoEnded, setVideoEnded] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -90,7 +123,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
         isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
       }`}
       style={{
-        backgroundColor: "#000000",
+        backgroundColor: themeConfig.bg,
         transitionDuration: `${EXIT_FADE_DURATION}ms`,
       }}
     >
@@ -113,14 +146,14 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
         1:1 Video Stage:
         - 1:1 proportional scaling only, centered horizontally and vertically
         - Never cropped, never zoomed, never stretched (object-fit: contain)
-        - Seamless 100% black background matching surrounding screen with zero boundaries or card effects
+        - Seamless background matching surrounding screen with zero boundaries or card effects
         - Zero video player UI, zero native overlay controls, transparent poster to eliminate default Android play icon
         - Full audio playback enabled with web fallback
       */}
       <div className="relative flex items-center justify-center w-full h-full max-w-full max-h-full pointer-events-none">
         <video
           ref={videoRef}
-          src={VIDEO_SRC}
+          src={themeConfig.src}
           poster={TRANSPARENT_POSTER}
           autoPlay
           playsInline
@@ -142,7 +175,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish }) =
             height: "min(100vw, 100vh, 720px)",
             aspectRatio: "1 / 1",
             objectFit: "contain",
-            backgroundColor: "#000000",
+            backgroundColor: themeConfig.bg,
           }}
         />
       </div>
