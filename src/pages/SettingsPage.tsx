@@ -292,9 +292,9 @@ const SettingsPage = ({
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
-        <IonToolbar className="page-header-toolbar border-b border-[#242424]">
+        <IonToolbar className="page-header-toolbar border-b border-[var(--app-border)]">
           <div className="flex items-center justify-between px-3 py-1">
-            <span className="text-xs font-bold tracking-widest uppercase text-white font-mono">
+            <span className="text-xs font-bold tracking-widest uppercase text-[var(--text-primary)] font-mono">
               SETTINGS
             </span>
           </div>
@@ -305,7 +305,7 @@ const SettingsPage = ({
           <div className="space-y-5">
             {/* ACCOUNT & CLOUD SYNC */}
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-secondary)] px-1 mb-1.5">
                 ACCOUNT & SYNC
               </div>
               <CloudSyncSettings
@@ -316,51 +316,51 @@ const SettingsPage = ({
 
             {/* NOTIFICATIONS */}
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-secondary)] px-1 mb-1.5">
                 NOTIFICATIONS
               </div>
-              <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+              <div className="border border-[var(--app-border)] rounded-none bg-[var(--app-card-bg)] overflow-hidden divide-y divide-[var(--app-border)]">
                 <div
-                  className="flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer"
+                  className="flex items-center justify-between py-3 px-3.5 bg-[var(--app-card-bg)] hover:bg-[var(--app-surface-hover)] transition-colors cursor-pointer"
                   id="open-notification-options-sheet"
                 >
                   <div className="flex flex-col pr-2">
-                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                    <p className="text-xs font-mono font-medium text-[var(--text-primary)] tracking-wide">
                       Prayer Notifications
                     </p>
-                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                    <p className="text-[11px] font-mono text-[var(--text-secondary)] mt-0.5">
                       Configure adhan and prayer reminder alerts
                     </p>
                   </div>
-                  <MdOutlineChevronRight className="text-[#52525B] text-base" />
+                  <MdOutlineChevronRight className="text-[var(--text-muted)] text-base" />
                 </div>
                 <div
-                  className="flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer"
+                  className="flex items-center justify-between py-3 px-3.5 bg-[var(--app-card-bg)] hover:bg-[var(--app-surface-hover)] transition-colors cursor-pointer"
                   id="open-adhan-settings-sheet"
                 >
                   <div className="flex flex-col pr-2">
-                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                    <p className="text-xs font-mono font-medium text-[var(--text-primary)] tracking-wide">
                       Adhan Settings
                     </p>
-                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                    <p className="text-[11px] font-mono text-[var(--text-secondary)] mt-0.5">
                       Configure adhan schedule, offsets & custom times
                     </p>
                   </div>
-                  <MdOutlineChevronRight className="text-[#52525B] text-base" />
+                  <MdOutlineChevronRight className="text-[var(--text-muted)] text-base" />
                 </div>
                 <div
-                  className="flex items-center justify-between py-3 px-3.5 bg-[#121212] hover:bg-[#161616] transition-colors cursor-pointer"
+                  className="flex items-center justify-between py-3 px-3.5 bg-[var(--app-card-bg)] hover:bg-[var(--app-surface-hover)] transition-colors cursor-pointer"
                   id="open-trend-options-sheet"
                 >
                   <div className="flex flex-col pr-2">
-                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                    <p className="text-xs font-mono font-medium text-[var(--text-primary)] tracking-wide">
                       Trend Reports & Summaries
                     </p>
-                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                    <p className="text-[11px] font-mono text-[var(--text-secondary)] mt-0.5">
                       Weekly, monthly, and yearly progress notifications
                     </p>
                   </div>
-                  <MdOutlineChevronRight className="text-[#52525B] text-base" />
+                  <MdOutlineChevronRight className="text-[var(--text-muted)] text-base" />
                 </div>
               </div>
               <BottomSheetNotifications
@@ -388,10 +388,10 @@ const SettingsPage = ({
 
             {/* PREFERENCES & DISPLAY */}
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-secondary)] px-1 mb-1.5">
                 PREFERENCES & DISPLAY
               </div>
-              <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+              <div className="border border-[var(--app-border)] rounded-none bg-[var(--app-card-bg)] overflow-hidden divide-y divide-[var(--app-border)]">
                 <SettingIndividual
                   id="open-theme-options-sheet"
                   headingText="Theme"
@@ -419,18 +419,18 @@ const SettingsPage = ({
                   headingText="Salah Times Calculation"
                   subText="Adjust calculation method and juristic angles"
                 />
-                <div className="flex items-center justify-between py-3 px-3.5 bg-[#121212]">
+                <div className="flex items-center justify-between py-3 px-3.5 bg-[var(--app-card-bg)]">
                   <div className="flex flex-col pr-2">
-                    <p className="text-xs font-mono font-medium text-white tracking-wide">
+                    <p className="text-xs font-mono font-medium text-[var(--text-primary)] tracking-wide">
                       Missed Salah Counter
                     </p>
-                    <p className="text-[11px] font-mono text-[#71717A] mt-0.5">
+                    <p className="text-[11px] font-mono text-[var(--text-secondary)] mt-0.5">
                       Display missed salah counter on tracker
                     </p>
                   </div>
                   <IonToggle
                     style={{
-                      "--track-background": "#242424",
+                      "--track-background": "var(--app-surface)",
                       "--track-background-checked": "#10B981",
                       "--handle-background": "#FFFFFF",
                       "--handle-background-checked": "#FFFFFF",
@@ -492,10 +492,10 @@ const SettingsPage = ({
 
             {/* DATA & BACKUP */}
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-secondary)] px-1 mb-1.5">
                 DATA & BACKUP
               </div>
-              <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+              <div className="border border-[var(--app-border)] rounded-none bg-[var(--app-card-bg)] overflow-hidden divide-y divide-[var(--app-border)]">
                 <SettingIndividual
                   headingText="Import Data"
                   subText="Restore SQLite database from JSON backup file"
@@ -523,12 +523,12 @@ const SettingsPage = ({
                       localStorage.removeItem("sujud_developer_mode");
                       showToast("Developer options disabled", "short");
                     }}
-                    className="text-[10px] font-mono text-[#71717A] hover:text-white"
+                    className="text-[10px] font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   >
                     [Disable]
                   </button>
                 </div>
-                <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+                <div className="border border-[var(--app-border)] rounded-none bg-[var(--app-card-bg)] overflow-hidden divide-y divide-[var(--app-border)]">
                   <SettingIndividual
                     id="open-developer-options-sheet"
                     headingText="Developer & Notification Diagnostics"
@@ -540,10 +540,10 @@ const SettingsPage = ({
 
             {/* SOURCE CODE */}
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] px-1 mb-1.5">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-secondary)] px-1 mb-1.5">
                 SOURCE CODE
               </div>
-              <div className="border border-[#242424] rounded-none bg-[#121212] overflow-hidden divide-y divide-[#242424]">
+              <div className="border border-[var(--app-border)] rounded-none bg-[var(--app-card-bg)] overflow-hidden divide-y divide-[var(--app-border)]">
                 <SettingIndividual
                   headingText="Source Code"
                   subText="github.com/tokitauhid/sujud"
@@ -559,7 +559,7 @@ const SettingsPage = ({
               className="text-center py-6 cursor-pointer select-none active:opacity-60 transition-opacity"
               onClick={handleVersionClick}
             >
-              <p className="text-[11px] font-mono text-[#71717A] tracking-wider uppercase">
+              <p className="text-[11px] font-mono text-[var(--text-muted)] tracking-wider uppercase">
                 Sujud {appVersion}
               </p>
             </div>
@@ -585,7 +585,7 @@ const SettingsPage = ({
               name="backupfile"
             />
             <dialog
-              className="fixed z-50 p-4 text-white transform -translate-x-1/2 rounded-none border border-[#242424] -translate-y-3/4 bg-[#121212] font-mono text-xs top-3/4 left-1/2"
+              className="fixed z-50 p-4 text-[var(--text-primary)] transform -translate-x-1/2 rounded-none border border-[var(--app-border)] -translate-y-3/4 bg-[var(--app-card-bg)] font-mono text-xs top-3/4 left-1/2"
               ref={diaglogElement}
             >
               {dialogElementText}

@@ -34,7 +34,7 @@ const BottomSheetStreaksHistory = ({
         <section className="mt-8 mb-10 px-4">
           <div className="flex items-center justify-center gap-2 mb-6">
             <Flame className="w-5 h-5 text-[#F59E0B] fill-[#F59E0B]/25" />
-            <h1 className="text-xl font-bold font-mono tracking-wider uppercase text-white m-0">
+            <h1 className="text-xl font-bold font-mono tracking-wider uppercase text-[var(--text-primary)] m-0">
               STREAKS HISTORY
             </h1>
           </div>
@@ -64,10 +64,10 @@ const BottomSheetStreaksHistory = ({
                           className={`w-4 h-4 shrink-0 ${
                             item.isActive
                               ? "text-[#F59E0B] fill-[#F59E0B]/25"
-                              : "text-[#64748B]"
+                              : "text-[var(--text-muted)]"
                           }`}
                         />
-                        <span className="text-xs text-[#94A3B8]">
+                        <span className="text-xs text-[var(--text-secondary)]">
                           {startDateStr === endDateStr
                             ? startDateStr
                             : `${startDateStr} — ${endDateStr}`}
@@ -82,7 +82,7 @@ const BottomSheetStreaksHistory = ({
                         )}
                         <span
                           className={`text-sm font-bold tabular-nums ${
-                            item.isActive ? "text-[#F59E0B]" : "text-white"
+                            item.isActive ? "text-[#F59E0B]" : "text-[var(--text-primary)]"
                           }`}
                         >
                           {item.days} {item.days !== 1 ? "Days" : "Day"}
@@ -91,7 +91,7 @@ const BottomSheetStreaksHistory = ({
                     </div>
 
                     {item.excusedDays > 0 && (
-                      <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-[#242424] text-[10px] text-[#71717A]">
+                      <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-[var(--app-border)] text-[10px] text-[var(--text-muted)]">
                         <span
                           style={{
                             backgroundColor: salahStatusColorsHexCodes.excused,

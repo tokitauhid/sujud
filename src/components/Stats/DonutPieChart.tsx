@@ -23,7 +23,7 @@ const DonutPieChart = ({
   );
 
   return (
-    <div className="flex w-full h-full min-h-[320px] justify-around items-center donut-pie-chart-wrapper bg-[var(--app-card-bg)] border border-[var(--app-border)] rounded-none p-4 font-mono text-white">
+    <div className="flex w-full h-full min-h-[320px] justify-around items-center donut-pie-chart-wrapper bg-[var(--app-card-bg)] border border-[var(--app-border)] rounded-none p-4 font-mono text-[var(--text-primary)]">
       <section
         className="w-1/2 max-w-[210px] max-h-[210px] my-auto flex items-center justify-center cursor-pointer"
         onClick={() => {
@@ -74,7 +74,7 @@ const DonutPieChart = ({
                   "--male-alone-color": salahStatusColorsHexCodes["male-alone"],
                 } as React.CSSProperties
               }
-              className="donut-pie-chart-text pb-1 text-sm before:bg-[var(--male-alone-color)] text-[#94A3B8]"
+              className="donut-pie-chart-text pb-1 text-sm before:bg-[var(--male-alone-color)] text-[var(--text-secondary)]"
             >
               Alone
             </p>

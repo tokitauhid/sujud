@@ -368,19 +368,22 @@ const AppContent = () => {
 
     if (themeColor === "oled") {
       statusBarThemeColor = "#000000";
-      document.body.classList.add("dark");
-      document.body.classList.add("oled");
+      document.body.classList.add("dark", "oled");
       document.body.classList.remove("light");
+      document.documentElement.classList.add("dark", "oled");
+      document.documentElement.classList.remove("light");
     } else if (themeColor === "dark") {
       statusBarThemeColor = "#121315";
       document.body.classList.add("dark");
-      document.body.classList.remove("oled");
-      document.body.classList.remove("light");
+      document.body.classList.remove("oled", "light");
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("oled", "light");
     } else if (themeColor === "light") {
       statusBarThemeColor = "#FAF7F4";
-      document.body.classList.remove("dark");
-      document.body.classList.remove("oled");
+      document.body.classList.remove("dark", "oled");
       document.body.classList.add("light");
+      document.documentElement.classList.remove("dark", "oled");
+      document.documentElement.classList.add("light");
     }
 
     document
@@ -1356,10 +1359,10 @@ const AppContent = () => {
               }}
             >
               <div className="flex flex-col items-center justify-center w-full h-full py-1 font-mono">
-                <div className="w-8 h-7 rounded-none border border-[#2A2A2A] bg-[#181818] hover:bg-[#202020] flex items-center justify-center text-white transition-all">
-                  <IonIcon icon={add} className="text-base text-white" />
+                <div className="w-8 h-7 rounded-none border border-[var(--app-border)] bg-[var(--app-surface)] hover:bg-[var(--app-border-subtle)] flex items-center justify-center text-[var(--text-primary)] transition-all">
+                  <IonIcon icon={add} className="text-base text-[var(--text-primary)]" />
                 </div>
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-[#A1A1AA] mt-0.5">
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-[var(--text-secondary)] mt-0.5">
                   LOG
                 </span>
               </div>

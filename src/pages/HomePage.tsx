@@ -85,13 +85,13 @@ const HomePage = ({
     // ref={page}
     >
       <IonHeader className="ion-no-border">
-        <IonToolbar className="page-header-toolbar border-b border-[#242424]">
+        <IonToolbar className="page-header-toolbar border-b border-[var(--app-border)]">
           <div className="flex items-center justify-between px-3 py-1 w-full">
             <div className="flex flex-col">
-              <span className="text-xs font-bold tracking-widest uppercase text-white font-mono">
+              <span className="text-xs font-bold tracking-widest uppercase text-[var(--text-primary)] font-mono">
                 DAILY TRACKER
               </span>
-              <span className="text-[11px] font-normal text-[#8E8E93]">
+              <span className="text-[11px] font-normal text-[var(--text-secondary)]">
                 {format(new Date(), "EEE, MMM d")}
               </span>
             </div>
@@ -122,16 +122,16 @@ const HomePage = ({
                   className={`w-3.5 h-3.5 shrink-0 ${
                     activeStreakCount > 0
                       ? "text-[#F59E0B] fill-[#F59E0B]/25"
-                      : "text-[#64748B]"
+                      : "text-[var(--text-muted)]"
                   }`}
                 />
                 <div className="flex items-baseline gap-1 font-mono">
-                  <span className="text-xs font-bold text-white tabular-nums">
+                  <span className="text-xs font-bold text-[var(--text-primary)] tabular-nums">
                     {activeStreakCount}
                   </span>
                   <span
                     className={`text-[9px] font-semibold tracking-wider uppercase ${
-                      activeStreakCount > 0 ? "text-[#F59E0B]" : "text-[#94A3B8]"
+                      activeStreakCount > 0 ? "text-[#F59E0B]" : "text-[var(--text-secondary)]"
                     }`}
                   >
                     {activeStreakCount === 1 ? "DAY" : "DAYS"}

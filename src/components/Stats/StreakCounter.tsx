@@ -138,10 +138,10 @@ const StreakCounter = ({
               className={`w-4 h-4 shrink-0 ${
                 activeStreakCount > 0
                   ? "text-[#F59E0B] fill-[#F59E0B]/25"
-                  : "text-[#64748B]"
+                  : "text-[var(--text-muted)]"
               }`}
             />
-            <span className="text-xs font-bold tracking-wider uppercase text-white">
+            <span className="text-xs font-bold tracking-wider uppercase text-[var(--text-primary)]">
               CURRENT STREAK
             </span>
             {activeStreakCount > 0 && (
@@ -152,7 +152,7 @@ const StreakCounter = ({
           </div>
           <button
             onClick={showStreakInfo}
-            className="text-[#94A3B8] hover:text-white transition-colors cursor-pointer"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
             aria-label="Streak info"
           >
             <GoInfo className="text-sm" />
@@ -162,7 +162,7 @@ const StreakCounter = ({
         {/* Hero Counter Area */}
         <div className="py-6 px-4 flex flex-col items-center justify-center text-center">
           <div className="flex items-baseline justify-center gap-2 mb-1">
-            <span className="text-5xl font-black text-white tabular-nums tracking-tight font-mono">
+            <span className="text-5xl font-black text-[var(--text-primary)] tabular-nums tracking-tight font-mono">
               {activeStreakCount}
             </span>
             <span className="text-sm font-bold text-[#F59E0B] font-mono tracking-widest uppercase">
@@ -171,20 +171,20 @@ const StreakCounter = ({
           </div>
 
           {activeStreakObj && activeStreakObj.days > 0 ? (
-            <div className="text-[11px] text-[#94A3B8] font-mono mt-1">
+            <div className="text-[11px] text-[var(--text-secondary)] font-mono mt-1">
               {createLocalisedDate(format(activeStreakObj.startDate, "yyyy-MM-dd"))[1]}
               {!isSameDay(activeStreakObj.startDate, activeStreakObj.endDate) &&
                 ` — ${createLocalisedDate(format(activeStreakObj.endDate, "yyyy-MM-dd"))[1]}`}
             </div>
           ) : (
-            <span className="text-[11px] text-[#64748B] mt-1 font-mono">
+            <span className="text-[11px] text-[var(--text-muted)] mt-1 font-mono">
               No active streak today
             </span>
           )}
 
           {hadithReflection && activeStreakCount > 0 ? (
             <div className="mt-3 max-w-[310px] mx-auto">
-              <p className="text-[11px] text-[#E2E8F0] italic leading-relaxed">
+              <p className="text-[11px] text-[var(--text-primary)] italic leading-relaxed">
                 "{hadithReflection.translatedText}"
               </p>
               <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] text-[#F59E0B] font-mono">
@@ -209,7 +209,7 @@ const StreakCounter = ({
               </div>
             </div>
           ) : (
-            <p className="text-[11px] text-[#94A3B8] max-w-[290px] mt-3 italic leading-relaxed">
+            <p className="text-[11px] text-[var(--text-secondary)] max-w-[290px] mt-3 italic leading-relaxed">
               "{getMotivationalMessage(activeStreakCount)}"
             </p>
           )}
@@ -218,7 +218,7 @@ const StreakCounter = ({
         {/* Comparison Strip: Current vs Best */}
         <div className="grid grid-cols-2 border-t border-[var(--app-border)] divide-x divide-[var(--app-border)] text-xs font-mono py-2.5 bg-[var(--app-surface)]">
           <div className="flex flex-col items-center justify-center px-2">
-            <span className="text-[10px] uppercase text-[#94A3B8] tracking-wider">
+            <span className="text-[10px] uppercase text-[var(--text-secondary)] tracking-wider">
               Current
             </span>
             <span className="text-sm font-bold text-[#F59E0B] tabular-nums mt-0.5">
@@ -226,10 +226,10 @@ const StreakCounter = ({
             </span>
           </div>
           <div className="flex flex-col items-center justify-center px-2">
-            <span className="text-[10px] uppercase text-[#94A3B8] tracking-wider">
+            <span className="text-[10px] uppercase text-[var(--text-secondary)] tracking-wider">
               Best Record
             </span>
-            <span className="text-sm font-bold text-white tabular-nums mt-0.5">
+            <span className="text-sm font-bold text-[var(--text-primary)] tabular-nums mt-0.5">
               {longestStreak} {longestStreak === 1 ? "Day" : "Days"}
             </span>
           </div>
@@ -238,7 +238,7 @@ const StreakCounter = ({
         {hasStreakDays && filteredStreakDatesObjectsArr.length > 0 && (
           <button
             onClick={() => setShowStreakHistorySheet(true)}
-            className="w-full py-2.5 border-t border-[var(--app-border)] text-[11px] uppercase tracking-wider text-[#F59E0B] hover:text-[#FBBF24] hover:bg-[#1A140E] transition-colors font-mono font-semibold"
+            className="w-full py-2.5 border-t border-[var(--app-border)] text-[11px] uppercase tracking-wider text-[#F59E0B] hover:text-[#FBBF24] hover:bg-[#F59E0B]/10 transition-colors font-mono font-semibold"
           >
             View Streak History →
           </button>

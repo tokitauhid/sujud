@@ -230,25 +230,25 @@ body.light {
   --app-bg: #FAF7F4;
   --app-surface: #F0EBE6;
   --app-card-bg: #FFFFFF;
-  --app-border: rgba(181, 135, 110, 0.18);
-  --app-border-subtle: rgba(181, 135, 110, 0.12);
+  --app-border: rgba(181, 135, 110, 0.28);
+  --app-border-subtle: rgba(181, 135, 110, 0.18);
 
   --text-primary: #1F1D1B;
-  --text-secondary: #78736E;
-  --text-muted: #A8A29E;
+  --text-secondary: #57534E;
+  --text-muted: #78736E;
 
   --accent-primary: #B5876E;
-  --accent-primary-hover: #CC9374;
+  --accent-primary-hover: #976C55;
   --accent-primary-subtle: rgba(181, 135, 110, 0.15);
 
-  --status-jamaah: #4A9E76;
-  --status-jamaah-highlight: #D97241;
-  --streak-color: #D97241;
-  --status-alone: #C99B42;
-  --status-female-alone: #4A9E76;
-  --status-late: #D97241;
-  --status-missed: #C84646;
-  --status-excused: #8C5FB8;
+  --status-jamaah: #10B981;
+  --status-jamaah-highlight: #F59E0B;
+  --streak-color: #F59E0B;
+  --status-alone: #3B82A0;
+  --status-female-alone: #10B981;
+  --status-late: #D97706;
+  --status-missed: #C2414B;
+  --status-excused: #64748B;
   --status-empty: #EDE8E3;
 
   --primary-color: var(--app-bg);
@@ -263,7 +263,7 @@ body.light {
   --toast-text-color: #F3F3F4;
   --table-row-border-color: var(--app-border-subtle);
   --nav-tab-color: var(--text-secondary);
-  --nav-active-tab-color: var(--accent-primary);
+  --nav-active-tab-color: var(--text-primary);
   --segment-bg-color: #EDE8E3;
   --segment-active-color: #FFFFFF;
   --table-dot-icon-color: rgba(120, 115, 110, 0.5);
@@ -288,8 +288,12 @@ body.light {
   --alone-male-status-color: var(--status-alone);
   --alone-female-status-color: var(--status-female-alone);
   --excused-status-color: var(--status-excused);
+
+  --ion-color-primary: #B5876E;
+  --ion-color-primary-contrast: #FFFFFF;
 }
 
+/* 1. Base / Root / Container Backgrounds */
 body.light,
 body.light html,
 body.light #root,
@@ -308,17 +312,23 @@ body.light .page-header-toolbar {
   color: #1F1D1B !important;
 }
 
+/* 2. Bottom Navigation Tab Bar & Tabs */
 body.light ion-tab-bar {
   --background: #FAF7F4 !important;
   background: #FAF7F4 !important;
-  border-top-color: rgba(181, 135, 110, 0.18) !important;
+  border-top: 1px solid rgba(181, 135, 110, 0.22) !important;
+  --color: #78736E !important;
+  --color-selected: #1F1D1B !important;
 }
 
 body.light ion-tab-button {
   --background: #FAF7F4 !important;
   background: #FAF7F4 !important;
+  --color: #78736E !important;
+  --color-selected: #1F1D1B !important;
 }
 
+/* 3. Modals, Bottom Sheets & Popups */
 body.light ion-modal,
 body.light ion-modal::part(content) {
   --background: #FAF7F4 !important;
@@ -326,23 +336,43 @@ body.light ion-modal::part(content) {
   color: #1F1D1B !important;
 }
 
+body.light ion-modal::part(handle) {
+  background: #B5876E !important;
+  opacity: 0.5;
+}
+
+body.light ion-alert {
+  --background: #FFFFFF !important;
+  background: #FFFFFF !important;
+  color: #1F1D1B !important;
+}
+
 body.light ion-item,
 body.light ion-list {
   --background: #FFFFFF !important;
   background: #FFFFFF !important;
+  color: #1F1D1B !important;
 }
 
+body.light .action-sheet-custom .action-sheet-button.sc-ion-action-sheet-md {
+  color: #1F1D1B !important;
+}
+
+/* 4. Large Surface Mappings (Cards, Sections, Panels) to Crisp White */
 body.light .bg-\[\#121212\],
 body.light .bg-\[\#13161D\],
-body.light .bg-\[\#11141A\] {
+body.light .bg-\[\#11141A\],
+body.light .bg-\[\#0B0D11\] {
   background-color: #FFFFFF !important;
 }
 
+/* 5. Sub-surfaces / Inner list rows / items */
 body.light .bg-\[\#161616\],
 body.light .bg-\[\#141414\] {
   background-color: #F5F0EB !important;
 }
 
+/* 6. Active row highlights / secondary action buttons / chips */
 body.light .bg-\[\#181818\] {
   background-color: #EDE8E3 !important;
 }
@@ -353,18 +383,334 @@ body.light .bg-\[\#1E1E1E\] {
 
 body.light .bg-\[\#202020\],
 body.light .bg-\[\#242424\] {
-  background-color: #E8E2DC !important;
+  background-color: #E5DFD8 !important;
 }
 
+body.light .bg-\[\#2A2A2A\],
+body.light .bg-\[\#2E2E2E\] {
+  background-color: #DDD7CF !important;
+}
+
+/* Streak card hero styling in Light Mode */
+body.light .bg-\[\#16120E\] {
+  background-color: #FFFDF9 !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+body.light .bg-\[\#1A140E\] {
+  background-color: #FEF6E6 !important;
+}
+
+/* 7. Comprehensive Text Color Mapping for Light Mode */
+body.light .text-white,
+body.light .text-\[\#F8FAFC\],
+body.light .text-\[\#E2E8F0\],
+body.light .text-zinc-100,
+body.light .text-zinc-200 {
+  color: #1F1D1B !important;
+}
+
+body.light .text-\[\#94A3B8\],
+body.light .text-\[\#A1A1AA\],
+body.light .text-\[\#8E8E93\],
+body.light .text-zinc-400 {
+  color: #57534E !important;
+}
+
+body.light .text-\[\#71717A\],
+body.light .text-\[\#64748B\],
+body.light .text-\[\#52525B\],
+body.light .text-zinc-500 {
+  color: #78736E !important;
+}
+
+body.light .hover\:text-white:hover {
+  color: #1F1D1B !important;
+}
+
+/* Light Mode high-contrast adjustments for status text (WCAG AA compliant) */
+body.light .text-\[\#F59E0B\] {
+  color: #B45309 !important;
+}
+
+body.light .text-\[\#10B981\] {
+  color: #047857 !important;
+}
+
+/* Invert solid action buttons (Save, Update) for high-contrast visibility */
+.btn-solid-invert {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #FFFFFF !important;
+}
+
+body.light .btn-solid-invert {
+  background-color: #1F1D1B !important;
+  color: #FFFFFF !important;
+  border-color: #1F1D1B !important;
+}
+
+body.light .btn-solid-invert.text-white,
+body.light .btn-solid-invert * {
+  color: #FFFFFF !important;
+}
+
+/* 8. Text Color Exceptions (Preserve white text on solid colored/dark backgrounds) */
+body.light [type="checkbox"]:checked,
+body.light [type="checkbox"]:checked::before,
+body.light .bg-\[\#10B981\] .text-white,
+body.light .bg-\[\#10B981\].text-white,
+body.light .bg-\[\#059669\] .text-white,
+body.light .bg-\[\#059669\].text-white,
+body.light .bg-\[\#C2414B\] .text-white,
+body.light .bg-\[\#C2414B\].text-white,
+body.light .bg-\[\#D97706\] .text-white,
+body.light .bg-\[\#D97706\].text-white,
+body.light .bg-\[\#3B82A0\] .text-white,
+body.light .bg-\[\#3B82A0\].text-white,
+body.light .bg-\[\#1F1D1B\] .text-white,
+body.light .bg-\[\#1F1D1B\].text-white,
+body.light .bg-black .text-white,
+body.light .bg-black.text-white,
+body.light .btn-solid-primary,
+body.light .btn-solid-primary .text-white {
+  color: #FFFFFF !important;
+}
+
+/* 9. Subtle Borders and Dividers */
 body.light .border-\[\#242424\],
 body.light .border-\[\#2A2A2A\],
 body.light .border-\[\#1E232F\],
 body.light .border-\[\#181C25\] {
-  border-color: rgba(181, 135, 110, 0.18) !important;
+  border-color: rgba(181, 135, 110, 0.22) !important;
 }
 
 body.light .border-\[\#1A1A1A\] {
-  border-color: rgba(181, 135, 110, 0.12) !important;
+  border-color: rgba(181, 135, 110, 0.15) !important;
+}
+
+body.light .border-\[\#383838\],
+body.light .border-\[\#333\],
+body.light .border-\[\#333333\],
+body.light .border-\[\#3F3F46\],
+body.light .border-zinc-800,
+body.light .border-zinc-700 {
+  border-color: rgba(181, 135, 110, 0.28) !important;
+}
+
+body.light .border-white,
+body.light .border-white\/10,
+body.light .border-white\/20,
+body.light .border-white\/30,
+body.light .border-white\/40 {
+  border-color: rgba(181, 135, 110, 0.3) !important;
+}
+
+body.light .divide-\[\#242424\] > :not([hidden]) ~ :not([hidden]),
+body.light .divide-\[\#1E232F\] > :not([hidden]) ~ :not([hidden]),
+body.light .divide-\[var\(--app-border\)\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(181, 135, 110, 0.22) !important;
+}
+
+/* 10. Hover states */
+body.light .hover\:bg-\[\#161616\]:hover {
+  background-color: #EBE5DF !important;
+}
+
+body.light .hover\:bg-\[\#181818\]:hover {
+  background-color: #E5DFD8 !important;
+}
+
+body.light .hover\:bg-\[\#202020\]:hover,
+body.light .hover\:bg-\[\#242424\]:hover {
+  background-color: #DDD7CF !important;
+}
+
+body.light .hover\:bg-\[\#2A2A2A\]:hover {
+  background-color: #D6D0C7 !important;
+}
+
+body.light .hover\:bg-\[\#1A140E\]:hover {
+  background-color: #FEF3D9 !important;
+}
+
+/* 11. Tablet Side Navigation */
+body.light .tablet-side-nav {
+  background: #FAF7F4 !important;
+  border-right-color: rgba(181, 135, 110, 0.22) !important;
+}
+
+body.light .tablet-side-nav-btn {
+  color: #78736E !important;
+}
+
+body.light .tablet-side-nav-btn:hover {
+  background: #F0EBE6 !important;
+  color: #1F1D1B !important;
+}
+
+body.light .tablet-side-nav-btn.active {
+  background: #FFFFFF !important;
+  border-color: rgba(181, 135, 110, 0.28) !important;
+  color: #1F1D1B !important;
+}
+
+/* 12. Inputs, Textareas, Placeholders, Form Elements */
+body.light input,
+body.light textarea,
+body.light ion-input,
+body.light ion-textarea {
+  background-color: #FFFFFF !important;
+  color: #1F1D1B !important;
+  --background: #FFFFFF !important;
+  --color: #1F1D1B !important;
+  --placeholder-color: #8C857E !important;
+}
+
+body.light input::placeholder,
+body.light textarea::placeholder,
+body.light .placeholder-\[\#52525B\]::placeholder,
+body.light .placeholder-\[\#8E8E93\]::placeholder {
+  color: #8C857E !important;
+  opacity: 1 !important;
+}
+
+body.light .focus\:border-white:focus {
+  border-color: #B5876E !important;
+}
+
+body.light [type="checkbox"] {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(181, 135, 110, 0.4) !important;
+}
+
+body.light [type="checkbox"]:checked {
+  background-color: #10B981 !important;
+  border-color: #10B981 !important;
+}
+
+body.light ion-toggle {
+  --background: #DDD7CF !important;
+  --background-checked: #10B981 !important;
+  --handle-background: #FFFFFF !important;
+  --handle-background-checked: #FFFFFF !important;
+}
+
+/* 13. Virtualized Table Header & Rows (HomePage Daily Tracker) */
+body.light .ReactVirtualized__Table__headerRow {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid rgba(181, 135, 110, 0.22) !important;
+  color: #57534E !important;
+}
+
+body.light .ReactVirtualized__Table__headerTruncatedText {
+  color: #57534E !important;
+}
+
+body.light .ReactVirtualized__Table__row {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid rgba(181, 135, 110, 0.12) !important;
+}
+
+body.light .ReactVirtualized__Table__rowColumn {
+  color: #1F1D1B !important;
+}
+
+body.light .salah-table-wrap .bg-\[\#161616\] {
+  background-color: #FFFFFF !important;
+  border-color: rgba(181, 135, 110, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light .salah-table-wrap .bg-\[\#161616\] button,
+body.light .salah-table-wrap .bg-\[\#161616\] span,
+body.light .salah-table-wrap .bg-\[\#161616\] svg {
+  color: #1F1D1B !important;
+}
+
+/* 14. Quick Log Modal Specifics */
+body.light .quick-log-modal .bg-\[\#121212\] {
+  background-color: #FAF7F4 !important;
+  border-top-color: rgba(181, 135, 110, 0.22) !important;
+}
+
+body.light .quick-log-modal .bg-\[\#141414\] {
+  background-color: #F0EBE6 !important;
+}
+
+body.light .quick-log-modal .bg-\[\#181818\] {
+  background-color: #FFFFFF !important;
+  border-color: #1F1D1B !important;
+  color: #1F1D1B !important;
+}
+
+body.light .quick-log-modal input,
+body.light .quick-log-modal textarea {
+  background-color: #FFFFFF !important;
+  border-color: rgba(181, 135, 110, 0.3) !important;
+  color: #1F1D1B !important;
+}
+
+/* Active status buttons in Quick Log */
+body.light .quick-log-modal button.bg-\[\#10B981\]\/25 {
+  background-color: #ECFDF5 !important;
+  color: #065F46 !important;
+  border-color: #10B981 !important;
+}
+
+body.light .quick-log-modal button.bg-\[\#3B82A0\]\/20 {
+  background-color: #EFF6FF !important;
+  color: #1E40AF !important;
+  border-color: #3B82A0 !important;
+}
+
+body.light .quick-log-modal button.bg-\[\#D97706\]\/15 {
+  background-color: #FFFBEB !important;
+  color: #92400E !important;
+  border-color: #D97706 !important;
+}
+
+body.light .quick-log-modal button.bg-\[\#C2414B\]\/15 {
+  background-color: #FEF2F2 !important;
+  color: #991B1B !important;
+  border-color: #C2414B !important;
+}
+
+body.light .quick-log-modal button.bg-\[\#64748B\]\/20 {
+  background-color: #F8FAFC !important;
+  color: #334155 !important;
+  border-color: #64748B !important;
+}
+
+/* 15. Stats Page & Charts in Light Mode */
+body.light .donut-pie-chart-wrapper {
+  color: #1F1D1B !important;
+}
+
+body.light .donut-pie-chart-text,
+body.light .donut-pie-chart-text span {
+  color: #1F1D1B !important;
+}
+
+body.light .stats-page-components-wrap > div.flex.border {
+  background-color: #F0EBE6 !important;
+  border-color: rgba(181, 135, 110, 0.22) !important;
+}
+
+/* Unlogged bar segments in BarChartStats */
+body.light .bg-\[\#161922\] {
+  background-color: #EDE8E3 !important;
+  border-color: rgba(181, 135, 110, 0.2) !important;
+}
+
+/* 16. SalahTimes Page highlights & Calendar */
+body.light .bg-\[\#0C0C0C\] {
+  background-color: #F5F0EB !important;
+}
+
+body.light [data-testid="prayer-times-calendar"] {
+  background-color: #FFFFFF !important;
+  border-color: rgba(181, 135, 110, 0.22) !important;
 }
 
 /* ==========================================================================
@@ -762,11 +1108,11 @@ ion-toast {
 }
 
 ion-tab-bar {
-  --background: #121212 !important;
-  background: #121212 !important;
-  --color: #71717A;
-  --color-selected: #FFFFFF;
-  border-top: 1px solid #242424 !important;
+  --background: var(--app-bg) !important;
+  background: var(--app-bg) !important;
+  --color: var(--text-secondary);
+  --color-selected: var(--text-primary);
+  border-top: 1px solid var(--app-border) !important;
   border-bottom: none !important;
   border-left: none !important;
   border-right: none !important;
@@ -779,10 +1125,24 @@ ion-tab-bar {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 6px);
 }
 
-ion-tab-button {
+body.dark:not(.oled) ion-tab-bar {
+  --background: #121212 !important;
+  background: #121212 !important;
+  --color: #71717A;
+  --color-selected: #FFFFFF;
+  border-top: 1px solid #242424 !important;
+}
+
+body.dark:not(.oled) ion-tab-button {
   --background: #121212;
   --color: #71717A;
   --color-selected: #FFFFFF;
+}
+
+ion-tab-button {
+  --background: var(--app-bg);
+  --color: var(--text-secondary);
+  --color-selected: var(--text-primary);
   --padding-top: 2px;
   --padding-bottom: 2px;
   position: relative;

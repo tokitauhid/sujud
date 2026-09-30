@@ -285,9 +285,9 @@ const StatsPage = ({
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
-        <IonToolbar className="page-header-toolbar border-b border-[#242424]">
+        <IonToolbar className="page-header-toolbar border-b border-[var(--app-border)]">
           <div className="flex items-center justify-between px-3 py-1">
-            <span className="text-xs font-bold tracking-widest uppercase text-white font-mono">
+            <span className="text-xs font-bold tracking-widest uppercase text-[var(--text-primary)] font-mono">
               PROGRESS STATS
             </span>
           </div>
@@ -300,13 +300,13 @@ const StatsPage = ({
         >
           <section className="stats-page-components-wrap">
             {/* Top-Level Mode Selector: Overview vs Trend Analysis */}
-            <div className="flex border border-[#242424] bg-[#121212] mb-3">
+            <div className="flex border border-[var(--app-border)] bg-[var(--app-surface)] mb-3">
               <button
                 onClick={() => setStatsMode("overview")}
                 className={`flex-1 py-1.5 text-xs font-mono font-bold uppercase tracking-wider transition-colors ${
                   statsMode === "overview"
-                    ? "bg-[#242424] text-white border-b-2 border-[#10B981]"
-                    : "text-[#71717A] hover:text-white"
+                    ? "bg-[var(--app-card-bg)] text-[var(--text-primary)] border-b-2 border-[#10B981]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 Overview
@@ -315,8 +315,8 @@ const StatsPage = ({
                 onClick={() => setStatsMode("trends")}
                 className={`flex-1 py-1.5 text-xs font-mono font-bold uppercase tracking-wider transition-colors ${
                   statsMode === "trends"
-                    ? "bg-[#242424] text-white border-b-2 border-[#10B981]"
-                    : "text-[#71717A] hover:text-white"
+                    ? "bg-[var(--app-card-bg)] text-[var(--text-primary)] border-b-2 border-[#10B981]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 Trend Analysis

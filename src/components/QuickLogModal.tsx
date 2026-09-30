@@ -346,21 +346,21 @@ const QuickLogModal = ({
       handle={false}
       className="quick-log-modal"
     >
-      <div className="bg-[#121212] border-t border-[#242424] text-white p-4 h-full flex flex-col font-mono select-none overflow-y-auto">
+      <div className="bg-[var(--app-card-bg)] border-t border-[var(--app-border)] text-[var(--text-primary)] p-4 h-full flex flex-col font-mono select-none overflow-y-auto">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#242424]">
+        <div className="flex items-center justify-between pb-3 border-b border-[var(--app-border)]">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-none bg-[#10B981]" />
-            <span className="text-[10px] uppercase tracking-widest text-[#71717A]">
+            <span className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">
               QUICK LOG
             </span>
-            <span className="text-xs font-bold text-white uppercase tracking-wider">
+            <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">
               {format(new Date(), "EEE, MMM d")}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-[#71717A] hover:text-white transition-colors"
+            className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             aria-label="Close"
           >
             <IonIcon icon={closeOutline} className="text-lg" />
@@ -390,8 +390,8 @@ const QuickLogModal = ({
                 }}
                 className={`py-2 px-1 rounded-none text-center text-[10px] uppercase tracking-wider transition-all border ${
                   isSelected
-                    ? "bg-[#181818] border-white text-white font-bold"
-                    : "bg-[#141414] border-[#242424] text-[#71717A] hover:text-white"
+                    ? "bg-[var(--app-surface-hover)] border-[var(--text-primary)] text-[var(--text-primary)] font-bold"
+                    : "bg-[var(--app-surface)] border-[var(--app-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {name}
@@ -421,7 +421,7 @@ const QuickLogModal = ({
         )}
 
         {/* Status Selection Buttons */}
-        <div className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] mb-1.5">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-secondary)] mb-1.5">
           STATUS:
         </div>
         <div className="grid grid-cols-2 gap-2 mb-3">
@@ -433,8 +433,8 @@ const QuickLogModal = ({
             }}
             className={`flex items-center justify-between p-2.5 rounded-none transition-all border relative ${
               selectedStatus === "group"
-                ? "bg-[#10B981]/25 border-[#F59E0B] text-white ring-1 ring-[#F59E0B]/70 shadow-[0_0_12px_rgba(245,158,11,0.3)]"
-                : "bg-[#13161D] border-[#F59E0B]/40 text-white hover:border-[#F59E0B] hover:shadow-[0_0_8px_rgba(245,158,11,0.15)]"
+                ? "bg-[#10B981]/25 border-[#F59E0B] text-[var(--text-primary)] ring-1 ring-[#F59E0B]/70 shadow-[0_0_12px_rgba(245,158,11,0.3)] font-semibold"
+                : "bg-[var(--app-surface)] border-[#F59E0B]/40 text-[var(--text-primary)] hover:border-[#F59E0B] hover:shadow-[0_0_8px_rgba(245,158,11,0.15)]"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -462,9 +462,9 @@ const QuickLogModal = ({
             className={`flex items-center justify-between p-2.5 rounded-none transition-all border ${
               selectedStatus === "male-alone" || selectedStatus === "female-alone"
                 ? userPreferences.userGender === "male"
-                  ? "bg-[#3B82A0]/20 border-[#3B82A0] text-white shadow-[0_0_8px_rgba(59,130,160,0.15)]"
-                  : "bg-[#10B981]/20 border-[#10B981] text-white shadow-[0_0_8px_rgba(16,185,129,0.15)]"
-                : "bg-[#13161D] border-[#1E232F] text-[#94A3B8] hover:text-white"
+                  ? "bg-[#3B82A0]/20 border-[#3B82A0] text-[var(--text-primary)] shadow-[0_0_8px_rgba(59,130,160,0.15)] font-semibold"
+                  : "bg-[#10B981]/20 border-[#10B981] text-[var(--text-primary)] shadow-[0_0_8px_rgba(16,185,129,0.15)] font-semibold"
+                : "bg-[var(--app-surface)] border-[var(--app-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -486,7 +486,7 @@ const QuickLogModal = ({
                   ? "text-[#3B82A0]"
                   : selectedStatus === "female-alone"
                   ? "text-[#10B981]"
-                  : "text-[#64748B]"
+                  : "text-[var(--text-muted)]"
               }`}
             />
           </button>
@@ -499,8 +499,8 @@ const QuickLogModal = ({
             }}
             className={`flex items-center justify-between p-2.5 rounded-none transition-all border ${
               selectedStatus === "late"
-                ? "bg-[#D97706]/15 border-[#D97706] text-white shadow-[0_0_8px_rgba(217,119,6,0.15)]"
-                : "bg-[#13161D] border-[#1E232F] text-[#94A3B8] hover:text-white"
+                ? "bg-[#D97706]/15 border-[#D97706] text-[var(--text-primary)] shadow-[0_0_8px_rgba(217,119,6,0.15)] font-semibold"
+                : "bg-[var(--app-surface)] border-[var(--app-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -510,7 +510,7 @@ const QuickLogModal = ({
             <IonIcon
               icon={timeOutline}
               className={`text-sm ${
-                selectedStatus === "late" ? "text-[#D97706]" : "text-[#64748B]"
+                selectedStatus === "late" ? "text-[#D97706]" : "text-[var(--text-muted)]"
               }`}
             />
           </button>
@@ -523,8 +523,8 @@ const QuickLogModal = ({
             }}
             className={`flex items-center justify-between p-2.5 rounded-none transition-all border ${
               selectedStatus === "missed"
-                ? "bg-[#C2414B]/15 border-[#C2414B] text-white shadow-[0_0_8px_rgba(194,65,75,0.15)]"
-                : "bg-[#13161D] border-[#1E232F] text-[#94A3B8] hover:text-white"
+                ? "bg-[#C2414B]/15 border-[#C2414B] text-[var(--text-primary)] shadow-[0_0_8px_rgba(194,65,75,0.15)] font-semibold"
+                : "bg-[var(--app-surface)] border-[var(--app-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -534,7 +534,7 @@ const QuickLogModal = ({
             <IonIcon
               icon={closeCircleOutline}
               className={`text-sm ${
-                selectedStatus === "missed" ? "text-[#C2414B]" : "text-[#64748B]"
+                selectedStatus === "missed" ? "text-[#C2414B]" : "text-[var(--text-muted)]"
               }`}
             />
           </button>
@@ -549,8 +549,8 @@ const QuickLogModal = ({
             }}
             className={`flex items-center justify-between p-2 rounded-none mb-3 transition-all border ${
               selectedStatus === "excused"
-                ? "bg-[#64748B]/20 border-[#64748B] text-white"
-                : "bg-[#13161D] border-[#1E232F] text-[#94A3B8] hover:text-white"
+                ? "bg-[#64748B]/20 border-[#64748B] text-[var(--text-primary)] font-semibold"
+                : "bg-[var(--app-surface)] border-[var(--app-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -559,18 +559,15 @@ const QuickLogModal = ({
             </div>
             <IonIcon
               icon={removeCircleOutline}
-              className={`text-sm ${
-                selectedStatus === "excused" ? "text-[#64748B]" : "text-[#64748B]"
-              }`}
+              className="text-sm text-[var(--text-muted)]"
             />
           </button>
         )}
 
-        {/* Reasons Section */}
         {reasonsList.length > 0 && (
           <div className="mt-1 mb-3">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#71717A]">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-secondary)]">
                 REASONS (OPTIONAL):
               </span>
               {selectedReasons.length > 0 && (
@@ -589,8 +586,8 @@ const QuickLogModal = ({
                     onClick={() => toggleReason(reason)}
                     className={`py-1 px-2.5 rounded-none text-[11px] font-mono transition-all border ${
                       isSelected
-                        ? "bg-[#242424] border-white text-white font-bold"
-                        : "bg-[#161616] border-[#242424] text-[#71717A] hover:text-white"
+                        ? "bg-[var(--app-surface-hover)] border-[var(--text-primary)] text-[var(--text-primary)] font-bold"
+                        : "bg-[var(--app-surface)] border-[var(--app-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     {reason}
@@ -608,7 +605,7 @@ const QuickLogModal = ({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add note (optional)..."
-            className="w-full bg-[#161616] border border-[#242424] rounded-none p-2 text-xs font-mono text-white placeholder-[#52525B] focus:outline-none focus:border-white transition-colors"
+            className="w-full bg-[var(--app-surface)] border border-[var(--app-border)] rounded-none p-2 text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-primary)] transition-colors"
           />
         </div>
 
@@ -618,13 +615,9 @@ const QuickLogModal = ({
           disabled={!selectedStatus || isSubmitting}
           className={`w-full py-3.5 px-4 rounded-none font-mono text-xs uppercase tracking-wider font-bold transition-all border ${
             selectedStatus
-              ? "bg-white text-black border-white cursor-pointer opacity-100 hover:bg-[#E4E4E7]"
-              : "bg-[#181818] text-[#71717A] border-[#242424] opacity-40 cursor-not-allowed"
+              ? "btn-solid-invert cursor-pointer opacity-100 hover:opacity-90"
+              : "bg-[var(--app-surface)] text-[var(--text-muted)] border-[var(--app-border)] opacity-60 cursor-not-allowed"
           }`}
-          style={{
-            background: selectedStatus ? "#FFFFFF" : "#181818",
-            color: selectedStatus ? "#000000" : "#71717A",
-          }}
         >
           {isSubmitting
             ? "Saving..."

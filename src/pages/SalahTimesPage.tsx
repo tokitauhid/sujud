@@ -170,16 +170,16 @@ const SalahTimesPage = ({
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
-        <IonToolbar className="page-header-toolbar border-b border-[#242424]">
+        <IonToolbar className="page-header-toolbar border-b border-[var(--app-border)]">
           <div className="flex items-center justify-between px-3 py-1">
-            <span className="text-xs font-bold tracking-widest uppercase text-white font-mono">
+            <span className="text-xs font-bold tracking-widest uppercase text-[var(--text-primary)] font-mono">
               PRAYER TIMES
             </span>
             {userLocations?.find((l) => l.isSelected === 1) && (
               <button
                 aria-label="show all locations"
                 onClick={() => setShowLocationsListSheet(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-none border border-[#2A2A2A] bg-[#161616] text-[#8E8E93] hover:text-white text-xs font-mono transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-none border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--text-primary)] hover:text-[var(--text-primary)] text-xs font-mono transition-colors cursor-pointer"
               >
                 <IonIcon icon={navigate} className="text-xs" />
                 <span>
@@ -340,7 +340,7 @@ const SalahTimesPage = ({
                   />
                 </button>
                 <div className="text-center">
-                  <p className="text-xs font-semibold text-white tracking-wider uppercase">
+                  <p className="text-xs font-semibold text-[var(--text-primary)] tracking-wider uppercase">
                     {isSameDay(dateToShow, new Date())
                       ? "Today"
                       : isSameDay(addDays(new Date(), -1), dateToShow)
@@ -349,12 +349,12 @@ const SalahTimesPage = ({
                           ? "Tomorrow"
                           : format(dateToShow, "EEE, MMM d")}
                   </p>
-                  <p className="text-[10px] text-[#8E8E93] font-mono tracking-wide mt-0.5">
+                  <p className="text-[10px] text-[var(--text-secondary)] font-mono tracking-wide mt-0.5">
                     {hijriDateForSelected.formatted}
                   </p>
                 </div>
                 <button
-                  className="p-1 rounded-none border border-[#242424] bg-[#161616] hover:border-[#3F3F46] text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
+                  className="p-1 rounded-none border border-[var(--app-border)] bg-[var(--app-surface)] hover:border-[#3F3F46] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                   onClick={async () => {
                     if (!userLocations || userLocations.length === 0) {
                       return;
@@ -428,7 +428,7 @@ const SalahTimesPage = ({
                               className={`text-xs ${
                                 isCurrentPrayer
                                   ? "text-[#10B981] font-bold"
-                                  : "text-white font-medium"
+                                  : "text-[var(--text-primary)] font-medium"
                               }`}
                             >
                               {upperCaseFirstLetter(name)}
@@ -443,14 +443,14 @@ const SalahTimesPage = ({
                               </span>
                             ) : null}
                           </div>
-                          <p className="text-[10px] text-[#71717A]" dir="rtl">
+                          <p className="text-[10px] text-[var(--text-secondary)]" dir="rtl">
                             {arabicNames[name] || ""}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span className="text-white font-bold text-xs tracking-wider tabular-nums">
+                        <span className="text-[var(--text-primary)] font-bold text-xs tracking-wider tabular-nums">
                           {time === "Invalid Date" ||
                           userLocations?.length === 0 ||
                           userPreferences.prayerCalculationMethod === ""

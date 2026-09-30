@@ -32,14 +32,14 @@ const NavTabItem = ({
         <div
           className={`flex items-center justify-center w-8 h-7 rounded-none transition-all ${
             isActive
-              ? "bg-[var(--app-surface)] border border-[var(--app-border)] text-white"
-              : "text-[#64748B]"
+              ? "bg-[var(--app-surface)] border border-[var(--app-border)] text-[var(--text-primary)]"
+              : "text-[var(--text-muted)]"
           }`}
         >
           {/* 1. Feature: Outline vs Filled Icon Switching */}
           <IonIcon
             icon={isActive ? iconFilled : iconOutline}
-            className={`text-[1.2rem] ${isActive ? "text-white" : "text-[#64748B]"}`}
+            className={`text-[1.2rem] ${isActive ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"}`}
           />
         </div>
 
@@ -61,7 +61,7 @@ const NavTabItem = ({
       <div className="flex items-center gap-1 mt-0.5">
         <span
           className={`text-[9px] uppercase tracking-wider font-semibold transition-colors ${
-            isActive ? "text-white" : "text-[#94A3B8]"
+            isActive ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
           }`}
         >
           {label}

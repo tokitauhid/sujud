@@ -203,18 +203,18 @@ const CloudSyncSettings = ({
   // --- SIGNED OUT STATE ---
   if (!user) {
     return (
-      <div className="mb-4 rounded-none overflow-hidden border border-[#242424] bg-[#121212] font-mono">
+      <div className="mb-4 rounded-none overflow-hidden border border-[var(--app-border)] bg-[var(--app-card-bg)] font-mono">
         <div
-          className="flex items-center justify-between py-3 px-3.5 cursor-pointer hover:bg-[#161616] transition-colors"
+          className="flex items-center justify-between py-3 px-3.5 cursor-pointer hover:bg-[var(--app-surface-hover)] transition-colors"
           onClick={handleSignIn}
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-none bg-[#181818] border border-[#242424] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-none bg-[var(--app-surface)] border border-[var(--app-border)] flex items-center justify-center">
               <FcGoogle className="text-base" />
             </div>
             <div>
-              <p className="text-xs font-medium text-white tracking-wide">Sync Data (Google)</p>
-              <p className="text-[11px] text-[#71717A] mt-0.5">
+              <p className="text-xs font-medium text-[var(--text-primary)] tracking-wide">Sync Data (Google)</p>
+              <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                 Sign in to sync across devices
               </p>
             </div>
@@ -226,9 +226,9 @@ const CloudSyncSettings = ({
 
   // --- SIGNED IN STATE ---
   return (
-    <div className="mb-4 rounded-none overflow-hidden border border-[#242424] bg-[#121212] font-mono">
+    <div className="mb-4 rounded-none overflow-hidden border border-[var(--app-border)] bg-[var(--app-card-bg)] font-mono">
       {/* User info row */}
-      <div className="flex items-center justify-between py-3 px-3.5 border-b border-[#242424]">
+      <div className="flex items-center justify-between py-3 px-3.5 border-b border-[var(--app-border)]">
         <div className="flex items-center gap-3">
           {user.photoURL ? (
             <img
@@ -238,11 +238,11 @@ const CloudSyncSettings = ({
               referrerPolicy="no-referrer"
             />
           ) : (
-            <IoPersonCircleOutline className="text-2xl text-[#71717A]" />
+            <IoPersonCircleOutline className="text-2xl text-[var(--text-secondary)]" />
           )}
           <div>
-            <p className="text-xs font-medium text-white">{user.displayName || "User"}</p>
-            <p className="text-[10px] text-[#71717A]">{user.email}</p>
+            <p className="text-xs font-medium text-[var(--text-primary)]">{user.displayName || "User"}</p>
+            <p className="text-[10px] text-[var(--text-secondary)]">{user.email}</p>
           </div>
         </div>
         <button
@@ -257,9 +257,9 @@ const CloudSyncSettings = ({
       {/* Sync status row */}
       <div className="flex items-center justify-between py-3 px-3.5">
         <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleManualSync}>
-          <div className="w-7 h-7 rounded-none bg-[#181818] border border-[#242424] flex items-center justify-center">
+          <div className="w-7 h-7 rounded-none bg-[var(--app-surface)] border border-[var(--app-border)] flex items-center justify-center">
             {syncStatus === "syncing" && (
-              <IoSyncOutline className="text-sm animate-spin text-white" />
+              <IoSyncOutline className="text-sm animate-spin text-[var(--text-primary)]" />
             )}
             {syncStatus === "synced" && (
               <IoCloudDoneOutline className="text-sm text-[#10B981]" />
@@ -268,18 +268,18 @@ const CloudSyncSettings = ({
               <IoWarningOutline className="text-sm text-red-400" />
             )}
             {syncStatus === "idle" && (
-              <IoCloudUploadOutline className="text-sm text-[#71717A]" />
+              <IoCloudUploadOutline className="text-sm text-[var(--text-muted)]" />
             )}
           </div>
           <div>
-            <p className="text-xs text-white">
+            <p className="text-xs text-[var(--text-primary)]">
               {syncStatus === "syncing"
                 ? "Syncing..."
                 : syncStatus === "error"
                   ? "Sync failed"
                   : "Connected & Live"}
             </p>
-            <p className="text-[10px] text-[#71717A]">
+            <p className="text-[10px] text-[var(--text-secondary)]">
               Last synced: {formatLastSynced(lastSynced)}
             </p>
           </div>
@@ -290,7 +290,7 @@ const CloudSyncSettings = ({
             setShowActionSheet(true);
           }}
           disabled={syncStatus === "syncing"}
-          className="p-1.5 rounded-none text-[#71717A] hover:text-white transition-colors disabled:opacity-30"
+          className="p-1.5 rounded-none text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-30"
           aria-label="Sync options"
         >
           <IoSettingsOutline className="text-base" />

@@ -228,10 +228,10 @@ const SalahTable = ({
             initial={{ x: "-50%", y: 20, opacity: 0 }}
             animate={{ x: "-50%", y: 0, opacity: 1 }}
             exit={{ x: "-50%", y: 20, opacity: 0 }}
-            className="absolute bottom-2 left-1/2 z-20 flex items-center bg-[#141414] border border-[#2A2A2A] text-xs font-mono shadow-2xl divide-x divide-[#242424]"
+            className="absolute bottom-2 left-1/2 z-20 flex items-center bg-[var(--app-card-bg)] border border-[var(--app-border)] text-xs font-mono shadow-2xl divide-x divide-[var(--app-border)]"
           >
             <button
-              className="px-2.5 py-1 text-[10px] text-[#8E8E93] hover:text-white transition-colors uppercase tracking-wider"
+              className="px-2.5 py-1 text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors uppercase tracking-wider"
               onClick={() => {
                 setIsMultiEditMode(false);
                 resetSelectedSalahAndDate();
@@ -239,18 +239,18 @@ const SalahTable = ({
             >
               Cancel
             </button>
-            <div className="px-2.5 py-1 text-[10px] text-[#A1A1AA] tabular-nums font-medium">
-              <span className="text-white font-bold">{totalSelected}</span> selected
+            <div className="px-2.5 py-1 text-[10px] text-[var(--text-secondary)] tabular-nums font-medium">
+              <span className="text-[var(--text-primary)] font-bold">{totalSelected}</span> selected
             </div>
             <button
-              className="px-2 py-1 text-[10px] text-[#71717A] hover:text-white transition-colors uppercase tracking-wider"
+              className="px-2 py-1 text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors uppercase tracking-wider"
               onClick={resetSelectedSalahAndDate}
               title="Clear selection"
             >
               Clear
             </button>
             <button
-              className="px-3 py-1 bg-white text-black font-bold text-[10px] uppercase tracking-wider hover:bg-[#E4E4E7] active:bg-[#D4D4D8] transition-colors"
+              className="px-3 py-1 btn-solid-invert font-bold text-[10px] uppercase tracking-wider hover:opacity-90 active:opacity-80 transition-opacity"
               onClick={() => {
                 setShowUpdateStatusModal(true);
               }}
@@ -328,8 +328,8 @@ const SalahTable = ({
                     }}
                     className={`multi-edit-icon w-full inline-flex items-center justify-center gap-1 text-[11px] font-mono tracking-wider transition-colors uppercase ${
                       isMultiEditMode
-                        ? "text-white font-bold"
-                        : "text-[#94A3B8] hover:text-white"
+                        ? "text-[var(--text-primary)] font-bold"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                     title={
                       isMultiEditMode
@@ -340,7 +340,7 @@ const SalahTable = ({
                     <span>DATE</span>
                     <TbEdit
                       className={`text-xs transition-colors ${
-                        isMultiEditMode ? "text-[#10B981]" : "text-[#94A3B8]"
+                        isMultiEditMode ? "text-[#10B981]" : "text-[var(--text-secondary)]"
                       }`}
                     />
                   </button>
@@ -382,15 +382,15 @@ const SalahTable = ({
                           <div
                             className={`w-2.5 h-2.5 rounded-none border flex items-center justify-center shrink-0 ${
                               isAllDaySelected
-                                ? "bg-white border-white text-black"
+                                ? "bg-[var(--text-primary)] border-[var(--text-primary)] text-[var(--app-bg)]"
                                 : isSomeDaySelected
-                                  ? "border-white bg-[#2A2A2A]"
-                                  : "border-[#3F3F46] bg-transparent"
+                                  ? "border-[var(--text-primary)] bg-[var(--app-surface-hover)]"
+                                  : "border-[var(--app-border)] bg-transparent"
                             }`}
                           >
                             {isAllDaySelected ? (
                               <svg
-                                className="w-2 h-2 text-black"
+                                className="w-2 h-2 text-[var(--app-bg)]"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -400,15 +400,15 @@ const SalahTable = ({
                                 <path d="M5 13l4 4L19 7" />
                               </svg>
                             ) : isSomeDaySelected ? (
-                              <span className="w-1 h-1 bg-white"></span>
+                              <span className="w-1 h-1 bg-[var(--text-primary)]"></span>
                             ) : null}
                           </div>
                         )}
                         <div className="text-center">
-                          <p className="text-xs font-semibold text-white font-mono">
+                          <p className="text-xs font-semibold text-[var(--text-primary)] font-mono">
                             {formattedParsedDate}
                           </p>
-                          <p className="text-[10px] text-[#94A3B8] uppercase font-mono tracking-wider">
+                          <p className="text-[10px] text-[var(--text-secondary)] uppercase font-mono tracking-wider">
                             {day}
                           </p>
                         </div>
@@ -532,7 +532,7 @@ const SalahTable = ({
           initial={{ x: "-50%", y: 20, opacity: 0 }}
           animate={{ x: "-50%", y: 0, opacity: 1 }}
           exit={{ x: "-50%", y: 20, opacity: 0 }}
-          className={`absolute left-1/2 -translate-x-1/2 flex bg-[#161616] border rounded-none border-[#2A2A2A] py-1 px-3 gap-4 text-white font-mono text-[11px] z-30 ${
+          className={`absolute left-1/2 -translate-x-1/2 flex bg-[var(--app-card-bg)] border rounded-none border-[var(--app-border)] py-1 px-3 gap-4 text-[var(--text-primary)] font-mono text-[11px] z-30 shadow-lg ${
             isMultiEditMode && totalSelected > 0 ? "bottom-12" : "bottom-2"
           }`}
         >

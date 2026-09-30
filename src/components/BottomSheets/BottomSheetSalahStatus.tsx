@@ -332,7 +332,7 @@ const BottomSheetSalahStatus = ({
         {" "}
         <section
           ref={sheetWrapper}
-          className="w-[90%] mx-auto mb-5 rounded-none text-white pb-env-safe-area-inset-bottom transition-all duration-300 ease-in-out"
+          className="w-[90%] mx-auto mb-5 rounded-none text-[var(--text-primary)] pb-env-safe-area-inset-bottom transition-all duration-300 ease-in-out"
         >
           <h1 className="text-[var(--ion-text-color)] mb-10 text-3xl font-light text-center leading-10" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             How did you pray{" "}
@@ -486,7 +486,7 @@ const BottomSheetSalahStatus = ({
               >
                 <div className="flex items-center gap-2.5">
                   <PiFlower className="text-2xl text-[#A1A1AA]" />
-                  <span className="text-sm font-medium tracking-wide text-white">
+                  <span className="text-sm font-medium tracking-wide text-[var(--text-primary)]">
                     Excused / Exempt
                   </span>
                 </div>
@@ -589,14 +589,8 @@ const BottomSheetSalahStatus = ({
               }
             }}
             className={`w-full p-4 mt-5 rounded-none font-bold transition-all ${
-              salahStatus ? "text-black opacity-100" : "text-white opacity-20"
+              salahStatus ? "btn-solid-invert cursor-pointer opacity-100" : "opacity-20 cursor-not-allowed bg-[var(--sheet-option-bg)] text-[var(--text-muted)]"
             }`}
-            style={{
-              background: salahStatus
-                ? "#FFFFFF"
-                : "var(--sheet-option-bg)",
-              color: salahStatus ? "#000000" : "#FFFFFF",
-            }}
           >
             Save
           </motion.button>
