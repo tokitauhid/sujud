@@ -88,7 +88,11 @@ import {
 import TabletSideNav from "./components/TabletSideNav";
 import { FirebaseAuthProvider, useFirebaseAuth } from "./firebase/useFirebaseAuth";
 import { initRealtimeSync, initialSyncOnSignIn } from "./firebase/syncService";
-import { markInitialSettingsSetupCompleted, resetInitialSettingsSetup } from "./utils/deviceSettings";
+import {
+  isInitialSettingsSetupCompleted,
+  markInitialSettingsSetupCompleted,
+  resetInitialSettingsSetup,
+} from "./utils/deviceSettings";
 import { checkAndGenerateTrendNotifications } from "./utils/trendAnalysis";
 import { checkAndGenerateWeeklyReflectionNotification } from "./utils/weeklyReflection";
 import LoadingScreen from "./components/LoadingScreen";
@@ -1229,10 +1233,18 @@ const AppContent = () => {
     }
   };
 
+  const isFirstRun =
+    window.location.search.includes("first_run=1") ||
+    (onboardingMode === "newUser" ||
+      (!isInitialSettingsSetupCompleted() &&
+        userPreferences.isExistingUser !== "1" &&
+        !window.location.search.includes("no_onboarding")));
+
   return (
     <IonApp>
       {showLoadingScreen && (
         <LoadingScreen
+          isFirstRun={isFirstRun}
           isAppReady={isDatabaseInitialised && isDataLoadedFromDB}
           onFinish={() => setShowLoadingScreen(false)}
         />

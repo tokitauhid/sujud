@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { isInitialSettingsSetupCompleted } from "../utils/deviceSettings";
 
-interface LoadingScreenProps {
+export interface LoadingScreenProps {
   isAppReady: boolean;
+  isFirstRun?: boolean;
   onFinish?: () => void;
   themeOverride?: "oled" | "light" | "dark";
 }
 
-export const THEME_VIDEO_CONFIG: Record<
+export const ONBOARDING_THEME_VIDEO_CONFIG: Record<
   "oled" | "light" | "dark",
   { src: string; bg: string }
 > = {
@@ -24,6 +26,14 @@ export const THEME_VIDEO_CONFIG: Record<
   },
 };
 
+export const SUBSEQUENT_LOADING_CONFIG = {
+  src: "/assets/loading.mp4",
+  bg: "#1A1A1A",
+};
+
+// Backwards-compatible alias for existing imports
+export const THEME_VIDEO_CONFIG = ONBOARDING_THEME_VIDEO_CONFIG;
+
 export function getResolvedLoadingTheme(): "oled" | "light" | "dark" {
   try {
     const cached = localStorage.getItem("sujud_theme");
@@ -37,22 +47,50 @@ export function getResolvedLoadingTheme(): "oled" | "light" | "dark" {
   return "dark";
 }
 
+/**
+ * Determines whether the app is on its very first launch / initial onboarding
+ * using the app's existing persistence state.
+ */
+export function determineIsFirstRun(): boolean {
+  try {
+    if (typeof window !== "undefined") {
+      if (window.location.search.includes("first_run=1")) return true;
+      if (window.location.search.includes("no_onboarding")) return false;
+      return !isInitialSettingsSetupCompleted();
+    }
+  } catch {}
+  return false;
+}
+
 // 1x1 transparent PNG poster to prevent Android WebView from rendering its default circular play poster
 const TRANSPARENT_POSTER =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-const EXIT_FADE_DURATION = 500; // ms — smooth fade out after video ends + app ready
+const EXIT_FADE_DURATION = 500; // ms — smooth 400–600ms fade out
 
-const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, themeOverride }) => {
+const LoadingScreen: React.FC<LoadingScreenProps> = ({
+  isAppReady,
+  isFirstRun,
+  onFinish,
+  themeOverride,
+}) => {
+  const isFirstRunActive = isFirstRun !== undefined ? isFirstRun : determineIsFirstRun();
   const activeTheme = themeOverride || getResolvedLoadingTheme();
-  const themeConfig = THEME_VIDEO_CONFIG[activeTheme] || THEME_VIDEO_CONFIG.dark;
+
+  // STAGE 1: Full 13-second theme-matched onboarding intro video
+  // STAGE 2: Lightweight looping loading indicator video (assets/loading.mp4)
+  const mediaConfig = isFirstRunActive
+    ? (ONBOARDING_THEME_VIDEO_CONFIG[activeTheme] || ONBOARDING_THEME_VIDEO_CONFIG.dark)
+    : SUBSEQUENT_LOADING_CONFIG;
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoEnded, setVideoEnded] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isCompletelyFinished, setIsCompletelyFinished] = useState(false);
 
-  // When BOTH the video has finished AND the app is ready, trigger the exit fade
-  const isReadyToExit = videoEnded && isAppReady;
+  // STAGE 1: Must show full ~13s video; exits when BOTH video has ended AND app initialization is ready
+  // STAGE 2: Immediately begins fade-out as soon as app initialization is ready (even mid-loop)
+  const isReadyToExit = isFirstRunActive ? (videoEnded && isAppReady) : isAppReady;
 
   useEffect(() => {
     if (!isReadyToExit) return;
@@ -67,7 +105,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, the
     return () => clearTimeout(timer);
   }, [isReadyToExit, onFinish]);
 
-  // Ensure playback starts immediately on mount with audio
+  // Ensure playback starts immediately on mount
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -75,8 +113,8 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, the
     video.playsInline = true;
     video.autoplay = true;
 
-    // Attempt unmuted playback so audio plays immediately (works natively on Android via WebSettings)
-    video.muted = false;
+    // First run has audio (takbeer/narration), subsequent runs are visual indicator
+    video.muted = !isFirstRunActive;
 
     const playPromise = video.play();
     if (playPromise !== undefined) {
@@ -85,7 +123,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, the
           setIsVideoPlaying(true);
         })
         .catch(() => {
-          // If a desktop/mobile web browser blocks unmuted autoplay without user gesture, fallback to muted
+          // If browser restricts unmuted playback without user interaction, fallback to muted
           if (videoRef.current) {
             videoRef.current.muted = true;
             videoRef.current
@@ -95,15 +133,24 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, the
           }
         });
     }
-  }, []);
+  }, [isFirstRunActive, mediaConfig.src]);
 
   const handleVideoPlaying = useCallback(() => {
     setIsVideoPlaying(true);
   }, []);
 
   const handleVideoEnded = useCallback(() => {
-    setVideoEnded(true);
-  }, []);
+    if (isFirstRunActive) {
+      setVideoEnded(true);
+    } else {
+      // In case native looping pauses or doesn't fire seamlessly, immediately restart
+      const video = videoRef.current;
+      if (video) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
+    }
+  }, [isFirstRunActive]);
 
   const handleVideoError = useCallback(() => {
     // If video fails to load or decode, gracefully proceed so app doesn't stall
@@ -123,7 +170,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, the
         isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
       }`}
       style={{
-        backgroundColor: themeConfig.bg,
+        backgroundColor: mediaConfig.bg,
         transitionDuration: `${EXIT_FADE_DURATION}ms`,
       }}
     >
@@ -148,14 +195,15 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, the
         - Never cropped, never zoomed, never stretched (object-fit: contain)
         - Seamless background matching surrounding screen with zero boundaries or card effects
         - Zero video player UI, zero native overlay controls, transparent poster to eliminate default Android play icon
-        - Full audio playback enabled with web fallback
+        - Looping continuously without visible pause or flash on subsequent startups
       */}
       <div className="relative flex items-center justify-center w-full h-full max-w-full max-h-full pointer-events-none">
         <video
           ref={videoRef}
-          src={themeConfig.src}
+          src={mediaConfig.src}
           poster={TRANSPARENT_POSTER}
           autoPlay
+          loop={!isFirstRunActive}
           playsInline
           {...{ "webkit-playsinline": "true" }}
           disablePictureInPicture
@@ -175,7 +223,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isAppReady, onFinish, the
             height: "min(100vw, 100vh, 720px)",
             aspectRatio: "1 / 1",
             objectFit: "contain",
-            backgroundColor: themeConfig.bg,
+            backgroundColor: mediaConfig.bg,
           }}
         />
       </div>

@@ -91,28 +91,49 @@
           if (t === "system") {
             resolved = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
           }
+          var isFirstRun = localStorage.getItem("hasCompletedInitialSettingsSync") !== "true";
+          if (window.location.search.indexOf("first_run=1") !== -1) isFirstRun = true;
+          if (window.location.search.indexOf("no_onboarding") !== -1) isFirstRun = false;
+
           var meta = document.querySelector('meta[name="theme-color"]');
           var bg = "#0B0D11";
           var videoSrc = "/assets/onboarding_intro_dark.mp4";
-          if (resolved === "oled") {
-            bg = "#000000";
-            videoSrc = "/assets/onboarding_intro_oled.mp4";
-            document.documentElement.className = "dark oled";
-            if (meta) meta.setAttribute("content", "#000000");
-          } else if (resolved === "light") {
-            bg = "#FAF7F4";
-            videoSrc = "/assets/onboarding_intro_light.mp4";
-            document.documentElement.className = "light";
-            if (meta) meta.setAttribute("content", "#FAF7F4");
-          } else {
-            bg = "#0B0D11";
-            videoSrc = "/assets/onboarding_intro_dark.mp4";
-            document.documentElement.className = "dark";
-            if (meta) meta.setAttribute("content", "#0B0D11");
-          }
-          document.documentElement.style.setProperty("--app-bg", bg);
 
-          // Preload the theme-matching video
+          if (isFirstRun) {
+            if (resolved === "oled") {
+              bg = "#000000";
+              videoSrc = "/assets/onboarding_intro_oled.mp4";
+              document.documentElement.className = "dark oled";
+              if (meta) meta.setAttribute("content", "#000000");
+            } else if (resolved === "light") {
+              bg = "#FAF7F4";
+              videoSrc = "/assets/onboarding_intro_light.mp4";
+              document.documentElement.className = "light";
+              if (meta) meta.setAttribute("content", "#FAF7F4");
+            } else {
+              bg = "#0B0D11";
+              videoSrc = "/assets/onboarding_intro_dark.mp4";
+              document.documentElement.className = "dark";
+              if (meta) meta.setAttribute("content", "#0B0D11");
+            }
+          } else {
+            bg = "#1A1A1A";
+            videoSrc = "/assets/loading.mp4";
+            if (resolved === "oled") {
+              document.documentElement.className = "dark oled";
+            } else if (resolved === "light") {
+              document.documentElement.className = "light";
+            } else {
+              document.documentElement.className = "dark";
+            }
+            if (meta) meta.setAttribute("content", "#1A1A1A");
+          }
+
+          document.documentElement.style.setProperty("--app-bg", bg);
+          var shell = document.getElementById("sujud-initial-shell");
+          if (shell) shell.style.backgroundColor = bg;
+
+          // Preload the active startup video
           var link = document.createElement("link");
           link.rel = "preload";
           link.as = "video";
