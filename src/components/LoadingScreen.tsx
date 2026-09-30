@@ -26,12 +26,26 @@ export const ONBOARDING_THEME_VIDEO_CONFIG: Record<
   },
 };
 
-export const SUBSEQUENT_LOADING_CONFIG = {
-  src: "/assets/loading.mp4",
-  bg: "#1A1A1A",
+export const LOADING_THEME_VIDEO_CONFIG: Record<
+  "oled" | "light" | "dark",
+  { src: string; bg: string }
+> = {
+  oled: {
+    src: "/assets/loading_oled.mp4",
+    bg: "#000000",
+  },
+  dark: {
+    src: "/assets/loading_dark.mp4",
+    bg: "#0B0D11",
+  },
+  light: {
+    src: "/assets/loading_light.mp4",
+    bg: "#FAF7F4",
+  },
 };
 
-// Backwards-compatible alias for existing imports
+// Backwards-compatible aliases
+export const SUBSEQUENT_LOADING_CONFIG = LOADING_THEME_VIDEO_CONFIG.dark;
 export const THEME_VIDEO_CONFIG = ONBOARDING_THEME_VIDEO_CONFIG;
 
 export function getResolvedLoadingTheme(): "oled" | "light" | "dark" {
@@ -76,11 +90,11 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   const isFirstRunActive = isFirstRun !== undefined ? isFirstRun : determineIsFirstRun();
   const activeTheme = themeOverride || getResolvedLoadingTheme();
 
-  // STAGE 1: Full 13-second theme-matched onboarding intro video
-  // STAGE 2: Lightweight looping loading indicator video (assets/loading.mp4)
+  // STAGE 1: Full 13-second theme-matched onboarding intro video (OLED, Dark, Light)
+  // STAGE 2: Looping theme-matched loading indicator video (OLED, Dark, Light)
   const mediaConfig = isFirstRunActive
     ? (ONBOARDING_THEME_VIDEO_CONFIG[activeTheme] || ONBOARDING_THEME_VIDEO_CONFIG.dark)
-    : SUBSEQUENT_LOADING_CONFIG;
+    : (LOADING_THEME_VIDEO_CONFIG[activeTheme] || LOADING_THEME_VIDEO_CONFIG.dark);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoEnded, setVideoEnded] = useState(false);

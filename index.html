@@ -117,16 +117,22 @@
               if (meta) meta.setAttribute("content", "#0B0D11");
             }
           } else {
-            bg = "#1A1A1A";
-            videoSrc = "/assets/loading.mp4";
             if (resolved === "oled") {
+              bg = "#000000";
+              videoSrc = "/assets/loading_oled.mp4";
               document.documentElement.className = "dark oled";
+              if (meta) meta.setAttribute("content", "#000000");
             } else if (resolved === "light") {
+              bg = "#FAF7F4";
+              videoSrc = "/assets/loading_light.mp4";
               document.documentElement.className = "light";
+              if (meta) meta.setAttribute("content", "#FAF7F4");
             } else {
+              bg = "#0B0D11";
+              videoSrc = "/assets/loading_dark.mp4";
               document.documentElement.className = "dark";
+              if (meta) meta.setAttribute("content", "#0B0D11");
             }
-            if (meta) meta.setAttribute("content", "#1A1A1A");
           }
 
           document.documentElement.style.setProperty("--app-bg", bg);

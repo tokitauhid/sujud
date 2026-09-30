@@ -92,12 +92,15 @@ async function runTests() {
     console.log(`[TEST 2] Video src: ${videoSrc}`);
     console.log(`[TEST 2] Video loop attribute: ${isLooping}`);
 
-    if (!videoSrc.includes("loading.mp4")) {
-      throw new Error(`FAIL: Subsequent launch should use loading.mp4, got ${videoSrc}`);
+    if (!videoSrc.includes("loading_dark.mp4")) {
+      throw new Error(`FAIL: Subsequent launch in dark mode should use loading_dark.mp4, got ${videoSrc}`);
     }
     if (isLooping !== true) {
       throw new Error("FAIL: Subsequent launch video must have loop=true");
     }
+
+    const bg = await page.$eval("#sujud-loading-screen video", (el) => el.style.backgroundColor);
+    console.log(`[TEST 2] Video background: ${bg}`);
 
     await page.screenshot({ path: path.join(ARTIFACT_DIR, "test2_subsequent_loading.png") });
     console.log("[TEST 2] Saved screenshot test2_subsequent_loading.png");
@@ -112,7 +115,7 @@ async function runTests() {
     await page.screenshot({ path: path.join(ARTIFACT_DIR, "test2_subsequent_revealed.png") });
 
     await context.close();
-    console.log("✔ [TEST 2] PASSED: Subsequent startup uses loading.mp4 with looping and smooth exit.");
+    console.log("✔ [TEST 2] PASSED: Subsequent startup uses loading_dark.mp4 with looping and smooth exit.");
   }
 
   // -------------------------------------------------------------------------
@@ -163,7 +166,13 @@ async function runTests() {
 
     await page.waitForSelector("#sujud-loading-screen video", { timeout: 5000 });
     const videoSrc = await page.$eval("#sujud-loading-screen video", (el) => el.src);
+    const bg = await page.$eval("#sujud-loading-screen video", (el) => el.style.backgroundColor);
     console.log(`[TEST 4] Light mode startup video: ${videoSrc}`);
+    console.log(`[TEST 4] Light mode background: ${bg}`);
+
+    if (!videoSrc.includes("loading_light.mp4")) {
+      throw new Error(`FAIL: Subsequent launch in light mode should use loading_light.mp4, got ${videoSrc}`);
+    }
 
     await page.screenshot({ path: path.join(ARTIFACT_DIR, "test4_light_mode_loading.png") });
 
@@ -174,7 +183,7 @@ async function runTests() {
     console.log("[TEST 4] Light mode main app smoothly revealed");
 
     await context.close();
-    console.log("✔ [TEST 4] PASSED: Light mode subsequent startup verified.");
+    console.log("✔ [TEST 4] PASSED: Light mode subsequent startup uses loading_light.mp4.");
   }
 
   // -------------------------------------------------------------------------
@@ -196,7 +205,13 @@ async function runTests() {
 
     await page.waitForSelector("#sujud-loading-screen video", { timeout: 5000 });
     const videoSrc = await page.$eval("#sujud-loading-screen video", (el) => el.src);
+    const bg = await page.$eval("#sujud-loading-screen video", (el) => el.style.backgroundColor);
     console.log(`[TEST 5] OLED mode startup video: ${videoSrc}`);
+    console.log(`[TEST 5] OLED mode background: ${bg}`);
+
+    if (!videoSrc.includes("loading_oled.mp4")) {
+      throw new Error(`FAIL: Subsequent launch in oled mode should use loading_oled.mp4, got ${videoSrc}`);
+    }
 
     await page.screenshot({ path: path.join(ARTIFACT_DIR, "test5_oled_mode_loading.png") });
 
@@ -207,7 +222,7 @@ async function runTests() {
     console.log("[TEST 5] OLED mode main app smoothly revealed");
 
     await context.close();
-    console.log("✔ [TEST 5] PASSED: OLED mode subsequent startup verified.");
+    console.log("✔ [TEST 5] PASSED: OLED mode subsequent startup uses loading_oled.mp4.");
   }
 
   // -------------------------------------------------------------------------

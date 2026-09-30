@@ -126,13 +126,38 @@ describe("LoadingScreen Component", () => {
   });
 
   describe("Stage 2: Subsequent app startups", () => {
-    it("uses loading.mp4 with continuous loop enabled and muted=true", () => {
+    it("uses loading video with continuous loop enabled and muted=true", () => {
       render(<LoadingScreen isAppReady={false} isFirstRun={false} />);
       const video = document.querySelector("video") as HTMLVideoElement;
       expect(video).not.toBeNull();
-      expect(video.src).toContain("loading.mp4");
+      expect(video.src).toContain("loading");
       expect(video.loop).toBe(true);
       expect(video.muted).toBe(true);
+    });
+
+    it("selects loading video and background color matching theme: OLED, Dark, and Light", () => {
+      const { unmount: unmountOled } = render(
+        <LoadingScreen isAppReady={false} isFirstRun={false} themeOverride="oled" />
+      );
+      let video = document.querySelector("video") as HTMLVideoElement;
+      expect(video.src).toContain("loading_oled.mp4");
+      expect(video.style.backgroundColor).toBe("rgb(0, 0, 0)");
+      unmountOled();
+
+      const { unmount: unmountDark } = render(
+        <LoadingScreen isAppReady={false} isFirstRun={false} themeOverride="dark" />
+      );
+      video = document.querySelector("video") as HTMLVideoElement;
+      expect(video.src).toContain("loading_dark.mp4");
+      expect(video.style.backgroundColor).toBe("rgb(11, 13, 17)");
+      unmountDark();
+
+      render(
+        <LoadingScreen isAppReady={false} isFirstRun={false} themeOverride="light" />
+      );
+      video = document.querySelector("video") as HTMLVideoElement;
+      expect(video.src).toContain("loading_light.mp4");
+      expect(video.style.backgroundColor).toBe("rgb(250, 247, 244)");
     });
 
     it("loops continuously while app initialization is in progress", () => {
