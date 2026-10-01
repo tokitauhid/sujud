@@ -35,6 +35,7 @@ import {
   IonPage,
   IonToggle,
   IonToolbar,
+  useIonViewWillEnter,
 } from "@ionic/react";
 import BottomSheetThemeOptions from "../components/BottomSheets/BottomSheetThemeOptions";
 import { toggleDBConnection } from "../utils/dbUtils";
@@ -93,6 +94,11 @@ const SettingsPage = ({
   });
   const clickCountRef = useRef<number>(0);
   const lastClickTimeRef = useRef<number>(0);
+  const [viewEnterCount, setViewEnterCount] = useState<number>(0);
+
+  useIonViewWillEnter(() => {
+    setViewEnterCount((c) => c + 1);
+  });
 
   useEffect(() => {
     App.getInfo()
@@ -314,6 +320,7 @@ const SettingsPage = ({
               <CloudSyncSettings
                 dbConnection={dbConnection}
                 fetchDataFromDB={fetchDataFromDB}
+                viewEnterCount={viewEnterCount}
               />
             </div>
 

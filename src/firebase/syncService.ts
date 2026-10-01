@@ -7,9 +7,9 @@ import {
   collection,
   writeBatch,
   serverTimestamp,
-  Timestamp,
   onSnapshot,
   QuerySnapshot,
+  getDocFromServer,
 } from "firebase/firestore";
 import { db, auth } from "./firebaseConfig";
 import {
@@ -45,6 +45,91 @@ export interface RealtimeSyncCallbacks {
   onLocationsChanged: (changes: Array<{ type: 'added' | 'modified' | 'removed'; data: LocationsDataObjType }>) => void;
 }
 
+export type SyncListener = (event: { status: SyncStatus; lastSynced: Date | null }) => void;
+const syncListeners: Set<SyncListener> = new Set();
+let remoteUpdateTimer: ReturnType<typeof setTimeout> | null = null;
+
+export function subscribeSyncState(listener: SyncListener): () => void {
+  syncListeners.add(listener);
+  return () => {
+    syncListeners.delete(listener);
+  };
+}
+
+export function notifySyncListeners(status: SyncStatus, lastSynced: Date | null): void {
+  syncListeners.forEach((listener) => {
+    try {
+      listener({ status, lastSynced });
+    } catch (e) {
+      console.error("[SYNC] Listener error:", e);
+    }
+  });
+}
+
+export function getLocalLastSyncTimestamp(userId: string): Date | null {
+  if (!userId) return null;
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      const stored = window.localStorage.getItem(`lastSyncedAt_${userId}`);
+      if (stored) {
+        const d = new Date(stored);
+        if (!isNaN(d.getTime())) return d;
+      }
+    }
+  } catch (e) {
+    console.error("[SYNC] Failed to read local lastSyncedAt:", e);
+  }
+  return null;
+}
+
+export function setLocalLastSyncTimestamp(userId: string, date: Date): void {
+  if (!userId) return;
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.setItem(`lastSyncedAt_${userId}`, date.toISOString());
+    }
+  } catch (e) {
+    console.error("[SYNC] Failed to store local lastSyncedAt:", e);
+  }
+}
+
+export function recordSyncSuccess(userId: string, timestamp?: Date): void {
+  if (!userId) return;
+  const syncDate = timestamp || new Date();
+
+  // 1. Immediately persist locally so it survives app restarts
+  setLocalLastSyncTimestamp(userId, syncDate);
+
+  // 2. Immediately notify in-app listeners (Settings screen updates instantly)
+  notifySyncListeners("synced", syncDate);
+
+  // 3. Debounce updating Firestore userDoc if not already written with explicit server timestamp
+  if (db && !timestamp) {
+    if (remoteUpdateTimer) clearTimeout(remoteUpdateTimer);
+    remoteUpdateTimer = setTimeout(() => {
+      setDoc(userDoc(userId), { lastSyncedAt: serverTimestamp() }, { merge: true })
+        .catch((err) => console.warn("[SYNC] Failed to update remote lastSyncedAt:", err));
+    }, 1000);
+  }
+}
+
+export function formatLastSynced(date: Date | null): string {
+  if (!date) return "Never synced";
+  const now = new Date();
+  const diffMs = Math.max(0, now.getTime() - date.getTime());
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Synced just now";
+  if (diffMins === 1) return "Synced 1 minute ago";
+  if (diffMins < 60) return `Synced ${diffMins} minutes ago`;
+  if (diffHours === 1) return "Synced 1 hour ago";
+  if (diffHours < 24) return `Synced ${diffHours} hours ago`;
+  if (diffDays === 1) return "Synced 1 day ago";
+  return `Synced ${diffDays} days ago`;
+}
+
 /**
  * Helper to normalize Firestore Timestamp objects to milliseconds (integer)
  * safely handling legacy numerical values or missing fields.
@@ -55,6 +140,17 @@ function normalizeTimestamp(val: any): number {
   if (val.toMillis && typeof val.toMillis === 'function') return val.toMillis();
   if (val.seconds) return val.seconds * 1000;
   return 0;
+}
+
+export function parseFirestoreDate(val: unknown): Date | null {
+  if (!val) return null;
+  if (val instanceof Date) return val;
+  const anyVal = val as Record<string, any>;
+  if (typeof anyVal.toDate === "function") return anyVal.toDate();
+  if (typeof anyVal.toMillis === "function") return new Date(anyVal.toMillis());
+  if (typeof anyVal === "number") return new Date(anyVal);
+  if (typeof anyVal.seconds === "number") return new Date(anyVal.seconds * 1000);
+  return null;
 }
 
 /**
@@ -115,6 +211,9 @@ export function syncSalahLogToCloud(record: {
 
   const docId = `${record.date}_${record.salahName}`;
   setDoc(doc(db, "users", user.uid, "salahLogs", docId), record, { merge: true })
+    .then(() => {
+      recordSyncSuccess(user.uid);
+    })
     .catch(e => console.error("[SYNC] Failed to push salah log:", e));
 }
 
@@ -134,7 +233,11 @@ export function syncPreferenceToCloud(
     doc(db, "users", user.uid, "preferences", "data"),
     { [prefName]: { value: prefValue, updatedAt } },
     { merge: true }
-  ).catch(e => console.error("[SYNC] Failed to push preference:", e));
+  )
+    .then(() => {
+      recordSyncSuccess(user.uid);
+    })
+    .catch(e => console.error("[SYNC] Failed to push preference:", e));
 }
 
 /**
@@ -156,7 +259,11 @@ export function syncMultiplePreferencesToCloud(
     doc(db, "users", user.uid, "preferences", "data"),
     payload,
     { merge: true }
-  ).catch(e => console.error("[SYNC] Failed to push multiple preferences:", e));
+  )
+    .then(() => {
+      recordSyncSuccess(user.uid);
+    })
+    .catch(e => console.error("[SYNC] Failed to push multiple preferences:", e));
 }
 
 /**
@@ -178,6 +285,9 @@ export function syncLocationToCloud(record: {
   if (!record.syncId) return; // Can't sync without a syncId
 
   setDoc(doc(db, "users", user.uid, "locations", record.syncId), record, { merge: true })
+    .then(() => {
+      recordSyncSuccess(user.uid);
+    })
     .catch(e => console.error("[SYNC] Failed to push location:", e));
 }
 
@@ -263,6 +373,7 @@ export function initRealtimeSync(
             });
           }
           if (changes.length > 0) {
+            recordSyncSuccess(userId);
             if (salahDebounceTimer) clearTimeout(salahDebounceTimer);
             salahDebounceTimer = setTimeout(() => {
               callbacks.onSalahLogsChanged(changes);
@@ -338,6 +449,7 @@ export function initRealtimeSync(
             });
           }
           if (changes.length > 0) {
+            recordSyncSuccess(userId);
             if (locationsDebounceTimer) clearTimeout(locationsDebounceTimer);
             locationsDebounceTimer = setTimeout(() => {
               callbacks.onLocationsChanged(changes);
@@ -379,6 +491,7 @@ export async function initialSyncOnSignIn(
 
   if (cloudHasData) {
     await pullCloudDataToLocal(userId, dbConnection);
+    recordSyncSuccess(userId);
     return 'pulled';
   }
 
@@ -395,6 +508,7 @@ export async function initialSyncOnSignIn(
 
     if (hasLocal) {
       await pushLocalDataToCloud(userId, dbConnection);
+      recordSyncSuccess(userId);
       return 'pushed';
     }
   } catch (e) {
@@ -420,20 +534,51 @@ export async function hasCloudData(userId: string): Promise<boolean> {
 }
 
 export async function getLastSyncTimestamp(userId: string): Promise<Date | null> {
-  if (!db || !userId) return null;
+  const localDate = getLocalLastSyncTimestamp(userId);
+
+  if (!db || !userId) return localDate;
   try {
     const snap = await getDoc(userDoc(userId));
     if (snap.exists()) {
       const data = snap.data();
-      if (data.lastSyncedAt instanceof Timestamp) {
-        return data.lastSyncedAt.toDate();
+      const remoteDate = parseFirestoreDate(data?.lastSyncedAt);
+      if (remoteDate) {
+        if (!localDate || remoteDate.getTime() > localDate.getTime()) {
+          setLocalLastSyncTimestamp(userId, remoteDate);
+          return remoteDate;
+        }
       }
     }
-    return null;
+    return localDate;
   } catch (error) {
     console.error("Failed to get last sync timestamp:", error);
-    return null;
+    return localDate;
   }
+}
+
+export async function performManualSync(
+  userId: string
+): Promise<Date> {
+  if (!db || !userId) {
+    throw new Error("Cloud service is not initialized");
+  }
+
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    throw new Error("Device is offline");
+  }
+
+  // 1. Touch Firestore userDoc with serverTimestamp
+  await setDoc(userDoc(userId), { lastSyncedAt: serverTimestamp() }, { merge: true });
+
+  // 2. Fetch the newly written document directly from server to verify connectivity & get actual server timestamp
+  const snap = await getDocFromServer(userDoc(userId));
+  const data = snap.data();
+  const syncDate = parseFirestoreDate(data?.lastSyncedAt) || new Date();
+
+  // 3. Record success locally and notify listeners
+  recordSyncSuccess(userId, syncDate);
+
+  return syncDate;
 }
 
 // ---------------------------------------------------------------------------
@@ -529,6 +674,7 @@ export async function pushLocalDataToCloud(
       await batch.commit();
     }
 
+    recordSyncSuccess(userId);
   } finally {
     isSyncing = false;
   }
@@ -657,7 +803,7 @@ export async function pullCloudDataToLocal(
     await adjustUserStartDateIfNeeded(dbConnection);
     
     await setDoc(userDoc(userId), { lastSyncedAt: serverTimestamp() }, { merge: true });
-
+    recordSyncSuccess(userId);
   } finally {
     isSyncing = false;
   }

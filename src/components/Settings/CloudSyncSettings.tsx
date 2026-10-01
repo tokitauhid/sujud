@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useFirebaseAuth } from "../../firebase/useFirebaseAuth";
 import {
   getLastSyncTimestamp,
+  getLocalLastSyncTimestamp,
+  performManualSync,
   pushLocalDataToCloud,
   pullCloudDataToLocal,
   getSyncDataCounts,
+  subscribeSyncState,
+  formatLastSynced,
   SyncStatus,
 } from "../../firebase/syncService";
 import { showToast } from "../../utils/helpers";
@@ -19,31 +23,94 @@ import {
   IoLogOutOutline,
   IoSettingsOutline,
 } from "react-icons/io5";
-import { IonActionSheet, useIonAlert } from "@ionic/react";
+import { IonActionSheet, useIonAlert, useIonViewWillEnter } from "@ionic/react";
 
 interface CloudSyncSettingsProps {
   dbConnection: React.MutableRefObject<SQLiteDBConnection | undefined>;
   fetchDataFromDB: (isDBImported?: boolean) => Promise<void>;
+  viewEnterCount?: number;
 }
 
 const CloudSyncSettings = ({
   dbConnection,
   fetchDataFromDB,
+  viewEnterCount,
 }: CloudSyncSettingsProps) => {
-  const { user, isAuthLoading, signInWithGoogle, signOut } = useFirebaseAuth();
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
-  const [lastSynced, setLastSynced] = useState<Date | null>(null);
+  const { user, signInWithGoogle, signOut } = useFirebaseAuth();
+  const [lastSynced, setLastSynced] = useState<Date | null>(() => {
+    return user ? getLocalLastSyncTimestamp(user.uid) : null;
+  });
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => {
+    return user && getLocalLastSyncTimestamp(user.uid) ? "synced" : "idle";
+  });
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [presentAlert] = useIonAlert();
+  const [, setTick] = useState(0);
 
-  // Fetch last sync time on mount + when user changes
+  // Sync state subscription & initial sync time fetch
   useEffect(() => {
-    if (user) {
-      getLastSyncTimestamp(user.uid).then(setLastSynced);
-    } else {
+    if (!user) {
       setLastSynced(null);
+      setSyncStatus("idle");
+      return;
     }
+
+    const localTs = getLocalLastSyncTimestamp(user.uid);
+    if (localTs) {
+      setLastSynced(localTs);
+      setSyncStatus("synced");
+    }
+
+    // Subscribe to any successful sync completion anywhere in the app
+    const unsub = subscribeSyncState((event) => {
+      setSyncStatus(event.status);
+      if (event.lastSynced) {
+        setLastSynced(event.lastSynced);
+      }
+    });
+
+    // Check remote Firestore in background in case another device synced
+    getLastSyncTimestamp(user.uid).then((ts) => {
+      if (ts) {
+        setLastSynced(ts);
+        setSyncStatus("synced");
+      }
+    });
+
+    return () => unsub();
   }, [user]);
+
+  // Handle Ionic view re-entry when cached
+  const refreshOnViewEnter = useCallback(() => {
+    if (!user) return;
+    const local = getLocalLastSyncTimestamp(user.uid);
+    if (local) {
+      setLastSynced(local);
+    }
+    getLastSyncTimestamp(user.uid).then((ts) => {
+      if (ts) {
+        setLastSynced(ts);
+      }
+    });
+  }, [user]);
+
+  useIonViewWillEnter(() => {
+    refreshOnViewEnter();
+  });
+
+  useEffect(() => {
+    if (viewEnterCount !== undefined && viewEnterCount > 0) {
+      refreshOnViewEnter();
+    }
+  }, [viewEnterCount, refreshOnViewEnter]);
+
+  // Dynamic live elapsed-time ticker (updates relative time display while remaining on Settings screen)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTick((t) => t + 1);
+    }, 15000);
+    return () => clearInterval(timer);
+  }, []);
 
   /**
    * Handle the "Sign in with Google" flow.
@@ -54,36 +121,11 @@ const CloudSyncSettings = ({
   const handleSignIn = async () => {
     try {
       await signInWithGoogle();
-
-      // After sign-in, the auth state listener will update `user`.
-      // We need to wait a tick for it to propagate.
-      // The actual sync will be triggered by the useEffect below.
     } catch (error) {
       console.error("Sign-in failed:", error);
       showToast("Sign-in failed. Please try again.", "long");
     }
   };
-
-  // Refresh sync status when this component mounts (NOT a duplicate sync —
-  // the actual initial sync is handled in App.tsx's useEffect).
-  useEffect(() => {
-    if (!user || isAuthLoading) return;
-
-    const refreshStatus = async () => {
-      try {
-        const ts = await getLastSyncTimestamp(user.uid);
-        setLastSynced(ts);
-        setSyncStatus(ts ? "synced" : "idle");
-      } catch (error) {
-        console.error("Failed to refresh sync status:", error);
-        setSyncStatus("error");
-      }
-    };
-
-    refreshStatus();
-  }, [user]);
-
-  // seedSQLiteFromCloud is now imported from syncService
 
   const handleManualSync = async () => {
     if (!user) return;
@@ -91,18 +133,16 @@ const CloudSyncSettings = ({
     try {
       setSyncStatus("syncing");
 
-      // Real-time listeners handle ongoing sync;
-      // manual sync just refreshes local state from SQLite
+      await performManualSync(user.uid);
       await fetchDataFromDB();
 
-      const ts = await getLastSyncTimestamp(user.uid);
-      setLastSynced(ts);
       setSyncStatus("synced");
       showToast("Data refreshed!", "short");
     } catch (error) {
       console.error("Manual refresh failed:", error);
       setSyncStatus("error");
       showToast("Refresh failed. Please try again.", "long");
+      // Note: lastSynced is preserved on error — never overwritten!
     }
   };
 
@@ -186,19 +226,7 @@ const CloudSyncSettings = ({
     }
   };
 
-  const formatLastSynced = (date: Date | null): string => {
-    if (!date) return "Never";
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return `${diffDays}d ago`;
-  };
 
   // --- SIGNED OUT STATE ---
   if (!user) {
@@ -280,7 +308,7 @@ const CloudSyncSettings = ({
                   : "Connected & Live"}
             </p>
             <p className="text-[10px] text-[var(--text-secondary)]">
-              Last synced: {formatLastSynced(lastSynced)}
+              {formatLastSynced(lastSynced)}
             </p>
           </div>
         </div>
